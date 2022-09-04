@@ -1,8 +1,8 @@
 {
   "build": {
     "env": {
-      "NEXT_PUBLIC_REST_API_ENDPOINT": "",
-      "NEXT_PUBLIC_SHOP_URL": "",
+      "NEXT_PUBLIC_REST_API_ENDPOINT": "https://mock.redq.io/api",
+      "NEXT_PUBLIC_SHOP_URL": "https://belleshopug.vercel.app",
       "NEXT_PUBLIC_GOOGLE_MAP_API_KEY": "",
       "NEXT_PUBLIC_AUTH_TOKEN_KEY": "AUTH_CRED",
       "APPLICATION_MODE": "production",
