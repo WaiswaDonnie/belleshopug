@@ -25,7 +25,9 @@ const Logo: React.FC<React.AnchorHTMLAttributes<{}>> = ({
         <Image
          src={require('../../assets/bellelogo.png')}
           alt={'Belle Shop Logo'}
-          layout="fill"
+          width={170}
+          height={60}
+          // layout="fill"
           objectFit="contain"
           loading="eager"
         />
