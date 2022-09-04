@@ -22,7 +22,7 @@ export default function NotFoundPage() {
           <Image src={noResult} alt={t('404-heading')} />
         </div>
         <Link
-          href={Routes.home}
+          href={'/makeup'}
           className="inline-flex items-center text-bolder underline hover:text-body-dark hover:no-underline focus:outline-none sm:text-base"
         >
           {t('404-back-home')}
