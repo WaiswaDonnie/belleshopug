@@ -23,6 +23,7 @@ export default function NotFoundPage() {
         </div>
         <Link
           href={'/makeup'}
+          
           className="inline-flex items-center text-bolder underline hover:text-body-dark hover:no-underline focus:outline-none sm:text-base"
         >
           {t('404-back-home')}
