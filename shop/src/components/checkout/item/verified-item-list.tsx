@@ -139,6 +139,7 @@ const VerifiedItemList: React.FC<Props> = ({ className }) => {
         <PaymentGrid className="mt-10 border border-gray-200 bg-light p-5" />
       )}
       <PlaceOrderAction>{t('text-place-order')}</PlaceOrderAction>
+      
     </div>
   );
 };

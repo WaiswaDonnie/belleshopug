@@ -16,7 +16,7 @@ import { NextPageWithLayout } from '@/types';
 import QueryProvider from '@/framework/client/query-provider';
 import { getDirection } from '@/lib/constants';
 import { useRouter } from 'next/router';
-
+import GlobalContextProvider from '../GlobalContext/GlobalContext';
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
@@ -31,28 +31,32 @@ function CustomApp({
   const { locale } = useRouter();
   const dir = getDirection(locale);
 
+
   return (
     <div dir={dir}>
+
       <SessionProvider session={session}>
         <QueryProvider pageProps={pageProps}>
           <SearchProvider>
             <ModalProvider>
-              <CartProvider>
-                <>
-                  {/* <DefaultSeo /> */}
-                  {authenticationRequired ? (
-                    <PrivateRoute>
-                      {getLayout(<Component {...pageProps} />)}
-                    </PrivateRoute>
-                  ) : (
-                    getLayout(<Component {...pageProps} />)
-                  )}
-                  <ManagedModal />
-                  <ManagedDrawer />
-                  <ToastContainer autoClose={2000} theme="colored" />
-                  <SocialLogin />
-                </>
-              </CartProvider>
+              <GlobalContextProvider>
+                <CartProvider>
+                  <>
+                    {/* <DefaultSeo /> */}
+                    {authenticationRequired ? (
+                      <PrivateRoute>
+                        {getLayout(<Component {...pageProps} />)}
+                      </PrivateRoute>
+                    ) : (
+                      getLayout(<Component {...pageProps} />)
+                    )}
+                    <ManagedModal />
+                    <ManagedDrawer />
+                    <ToastContainer autoClose={2000} theme="colored" />
+                    <SocialLogin />
+                  </>
+                </CartProvider>
+              </GlobalContextProvider>
             </ModalProvider>
           </SearchProvider>
         </QueryProvider>

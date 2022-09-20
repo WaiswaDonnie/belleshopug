@@ -1,4 +1,5 @@
 import { signIn } from 'next-auth/react';
+import React from 'react'
 import Logo from '@/components/ui/logo';
 import Alert from '@/components/ui/alert';
 import Input from '@/components/ui/forms/input';
@@ -12,9 +13,13 @@ import { MobileIcon } from '@/components/icons/mobile-icon';
 import { Form } from '@/components/ui/forms/form';
 import { useLogin } from '@/framework/user';
 import type { LoginUserInput } from '@/types';
+
 import { AnonymousIcon } from '@/components/icons/anonymous-icon';
 import { useRouter } from 'next/router';
 import { Routes } from '@/config/routes';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { authorizationAtom } from '@/store/authorization-atom';
+import { useAtom } from 'jotai';
 
 const loginFormSchema = yup.object().shape({
   email: yup
@@ -24,9 +29,12 @@ const loginFormSchema = yup.object().shape({
   password: yup.string().required('error-password-required'),
 });
 function LoginForm() {
+   const {loginWithGoogle} = React.useContext(GlobalContext)
   const { t } = useTranslation('common');
   const router = useRouter();
-  const { openModal } = useModalAction();
+  const { openModal,closeModal  } = useModalAction();
+  const [_, setAuthorized] = useAtom(authorizationAtom);
+
   const isCheckout = router.pathname.includes('checkout');
   const { mutate: login, isLoading, serverError, setServerError } = useLogin();
 
@@ -92,7 +100,8 @@ function LoginForm() {
           className="!bg-social-google !text-light hover:!bg-social-google-hover"
           disabled={isLoading}
           onClick={() => {
-            signIn('google');
+            // signIn('google');
+            loginWithGoogle(closeModal,setAuthorized)
           }}
         >
           <GoogleIcon className="h-4 w-4 ltr:mr-3 rtl:ml-3" />
