@@ -2,15 +2,15 @@ import React, { useContext, createContext, useState, useLayoutEffect } from 'rea
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy } from 'firebase/firestore';
 import { db, auth } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
- import {useRouter} from "next/router"
- import { useModalAction } from '@/components/ui/modal/modal.context';
+import { useRouter } from "next/router"
+import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import Cookies from 'js-cookie'
 import {
-  QueryClient,
-  useMutation,
-  useQuery,
-  useQueryClient,
+    QueryClient,
+    useMutation,
+    useQuery,
+    useQueryClient,
 } from 'react-query';
 // import { toast } from 'react-toastify';
 // import client from './client';
@@ -23,8 +23,8 @@ import { useToken } from '@/lib/hooks/use-token';
 import { initialOtpState, optAtom } from '@/components/otp/atom';
 import { useStateMachine } from 'little-state-machine';
 import {
-  initialState,
-  updateFormState,
+    initialState,
+    updateFormState,
 } from '@/components/auth/forgot-password';
 import { clearCheckoutAtom } from '@/store/checkout';
 export const GlobalContext = createContext()
@@ -55,7 +55,7 @@ export default function GlobalContextProvider({ children }) {
         const date = new Date()
         const fullDate = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
         setLoading(true)
-        addDoc(collection(db, 'Vendors',newProduct.vendorId,'Shops',newProduct.shopId,'Products'), {
+        addDoc(collection(db, 'Vendors', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products'), {
             productName: newProduct.productName,
             customerName: newProduct.customerName,
             productLocation: newProduct.productLocation,
@@ -66,7 +66,7 @@ export default function GlobalContextProvider({ children }) {
             productQuantity: newProduct.productQuantity
         })
             .then(res => {
-                updateDoc(doc(db, 'Vendors',newProduct.vendorId,'Shops',newProduct.shopId,'Products',res.id), {
+                updateDoc(doc(db, 'Vendors', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products', res.id), {
                     productId: res.id,
                 })
                 setLoading(false)
@@ -80,12 +80,12 @@ export default function GlobalContextProvider({ children }) {
             })
     }
 
-    const createOrder = async (newProduct,setLoading) => {
+    const createOrder = async (newProduct, setLoading) => {
         const date = new Date()
         const fullDate = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
         setLoading(true)
-        console.log("product",newProduct)
-        const newOrder = 
+        console.log("product", newProduct)
+        const newOrder =
         {
             "id": 66,
             "tracking_number": "CGG82oQZc4i8",
@@ -147,24 +147,36 @@ export default function GlobalContextProvider({ children }) {
             "products": [],
             "refund": null
         }
-        addDoc(collection(db, 'Vendors',newProduct.vendor_id,'Shops',newProduct.shop_id,'Orders'), newProduct)
+        addDoc(collection(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders'), newProduct)
             .then(res => {
-                updateDoc(doc(db, 'Vendors',newProduct.vendor_id,'Shops',newProduct.shop_id,'Orders',res.id), {
+                updateDoc(doc(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders', res.id), {
                     orderId: res.id,
-                    tracking_number:res.id,
-                    customer_id:user.uid,
-                    customer:{
+                    tracking_number: res.id,
+                    customer_id: user.uid,
+                    "status": {
+                        "id": 1,
+                        "name": "Order Received",
+                        "language": "en",
+                        "translated_languages": [
+                            "en"
+                        ],
+                        "serial": 1,
+                        "color": "#23b848",
+                        "created_at": "2021-03-08T21:33:52.000000Z",
+                        "updated_at": "2021-03-08T21:34:04.000000Z"
+                    },
+                    customer: {
                         "id": user.uid,
                         "name": user.displayName,
                         "email": user.email,
-                        "profile":{
+                        "profile": {
                             "avatar": {
                                 "thumbnail": user?.photoURL,
-                                "original":user?.photoURL,
-                                
-                              }
+                                "original": user?.photoURL,
+
+                            }
                         }
-                        
+
                     }
                 })
                 navigate.push(`/orders/${res.id}`)
@@ -227,8 +239,8 @@ export default function GlobalContextProvider({ children }) {
     // const [_, setAuthorized] = useAtom(authorizationAtom);
     // const { closeModal } = useModalAction();
     const { setToken } = useToken();
-    const loginWithGoogle = async (closeModal,setAuthorized) => {
-       
+    const loginWithGoogle = async (closeModal, setAuthorized) => {
+
 
         const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider)
@@ -274,7 +286,7 @@ export default function GlobalContextProvider({ children }) {
     }
 
 
-    
+
 
     return (
         <GlobalContext.Provider
