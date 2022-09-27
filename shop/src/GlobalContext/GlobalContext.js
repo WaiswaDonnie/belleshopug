@@ -6,6 +6,8 @@ import { useRouter } from "next/router"
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import Cookies from 'js-cookie'
+import { toast } from 'react-toastify';
+
 import {
     QueryClient,
     useMutation,
@@ -34,6 +36,7 @@ export const GlobalContext = createContext()
 export default function GlobalContextProvider({ children }) {
     const navigate = useRouter()
     const [user, setUser] = useState(null)
+    const { setToken } = useToken();
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
     const [productId, setProductId] = useState(null)
@@ -234,11 +237,89 @@ export default function GlobalContextProvider({ children }) {
                 })
         }
     }
+    const createUser = async (username, email, password, setLoading, setFormError, closeModal, setAuthorized) => {
+        console.log(username, email, password)
+        setLoading(true)
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(async userCredentials => {
+                updateProfile(auth.currentUser, {
+                    displayName: username
+                })
+                setUser(userCredentials.user)
+                setDoc(doc(db, 'Users', userCredentials.user.uid), {
+                    displayName: username,
+                    userId: userCredentials.user.uid,
+                    joinedOn: serverTimestamp(),
+                    email: email,
+                })
+                    .then(async result => {
+                        setLoading(false)
+                        setUser(userCredentials.user)
+                        userCredentials.user.getIdToken()
+                            .then(token => {
+
+                                Cookies.set('auth_token', token)
+                                setToken(token);
+                                closeModal();
+                                setAuthorized(true)
+                            })
+                            .catch(error => { })
+
+                        // navigate.push('/makeup')
+
+
+
+
+                    })
+                    .catch(error => {
+                        setLoading(false)
+                        console.log("setting doc", error)
+                        setFormError(error.code)
+                        toast.error((error.code));
+                    })
+            }).catch(error => {
+                setLoading(false)
+                console.log(error.code)
+                setFormError(error.code)
+                toast.error((error.code));
+            })
+    }
+    const loginUser = async (email, password, setLoading, setFormError, closeModal, setAuthorized) => {
+        console.log(email, password)
+        setLoading(true)
+        signInWithEmailAndPassword(auth, email, password)
+            .then(async userCredentials => {
+
+                setUser(userCredentials.user)
+                userCredentials.user.getIdToken()
+                .then(token=>{
+                    Cookies.set('auth_token', token)
+                   setToken(token);
+                   setLoading(false)
+                   closeModal();
+                   setAuthorized(true)
+                })
+                .catch(error=>{
+                    toast.error((error.code));
+                })
+
+                    
+            
+
+
+
+            }).catch(error => {
+                setLoading(false)
+                console.log(error.code)
+                setFormError(error.code)
+                toast.error((error.code));
+            })
+    }
 
     const { t } = useTranslation('common');
     // const [_, setAuthorized] = useAtom(authorizationAtom);
     // const { closeModal } = useModalAction();
-    const { setToken } = useToken();
+
     const loginWithGoogle = async (closeModal, setAuthorized) => {
 
 
@@ -297,6 +378,8 @@ export default function GlobalContextProvider({ children }) {
                 products,
                 getProducts,
                 visible,
+                loading, setLoading,
+                createUser,
                 loading,
                 setVisible,
                 editProduct,
@@ -306,7 +389,7 @@ export default function GlobalContextProvider({ children }) {
                 productDetails,
                 setProductDetails,
                 getProductDetails,
-                trackProduct
+                trackProduct,loginUser
             }} >
             {children}
         </GlobalContext.Provider>

@@ -9,7 +9,10 @@ import { Form } from '@/components/ui/forms/form';
 import type { RegisterUserInput } from '@/types';
 import * as yup from 'yup';
 import { useRegister } from '@/framework/user';
-
+import { useContext, useState } from 'react';
+import {GlobalContext} from '@/GlobalContext/GlobalContext'
+import { useAtom } from 'jotai';
+import { authorizationAtom } from '@/store/authorization-atom';
 const registerFormSchema = yup.object().shape({
   name: yup.string().required('error-name-required'),
   email: yup
@@ -20,16 +23,25 @@ const registerFormSchema = yup.object().shape({
 });
 
 function RegisterForm() {
+  const { closeModal } = useModalAction()
+  const [_, setAuthorized] = useAtom(authorizationAtom);
   const { t } = useTranslation('common');
   const { openModal } = useModalAction();
-  const { mutate, isLoading, formError } = useRegister();
+  const { mutate, isLoading} = useRegister();
+  const [loading,setLoading]  = useState(false)
+  const [formError,setFormError] = useState(null)
+  const {createUser} = useContext(GlobalContext)
 
   function onSubmit({ name, email, password }: RegisterUserInput) {
-    mutate({
+    createUser(
       name,
       email,
       password,
-    });
+      setLoading,
+      setFormError,
+      closeModal,
+      setAuthorized,
+    );
   }
 
   return (
@@ -66,8 +78,8 @@ function RegisterForm() {
             <div className="mt-8">
               <Button
                 className="h-12 w-full"
-                loading={isLoading}
-                disabled={isLoading}
+                loading={loading}
+                disabled={loading}
               >
                 {t('text-register')}
               </Button>

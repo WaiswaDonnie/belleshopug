@@ -1,5 +1,5 @@
 import { signIn } from 'next-auth/react';
-import React from 'react'
+import React, { useState } from 'react'
 import Logo from '@/components/ui/logo';
 import Alert from '@/components/ui/alert';
 import Input from '@/components/ui/forms/input';
@@ -29,20 +29,30 @@ const loginFormSchema = yup.object().shape({
   password: yup.string().required('error-password-required'),
 });
 function LoginForm() {
-   const {loginWithGoogle} = React.useContext(GlobalContext)
+   const {loginWithGoogle,loginUser} = React.useContext(GlobalContext)
   const { t } = useTranslation('common');
   const router = useRouter();
   const { openModal,closeModal  } = useModalAction();
   const [_, setAuthorized] = useAtom(authorizationAtom);
+  const [loading,setLoading]  = useState(false)
+  const [formError,setFormError] = useState(null)
 
   const isCheckout = router.pathname.includes('checkout');
   const { mutate: login, isLoading, serverError, setServerError } = useLogin();
 
   function onSubmit({ email, password }: LoginUserInput) {
-    login({
+    // login({
+    //   email,
+    //   password,
+    // });
+    loginUser(
       email,
       password,
-    });
+      setLoading,
+      setFormError,
+      closeModal,
+      setAuthorized,
+    );
   }
 
   return (
@@ -79,8 +89,8 @@ function LoginForm() {
             <div className="mt-8">
               <Button
                 className="h-11 w-full sm:h-12"
-                loading={isLoading}
-                disabled={isLoading}
+                loading={loading}
+                disabled={loading}
               >
                 {t('text-login')}
               </Button>
@@ -108,16 +118,16 @@ function LoginForm() {
           {t('text-login-google')}
         </Button>
 
-        <Button
+        {/* <Button
           className="h-11 w-full !bg-gray-500 !text-light hover:!bg-gray-600 sm:h-12"
           disabled={isLoading}
           onClick={() => openModal('OTP_LOGIN')}
         >
           <MobileIcon className="h-5 text-light ltr:mr-2 rtl:ml-2" />
           {t('text-login-mobile')}
-        </Button>
+        </Button> */}
 
-        {isCheckout && (
+        {/* {isCheckout && (
           <Button
             className="h-11 w-full !bg-pink-700 !text-light hover:!bg-pink-800 sm:h-12"
             disabled={isLoading}
@@ -126,7 +136,7 @@ function LoginForm() {
             <AnonymousIcon className="h-6 text-light ltr:mr-2 rtl:ml-2" />
             {t('text-guest-checkout')}
           </Button>
-        )}
+        )} */}
       </div>
       <div className="relative mt-8 mb-6 flex flex-col items-center justify-center text-sm text-heading sm:mt-11 sm:mb-8">
         <hr className="w-full" />
