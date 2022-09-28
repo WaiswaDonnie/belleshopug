@@ -8,18 +8,37 @@ import { useModalAction } from '@/components/ui/modal/modal.context';
 import Link from '@/components/ui/link';
 import { Routes } from '@/config/routes';
 import { getReview } from '@/lib/get-review';
+import { useContext, useEffect, useState } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 //FIXME: need to fix this usePrice hooks issue within the table render we may check with nested property
 const OrderItemList = (_: any, record: any) => {
+  const {getProductDetails,productDetails} = useContext(GlobalContext)
+  const [name,setName] = useState("")
+  const [thumnail,setThumbnail] = useState("")
+  useEffect(()=>{
+    getProductDetails(record.product_id)
+  },[record.product_id])
+  useEffect(()=>{
+    if(productDetails){
+      setName(productDetails?.name)
+      setThumbnail(productDetails?.image?.thumbnail)
+      record['image']={
+        thumbnail:productDetails?.image?.thumbnail
+      }
+    }
+   },[productDetails])
+
+  console.log("record",record)
   const { price } = usePrice({
-    amount: record.pivot?.unit_price,
+    amount: record?.unit_price,
   });
-  let name = record.name;
-  if (record?.pivot?.variation_option_id) {
+  //  let name = productDetails.name !==null?productDetails.name:"";
+  if (record?.variation_option_id) {
     const variationTitle = record?.variation_options?.find(
-      (vo: any) => vo?.id === record?.pivot?.variation_option_id
+      (vo: any) => vo?.id === record?.variation_option_id
     )['title'];
-    name = `${name} - ${variationTitle}`;
+     setName(`${name} - ${variationTitle}`);
   }
   return (
     <div className="flex items-center">
@@ -70,7 +89,7 @@ export const OrderItems = ({
     {
       title: <span className="ltr:pl-20 rtl:pr-20">{t('text-item')}</span>,
       dataIndex: '',
-      key: 'items',
+      key: 'products',
       align: alignLeft,
       width: 250,
       ellipsis: true,
@@ -78,23 +97,23 @@ export const OrderItems = ({
     },
     {
       title: t('text-quantity'),
-      dataIndex: 'pivot',
-      key: 'pivot',
+      dataIndex: '',
+      key: 'products',
       align: 'center',
       width: 100,
       render: function renderQuantity(pivot: any) {
-        return <p className="text-base">{pivot.order_quantity}</p>;
+        return <p className="text-base">{pivot?.order_quantity}</p>;
       },
     },
     {
       title: t('text-price'),
-      dataIndex: 'pivot',
+      dataIndex: '',
       key: 'price',
       align: alignRight,
       width: 100,
       render: function RenderPrice(pivot: any) {
         const { price } = usePrice({
-          amount: pivot.subtotal,
+          amount: pivot?.subtotal,
         });
         return <p>{price}</p>;
       },
@@ -114,7 +133,7 @@ export const OrderItems = ({
             image: record.image,
             my_review: getReview(record),
             ...(record.pivot?.variation_option_id && {
-              variation_option_id: record.pivot?.variation_option_id,
+              variation_option_id: record?.pivot?.variation_option_id,
             }),
           });
         }
@@ -139,8 +158,8 @@ export const OrderItems = ({
       columns={orderTableColumns}
       data={products}
       rowKey={(record: any) =>
-        record.pivot?.variation_option_id
-          ? record.pivot.variation_option_id
+        record?.variation_option_id
+          ? record.variation_option_id
           : record.created_at
       }
       className="orderDetailsTable w-full"

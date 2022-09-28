@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState, useLayoutEffect } from 'react'
+import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy } from 'firebase/firestore';
 import { db, auth } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
@@ -54,105 +54,42 @@ export default function GlobalContextProvider({ children }) {
 
 
 
-    const addProduct = async (newProduct) => {
-        const date = new Date()
-        const fullDate = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
-        setLoading(true)
-        addDoc(collection(db, 'Vendors', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products'), {
-            productName: newProduct.productName,
-            customerName: newProduct.customerName,
-            productLocation: newProduct.productLocation,
-            customerEmail: newProduct.customerEmail,
-            productDescription: newProduct.productDescription,
-            status: newProduct.status,
-            date: fullDate,
-            productQuantity: newProduct.productQuantity
+     
+    const [orderDetails, setOrderDetails] = useState(null)
+
+    const getOrder = (orderId) => {
+        onSnapshot(query(collection(db, 'Orders'), where("orderId", "==", orderId)), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+
+                data.push(doc.data())
+            })
+            if(data.length>0){
+                setOrderDetails(data[0])
+                console.log("order",data[0])
+            }
+
         })
-            .then(res => {
-                updateDoc(doc(db, 'Vendors', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products', res.id), {
-                    productId: res.id,
-                })
-                setLoading(false)
-
-                setVisible(false)                // handleClose()
-            })
-            .catch(error => {
-                setLoading(false)
-
-                console.log(error)
-            })
     }
 
     const createOrder = async (newProduct, setLoading) => {
-        const date = new Date()
-        const fullDate = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
+      
         setLoading(true)
         console.log("product", newProduct)
-        const newOrder =
-        {
-            "id": 66,
-            "tracking_number": "CGG82oQZc4i8",
-            "customer_id": user.uid,
-            "customer_contact": "19365141641631",
-            "language": "en",
-            "status": {
-                "id": 1,
-                "name": "Order Received",
-                "serial": 1,
-                "color": "#23b848",
-                "created_at": "2021-03-08T21:33:52.000000Z",
-                "updated_at": "2021-03-08T21:34:04.000000Z",
-                "language": "en",
-                "translated_languages": [
-                    "en"
-                ]
-            },
-            "amount": 150,
-            "sales_tax": 3,
-            "paid_total": 153,
-            "total": 153,
-            "coupon_id": null,
-            "parent_id": null,
-            "shop_id": 78,
-            "discount": 0,
-            "payment_id": null,
-            "payment_gateway": "CASH_ON_DELIVERY",
-            "shipping_address": {
-                "zip": "40391",
-                "city": "Winchester",
-                "state": "KY",
-                "country": "United States",
-                "street_address": "2148  Straford Park"
-            },
-            "billing_address": {
-                "zip": "122",
-                "city": "aaa",
-                "state": "aaaa",
-                "country": "aaa",
-                "street_address": "ss"
-            },
-            "logistics_provider": null,
-            "delivery_fee": 0,
-            "delivery_time": "Express Delivery",
-            "deleted_at": null,
-            "created_at": "2022-01-12T07:29:20.000Z",
-            "updated_at": "2022-01-12T07:29:20.000Z",
-            "customer": {
-                "id": user.uid,
-                "name": user.displayName,
-                "email": user.email,
-                "email_verified_at": null,
-                "created_at": serverTimestamp(),
-                "updated_at": serverTimestamp(),
-                "is_active": 1,
-                "shop_id": null
-            },
-            "products": [],
-            "refund": null
-        }
-        addDoc(collection(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders'), newProduct)
+        // newProduct.products.forEach(async product=>{
+        //     onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", product.product_id)), snapshot => {
+        //         let data = []
+        //         snapshot.forEach(doc => {
+        //             data.push(doc.data())
+        //         })
+        //         console.log("pshop is comeas got is", data[0].shop_id)
+        //         setProductDetails(data[0])
+               
+        //     }) 
+        // })
+         addDoc(collection(db,'Orders'), newProduct)
             .then(res => {
-                updateDoc(doc(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders', res.id), {
+                updateDoc(doc(db,'Orders', res.id), {
                     orderId: res.id,
                     tracking_number: res.id,
                     customer_id: user.uid,
@@ -225,17 +162,28 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [productDetails, setProductDetails] = useState(null)
-    const getProductDetails = () => {
-
-        if (productId) {
-            getDoc(doc(db, 'Products', productId))
-                .then(res => {
-                    setProductDetails(res.data)
-                })
-                .catch(error => {
-                    console.log(error)
-                })
-        }
+    const getProductDetails = (productId) => {
+       
+       if(productId){
+        onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", productId)), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("product got is", data)
+            setProductDetails(data[0])
+           
+        })
+       }
+        // if (productId) {
+        //     getDoc(doc(db, 'Products', productId))
+        //         .then(res => {
+        //             setProductDetails(res.data)
+        //         })
+        //         .catch(error => {
+        //             console.log(error)
+        //         })
+        // }
     }
     const createUser = async (username, email, password, setLoading, setFormError, closeModal, setAuthorized) => {
         console.log(username, email, password)
@@ -258,7 +206,7 @@ export default function GlobalContextProvider({ children }) {
                         userCredentials.user.getIdToken()
                             .then(token => {
                                 updateDoc(doc(db, 'Users', userCredentials.user.uid), {
-                                    token:token
+                                    token: token
                                 })
 
                                 Cookies.set('auth_token', token)
@@ -295,22 +243,22 @@ export default function GlobalContextProvider({ children }) {
 
                 setUser(userCredentials.user)
                 userCredentials.user.getIdToken()
-                .then(token=>{
-                    updateDoc(doc(db, 'Users', userCredentials.user.uid), {
-                        token:token
+                    .then(token => {
+                        updateDoc(doc(db, 'Users', userCredentials.user.uid), {
+                            token: token
+                        })
+                        Cookies.set('auth_token', token)
+                        setToken(token);
+                        setLoading(false)
+                        closeModal();
+                        setAuthorized(true)
                     })
-                   Cookies.set('auth_token', token)
-                   setToken(token);
-                   setLoading(false)
-                   closeModal();
-                   setAuthorized(true)
-                })
-                .catch(error=>{
-                    toast.error((error.code));
-                })
+                    .catch(error => {
+                        toast.error((error.code));
+                    })
 
-                    
-            
+
+
 
 
 
@@ -359,44 +307,54 @@ export default function GlobalContextProvider({ children }) {
             });
     }
 
-    const [products, setProducts] = useState([])
+    const [clientProducts, setClientProducts] = useState([])
 
+    useEffect(() => {
+        getProducts()
+    }, [])
 
     const getProducts = () => {
-        onSnapshot(collection(db, 'Products'), snapshot => {
+        onSnapshot(collectionGroup(db, 'Products'), snapshot => {
             let data = []
             snapshot.forEach(doc => {
                 data.push(doc.data())
             })
-            setProducts(data)
+            console.log("products", data)
+            setClientProducts(data)
         })
     }
 
-
-    const createProduct = async (newProduct) =>{
-        // setLoading(true)
-        console.log("new product",newProduct)
-        // setTimeout(()=>{
-        //     setLoading(false)
-        // },3000)
-
+    const [clientProduct, setClientProduct] = useState(null)
+    const getProduct = (slug) => {
+        onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==", slug)), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("product", data)
+            setClientProduct(data)
+        })
     }
+
 
 
     return (
         <GlobalContext.Provider
             value={{
                 user,
-                createProduct,
-                addProduct,
+                 
                 loginWithGoogle,
-                products,
+                setClientProduct,
+                getProduct,
+                clientProducts,
                 getProducts,
                 visible,
                 loading, setLoading,
                 createUser,
                 loading,
                 setVisible,
+                orderDetails,
+                getOrder,
                 editProduct,
                 productId,
                 createOrder,
@@ -404,7 +362,8 @@ export default function GlobalContextProvider({ children }) {
                 productDetails,
                 setProductDetails,
                 getProductDetails,
-                trackProduct,loginUser
+                trackProduct, loginUser,
+                productDetails,
             }} >
             {children}
         </GlobalContext.Provider>

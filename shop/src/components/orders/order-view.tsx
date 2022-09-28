@@ -31,7 +31,8 @@ function OrderView({ order, language }: any) {
 
   const { price: total } = usePrice({ amount: order?.paid_total! });
   const { price: wallet_total } = usePrice({
-    amount: order?.wallet_point?.amount!,
+    amount: order?.amount!,
+    // amount: order?.wallet_point?.amount!,
   });
   const { price: sub_total } = usePrice({ amount: order?.amount! });
   const { price: shipping_charge } = usePrice({

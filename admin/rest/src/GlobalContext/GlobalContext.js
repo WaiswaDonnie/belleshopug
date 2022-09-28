@@ -431,7 +431,8 @@ export default function GlobalContextProvider({ children }) {
                 setOpen(false)
                 setLoading(false)
                 updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products',res.id),{
-                    slug:res.id
+                    slug:res.id,
+                    id:res.id
                 })
             })
             .catch(error => {

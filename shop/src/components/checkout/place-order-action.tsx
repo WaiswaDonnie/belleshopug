@@ -75,6 +75,7 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
       setErrorMessage('Please Pay First');
       return;
     }
+    console.log("seadf",available_items)
     let input = {
       //@ts-ignore
       products: available_items?.map((item) => formatOrderedProduct(item)),

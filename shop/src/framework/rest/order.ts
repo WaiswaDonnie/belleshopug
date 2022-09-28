@@ -24,10 +24,12 @@ import { verifiedResponseAtom } from '@/store/checkout';
 import { useRouter } from 'next/router';
 import { Routes } from '@/config/routes';
 import { mapPaginatorData } from '@/framework/utils/data-mappers';
+import { useContext, useEffect } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export function useOrders(options?: Partial<OrderQueryOptions>) {
   const { locale } = useRouter();
-  
+
   const formattedOptions = {
     ...options,
     // language: locale
@@ -70,13 +72,20 @@ export function useOrders(options?: Partial<OrderQueryOptions>) {
 }
 
 export function useOrder({ tracking_number }: { tracking_number: string }) {
+  const { getOrder,orderDetails } = useContext(GlobalContext)
+  useEffect(() => {
+    if (tracking_number) {
+      getOrder(tracking_number)
+    }
+  }, [tracking_number])
   const { data, isLoading, error } = useQuery<Order, Error>(
     [API_ENDPOINTS.ORDERS, tracking_number],
     () => client.orders.get(tracking_number)
   );
 
+  console.log("Order is here")
   return {
-    order: data,
+    order:orderDetails,
     isLoading,
     error,
   };
@@ -84,7 +93,7 @@ export function useOrder({ tracking_number }: { tracking_number: string }) {
 
 export function useOrderStatuses(options: Pick<QueryOptions, 'limit' | 'language'>) {
   const { locale } = useRouter();
-  
+
   const formattedOptions = {
     ...options,
     // language: locale
@@ -127,7 +136,7 @@ export function useOrderStatuses(options: Pick<QueryOptions, 'limit' | 'language
 export function useRefunds(options: Pick<QueryOptions, 'limit'>) {
 
   const { locale } = useRouter();
-  
+
   const formattedOptions = {
     ...options,
     // language: locale
@@ -172,7 +181,7 @@ export const useDownloadableProducts = (
 ) => {
 
   const { locale } = useRouter();
-  
+
   const formattedOptions = {
     ...options,
     // language: locale

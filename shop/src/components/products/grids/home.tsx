@@ -2,6 +2,8 @@ import { useProducts } from '@/framework/product';
 import { PRODUCTS_PER_PAGE } from '@/framework/client/variables';
 import { Grid } from '@/components/products/grid';
 import { useRouter } from 'next/router';
+import { useContext } from 'react';
+import {GlobalContext} from '@/GlobalContext/GlobalContext';
 interface Props {
   className?: string;
   variables: any;
@@ -15,13 +17,15 @@ export default function ProductGridHome({
   gridClassName,
 }: Props) {
   const { query } = useRouter();
+  const {clientProducts} = useContext(GlobalContext)
   const { products, loadMore, isLoadingMore, isLoading, hasMore, error } =
     useProducts({
       ...variables,
       ...(query.category && { categories: query.category }),
       ...(query.text && { name: query.text }),
     });
-  const productsItem:any = products;
+  const productsItem:any = clientProducts;
+
   return (
     <Grid
       products={productsItem}

@@ -21,6 +21,8 @@ import { useTranslation } from 'next-i18next';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/router';
+import { useContext, useEffect } from 'react';
+import {GlobalContext}from '@/GlobalContext/GlobalContext';
 
 export function useProducts(options?: Partial<ProductQueryOptions>) {
   const { locale } = useRouter();
@@ -29,7 +31,11 @@ export function useProducts(options?: Partial<ProductQueryOptions>) {
     ...formatProductsArgs(options),
     language: locale,
   };
+  const {clientProducts,getProducts} = useContext(GlobalContext)
 
+  // useEffect(()=>{
+  //   getProducts()
+  // },[])
   const {
     data,
     isLoading,
@@ -53,7 +59,8 @@ export function useProducts(options?: Partial<ProductQueryOptions>) {
   }
 
   return {
-    products: data?.pages?.flatMap((page) => page.data) ?? [],
+    // products: data?.pages?.flatMap((page) => page.data) ?? [],
+    products: clientProducts ?? [],
     paginatorInfo: Array.isArray(data?.pages)
       ? mapPaginatorData(data?.pages[data.pages.length - 1])
       : null,
