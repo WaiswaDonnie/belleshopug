@@ -17,6 +17,8 @@ import {
 } from '@/utils/auth-utils';
 import { Permission } from '@/types';
 import { useRegisterMutation } from '@/data/user';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 type FormValues = {
   name: string;
@@ -35,7 +37,9 @@ const registrationFormSchema = yup.object().shape({
 });
 const RegistrationForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { mutate: registerUser, isLoading: loading } = useRegisterMutation();
+  const { mutate: registerUser, } = useRegisterMutation();
+  const [loading,setLoading] = useState(false)
+const {createUser} = useContext(GlobalContext)
 
   const {
     register,
@@ -52,36 +56,47 @@ const RegistrationForm = () => {
   const { t } = useTranslation();
 
   async function onSubmit({ name, email, password, permission }: FormValues) {
-    registerUser(
-      {
+    // username, email, password, setLoading, setAuthCredentials
+    createUser(
+      
         name,
         email,
         password,
-        permission,
-      },
+        setLoading,
+        setAuthCredentials,
+        Routes.dashboard,
+      
+      
+    // registerUser(
+    //   {
+    //     name,
+    //     email,
+    //     password,
+    //     permission,
+    //   },
 
-      {
-        onSuccess: (data) => {
-          if (data?.token) {
-            if (hasAccess(allowedRoles, data?.permissions)) {
-              setAuthCredentials(data?.token, data?.permissions);
-              router.push(Routes.dashboard);
-              return;
-            }
-            setErrorMessage('form:error-enough-permission');
-          } else {
-            setErrorMessage('form:error-credential-wrong');
-          }
-        },
-        onError: (error: any) => {
-          Object.keys(error?.response?.data).forEach((field: any) => {
-            setError(field, {
-              type: 'manual',
-              message: error?.response?.data[field],
-            });
-          });
-        },
-      }
+      // {
+      //   onSuccess: (data) => {
+      //     if (data?.token) {
+      //       if (hasAccess(allowedRoles, data?.permissions)) {
+      //         setAuthCredentials(data?.token, data?.permissions);
+      //         router.push(Routes.dashboard);
+      //         return;
+      //       }
+      //       setErrorMessage('form:error-enough-permission');
+      //     } else {
+      //       setErrorMessage('form:error-credential-wrong');
+      //     }
+      //   },
+      //   onError: (error: any) => {
+      //     Object.keys(error?.response?.data).forEach((field: any) => {
+      //       setError(field, {
+      //         type: 'manual',
+      //         message: error?.response?.data[field],
+      //       });
+      //     });
+      //   },
+      // }
     );
   }
 

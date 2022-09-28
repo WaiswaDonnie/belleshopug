@@ -8,7 +8,7 @@ import { useTranslation } from 'next-i18next';
 
 const productType = [
   { name: 'Simple Product', value: ProductType.Simple },
-  { name: 'Variable Product', value: ProductType.Variable },
+  // { name: 'Variable Product', value: ProductType.Variable },
 ];
 
 const ProductTypeInput = () => {

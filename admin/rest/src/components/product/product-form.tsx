@@ -33,6 +33,8 @@ import {
   useCreateProductMutation,
   useUpdateProductMutation,
 } from '@/data/product';
+import { useContext } from 'react'
+import { GlobalContext } from '@/GlobalContext/GlobalContext'
 
 type ProductFormProps = {
   initialValues?: Product | null;
@@ -51,7 +53,11 @@ export default function CreateOrUpdateProductForm({
       enabled: !!router.query.shop,
     }
   );
-  const shopId = shopData?.id!;
+
+  const { createProduct,shopDetails } = useContext(GlobalContext)
+
+  const shopId = shopDetails?.owner_id!;
+  
   const isNewTranslation = router?.query?.action === 'translate';
   const methods = useForm<ProductFormValues>({
     resolver: yupResolver(productValidationSchema),
@@ -69,36 +75,48 @@ export default function CreateOrUpdateProductForm({
     formState: { errors },
   } = methods;
 
-  const { mutate: createProduct, isLoading: creating } =
+  const { isLoading: creating } =
     useCreateProductMutation();
   const { mutate: updateProduct, isLoading: updating } =
     useUpdateProductMutation();
+  const [loading, setLoading] = useState(false)
 
   const onSubmit = async (values: ProductFormValues) => {
+    alert("")
     const inputValues = {
       language: router.locale,
       ...getProductInputValues(values, initialValues),
     };
+    createProduct({
+      ...inputValues,
+      ...(initialValues?.slug && { slug: initialValues.slug }),
+      shop_id: shopId || initialValues?.shop_id,
+    }, setLoading)
 
     try {
-      if (
-        !initialValues ||
-        !initialValues.translated_languages.includes(router.locale!)
-      ) {
-        //@ts-ignore
-        createProduct({
-          ...inputValues,
-          ...(initialValues?.slug && { slug: initialValues.slug }),
-          shop_id: shopId || initialValues?.shop_id,
-        });
-      } else {
-        //@ts-ignore
-        updateProduct({
-          ...inputValues,
-          id: initialValues.id!,
-          shop_id: initialValues.shop_id!,
-        });
-      }
+      // createProduct({
+      //   ...inputValues,
+      //   ...(initialValues?.slug && { slug: initialValues.slug }),
+      //   shop_id: shopId || initialValues?.shop_id,
+      // },setLoading)
+      // if (
+      //   !initialValues ||
+      //   !initialValues.translated_languages.includes(router.locale!)
+      // ) {
+      //   //@ts-ignore
+      //   createProduct({
+      //     ...inputValues,
+      //     ...(initialValues?.slug && { slug: initialValues.slug }),
+      //     shop_id: shopId || initialValues?.shop_id,
+      //   },setLoading);
+      // } else {
+      //   //@ts-ignore
+      //   updateProduct({
+      //     ...inputValues,
+      //     id: initialValues.id!,
+      //     shop_id: initialValues.shop_id!,
+      //   });
+      // }
     } catch (error) {
       const serverErrors = getErrorMessage(error);
       Object.keys(serverErrors?.validation).forEach((field: any) => {
@@ -171,11 +189,10 @@ export default function CreateOrUpdateProductForm({
           <div className="my-5 flex flex-wrap sm:my-8">
             <Description
               title={t('form:item-description')}
-              details={`${
-                initialValues
+              details={`${initialValues
                   ? t('form:item-description-edit')
                   : t('form:item-description-add')
-              } ${t('form:product-description-help-text')}`}
+                } ${t('form:product-description-help-text')}`}
               className="w-full px-0 pb-5 sm:w-4/12 sm:py-8 sm:pe-4 md:w-1/3 md:pe-5"
             />
 
@@ -257,7 +274,7 @@ export default function CreateOrUpdateProductForm({
                 {t('form:button-label-back')}
               </Button>
             )}
-            <Button loading={updating || creating}>
+            <Button loading={updating || loading}>
               {initialValues
                 ? t('form:button-label-update-product')
                 : t('form:button-label-add-product')}

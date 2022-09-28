@@ -22,6 +22,8 @@ import { getIcon } from '@/utils/get-icon';
 import SelectInput from '@/components/ui/select-input';
 import * as socialIcons from '@/components/icons/social';
 import omit from 'lodash/omit';
+import { useContext, useState } from 'react';
+import { GlobalContext} from '@/GlobalContext/GlobalContext'
 
 const socialIcon = [
   {
@@ -69,8 +71,10 @@ type FormValues = {
 };
 
 const ShopForm = ({ initialValues }: { initialValues?: any }) => {
-  const { mutate: createShop, isLoading: creating } = useCreateShopMutation();
+  const { mutate: createShoap,  } = useCreateShopMutation();
   const { mutate: updateShop, isLoading: updating } = useUpdateShopMutation();
+  const {createShop} = useContext(GlobalContext)
+  const [isLoading,setIsLoading] =useState(false)
   const {
     register,
     handleSubmit,
@@ -85,17 +89,17 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
             ...initialValues,
             logo: getFormattedImage(initialValues.logo),
             cover_image: getFormattedImage(initialValues.cover_image),
-            settings: {
-              ...initialValues?.settings,
-              socials: initialValues?.settings?.socials
-                ? initialValues?.settings?.socials.map((social: any) => ({
-                    icon: updatedIcons?.find(
-                      (icon) => icon?.value === social?.icon
-                    ),
-                    url: social?.url,
-                  }))
-                : [],
-            },
+            // settings: {
+            //   ...initialValues?.settings,
+            //   socials: initialValues?.settings?.socials
+            //     ? initialValues?.settings?.socials.map((social: any) => ({
+            //         icon: updatedIcons?.find(
+            //           (icon) => icon?.value === social?.icon
+            //         ),
+            //         url: social?.url,
+            //       }))
+            //     : [],
+            // },
           },
         }
       : {}),
@@ -123,21 +127,21 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
       updateShop({
         id: initialValues.id,
         ...values,
-        address: restAddress,
-        settings,
-        balance: {
-          id: initialValues.balance?.id,
-          ...values.balance,
-        },
+        // address: restAddress,
+        // settings,
+        // balance: {
+        //   id: initialValues.balance?.id,
+        //   ...values.balance,
+        // },
       });
     } else {
       createShop({
-        ...values,
-        settings,
-        balance: {
-          ...values.balance,
-        },
-      });
+        values,
+        // settings,
+        // balance: {
+        //   ...values.balance,
+        // },
+      },setIsLoading);
     }
   }
 
@@ -197,7 +201,7 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
             />
           </Card>
         </div>
-        <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8">
+        {/* <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8">
           <Description
             title={t('form:shop-payment-info')}
             details={t('form:payment-info-helper-text')}
@@ -233,8 +237,8 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
               error={t(errors.balance?.payment_info?.account?.message!)}
             />
           </Card>
-        </div>
-        <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8">
+        </div> */}
+        {/* <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8">
           <Description
             title={t('form:shop-address')}
             details={t('form:shop-address-helper-text')}
@@ -277,16 +281,16 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
               error={t(errors.address?.street_address?.message!)}
             />
           </Card>
-        </div>
-        <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8">
-          <Description
+        </div> */}
+        {/* <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8"> */}
+          {/* <Description
             title={t('form:shop-settings')}
             details={t('form:shop-settings-helper-text')}
             className="sm:pe-4 md:pe-5 w-full px-0 pb-5 sm:w-4/12 sm:py-8 md:w-1/3"
-          />
+          /> */}
 
-          <Card className="w-full sm:w-8/12 md:w-2/3">
-            <div className="mb-5">
+          {/* <Card className="w-full sm:w-8/12 md:w-2/3"> */}
+            {/* <div className="mb-5">
               <Label>{t('form:input-label-autocomplete')}</Label>
               <Controller
                 control={control}
@@ -298,8 +302,8 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
                   />
                 )}
               />
-            </div>
-            <Input
+            </div> */}
+            {/* <Input
               label={t('form:input-label-contact')}
               {...register('settings.contact')}
               variant="outline"
@@ -312,8 +316,8 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
               variant="outline"
               className="mb-5"
               error={t(errors.settings?.website?.message!)}
-            />
-            <div>
+            /> */}
+            {/* <div>
               {fields.map(
                 (item: ShopSocialInput & { id: string }, index: number) => (
                   <div
@@ -331,13 +335,13 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
                           defaultValue={item?.icon!}
                         />
                       </div>
-                      {/* <Input
+                      <Input
                         className="sm:col-span-2"
                         label={t("form:input-label-icon")}
                         variant="outline"
                         {...register(`settings.socials.${index}.icon` as const)}
                         defaultValue={item?.icon!} // make sure to set up defaultValue
-                      /> */}
+                      />
                       <Input
                         className="sm:col-span-2"
                         label={t('form:input-label-url')}
@@ -358,21 +362,21 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
                   </div>
                 )
               )}
-            </div>
-            <Button
+            </div> */}
+            {/* <Button
               type="button"
               onClick={() => append({ icon: '', url: '' })}
               className="w-full sm:w-auto"
             >
               {t('form:button-label-add-social')}
             </Button>
-          </Card>
-        </div>
+          </Card> */}
+        {/* </div> */}
 
         <div className="text-end mb-5">
           <Button
-            loading={creating || updating}
-            disabled={creating || updating}
+            loading={isLoading || updating}
+            disabled={isLoading || updating}
           >
             {initialValues
               ? t('form:button-label-update')

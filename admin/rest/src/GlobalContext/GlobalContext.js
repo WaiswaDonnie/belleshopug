@@ -7,7 +7,6 @@ import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import Cookies from 'js-cookie'
 import { toast } from 'react-toastify';
-
 import {
     QueryClient,
     useMutation,
@@ -16,19 +15,12 @@ import {
 } from 'react-query';
 // import { toast } from 'react-toastify';
 // import client from './client';
-import { authorizationAtom } from '@/store/authorization-atom';
-import { useAtom } from 'jotai';
 import { signOut as socialLoginSignOut } from 'next-auth/react';
-import { useToken } from '@/lib/hooks/use-token';
 // import { API_ENDPOINTS } from './client/api-endpoints';
 
-import { initialOtpState, optAtom } from '@/components/otp/atom';
 import { useStateMachine } from 'little-state-machine';
-import {
-    initialState,
-    updateFormState,
-} from '@/components/auth/forgot-password';
-import { clearCheckoutAtom } from '@/store/checkout';
+import { useEffect } from 'react';
+
 export const GlobalContext = createContext()
 
 
@@ -36,7 +28,8 @@ export const GlobalContext = createContext()
 export default function GlobalContextProvider({ children }) {
     const navigate = useRouter()
     const [user, setUser] = useState(null)
-    const { setToken } = useToken();
+    const [token, setToken] = useState(null)
+    // const { setToken } = useToken();
     const [visible, setVisible] = useState(false)
     const [loading, setLoading] = useState(false)
     const [productId, setProductId] = useState(null)
@@ -237,16 +230,17 @@ export default function GlobalContextProvider({ children }) {
                 })
         }
     }
-    const createUser = async (username, email, password, setLoading, setFormError, closeModal, setAuthorized) => {
+    const createUser = async (username, email, password, setLoading, setAuthCredentials, routes) => {
         console.log(username, email, password)
         setLoading(true)
+        // setAuthCredentials(data?.token, data?.permissions)
         createUserWithEmailAndPassword(auth, email, password)
             .then(async userCredentials => {
                 updateProfile(auth.currentUser, {
                     displayName: username
                 })
                 setUser(userCredentials.user)
-                setDoc(doc(db, 'Users', userCredentials.user.uid), {
+                setDoc(doc(db, 'Vendors', userCredentials.user.uid), {
                     displayName: username,
                     userId: userCredentials.user.uid,
                     joinedOn: serverTimestamp(),
@@ -257,14 +251,15 @@ export default function GlobalContextProvider({ children }) {
                         setUser(userCredentials.user)
                         userCredentials.user.getIdToken()
                             .then(token => {
-                                updateDoc(doc(db, 'Users', userCredentials.user.uid), {
-                                    token:token
+                                updateDoc(doc(db, 'Vendors', userCredentials.user.uid), {
+                                    token: token
                                 })
-
-                                Cookies.set('auth_token', token)
+                                // {%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}
+                                Cookies.set('AUTH_CRED', "{%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}")
                                 setToken(token);
-                                closeModal();
-                                setAuthorized(true)
+                                setAuthCredentials(token, 'STORE_OWNER')
+                                navigate.push(routes)
+                                toast.success("Logged In")
                             })
                             .catch(error => { })
 
@@ -277,13 +272,13 @@ export default function GlobalContextProvider({ children }) {
                     .catch(error => {
                         setLoading(false)
                         console.log("setting doc", error)
-                        setFormError(error.code)
+                        // setFormError(error.code)
                         toast.error((error.code));
                     })
             }).catch(error => {
                 setLoading(false)
                 console.log(error.code)
-                setFormError(error.code)
+                // setFormError(error.code)
                 toast.error((error.code));
             })
     }
@@ -295,22 +290,22 @@ export default function GlobalContextProvider({ children }) {
 
                 setUser(userCredentials.user)
                 userCredentials.user.getIdToken()
-                .then(token=>{
-                    updateDoc(doc(db, 'Users', userCredentials.user.uid), {
-                        token:token
+                    .then(token => {
+                        updateDoc(doc(db, 'Users', userCredentials.user.uid), {
+                            token: token
+                        })
+                        Cookies.set('auth_token', token)
+                        setToken(token);
+                        setLoading(false)
+                        closeModal();
+                        setAuthorized(true)
                     })
-                   Cookies.set('auth_token', token)
-                   setToken(token);
-                   setLoading(false)
-                   closeModal();
-                   setAuthorized(true)
-                })
-                .catch(error=>{
-                    toast.error((error.code));
-                })
+                    .catch(error => {
+                        toast.error((error.code));
+                    })
 
-                    
-            
+
+
 
 
 
@@ -373,38 +368,115 @@ export default function GlobalContextProvider({ children }) {
     }
 
 
-    const createProduct = async (newProduct) =>{
-        // setLoading(true)
-        console.log("new product",newProduct)
-        // setTimeout(()=>{
-        //     setLoading(false)
-        // },3000)
+
+    const createShop = (newShop, setIsLoading) => {
+        console.log(newShop.values)
+        setIsLoading(true)
+        setDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
+            cover_image: {
+                original: newShop.values.cover_image.original,
+                thumbnail: newShop.values.cover_image.thumbnail
+            },
+            name: newShop.values.name,
+            description: newShop.values.description,
+            logo: newShop.values.logo,
+            owner_id: user.uid,
+            createdOn: serverTimestamp()
+        })
+            .then(res => {
+                toast.success("Shop Created")
+                setIsLoading(false)
+            })
+            .catch(error => {
+                toast.error(error.code)
+                setIsLoading(false)
+            })
 
     }
+
+    const [shopDetails, setShopDetails] = useState(null)
+
+    useEffect(() => {
+        if (user) {
+            getShopDetails()
+        }
+    }, [user])
+    const getShopDetails = () => {
+        getDoc(query(doc(db, 'Vendors', user.uid, 'Shops', user.uid)))
+            .then(res => {
+                setShopDetails(res.data())
+                console.log(res.data())
+            })
+    }
+    const [open, setOpen] = useState(true);
+
+
+    const createProduct = async (newProduct, setLoading) => {
+        setLoading(true)
+        delete newProduct['author_id']
+        delete newProduct['variation_options']
+        delete newProduct['variations']
+        delete newProduct['manufacturer_id']
+
+        console.log("new product", newProduct)
+        addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), {
+            newProduct
+        })
+            .then(res => {
+                toast.success("Product added successfully")
+                setOpen(false)
+                setLoading(false)
+            })
+            .catch(error => {
+                toast.error(error.code)
+                setLoading(false)
+            })
+
+    }
+
+
+
+    const [ownerProducts, setOwnerProducts] = useState([])
+    const getOwnerProducts = async () => {
+        onSnapshot(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), snapshot => {
+            let data = []
+            snapshot.forEach(product => {
+                data.push(product.data())
+            })
+            setOwnerProducts(data)
+        })
+
+    }
+
 
 
     return (
         <GlobalContext.Provider
             value={{
                 user,
-                createProduct,
                 addProduct,
+                createProduct,
                 loginWithGoogle,
                 products,
                 getProducts,
+                shopDetails,
+                createShop,
                 visible,
                 loading, setLoading,
                 createUser,
+                open, setOpen,
                 loading,
                 setVisible,
                 editProduct,
                 productId,
+                ownerProducts,
+                getOwnerProducts,
                 createOrder,
                 setProductId,
                 productDetails,
                 setProductDetails,
                 getProductDetails,
-                trackProduct,loginUser
+                trackProduct, loginUser
             }} >
             {children}
         </GlobalContext.Provider>

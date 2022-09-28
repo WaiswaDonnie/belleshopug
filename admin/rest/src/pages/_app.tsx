@@ -20,6 +20,7 @@ import type { NextPageWithLayout } from '@/types';
 import { useRouter } from 'next/router';
 import PrivateRoute from '@/utils/private-route';
 import { Config } from '@/config';
+import GlobalContextProvider from '../GlobalContext/GlobalContext';
 
 const Noop: React.FC = ({ children }) => <>{children}</>;
 
@@ -51,6 +52,7 @@ const CustomApp = ({ Component, pageProps }: AppPropsWithLayout) => {
           <AppSettings>
             <UIProvider>
               <ModalProvider>
+              <GlobalContextProvider>
                 <>
                   <CartProvider>
                     {/* <DefaultSeo /> */}
@@ -69,6 +71,7 @@ const CustomApp = ({ Component, pageProps }: AppPropsWithLayout) => {
                     <ManagedModal />
                   </CartProvider>
                 </>
+                </GlobalContextProvider>
               </ModalProvider>
             </UIProvider>
           </AppSettings>

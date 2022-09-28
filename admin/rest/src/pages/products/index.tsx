@@ -12,9 +12,12 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import CategoryTypeFilter from '@/components/product/category-type-filter';
 import cn from 'classnames';
+import AddProductModal from '@/components/ui/modal/addProductModal'
 import { ArrowDown } from '@/components/icons/arrow-down';
 import { ArrowUp } from '@/components/icons/arrow-up';
 import { adminOnly } from '@/utils/auth-utils';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,6 +29,7 @@ export default function ProductsPage() {
   const [orderBy, setOrder] = useState('created_at');
   const [sortedBy, setColumn] = useState<SortOrder>(SortOrder.Desc);
   const [visible, setVisible] = useState(false);
+  const {open,setOpen} =  useContext(GlobalContext)
 
   const toggleVisible = () => {
     setVisible((v) => !v);
@@ -65,19 +69,26 @@ export default function ProductsPage() {
           </div>
 
           <div className="flex w-full flex-col items-center ms-auto md:w-3/4">
-            <Search onSearch={handleSearch} />
+            {/* <Search onSearch={handleSearch} /> */}
           </div>
 
           <button
-            className="mt-5 flex items-center whitespace-nowrap text-base font-semibold text-accent md:mt-0 md:ms-5"
-            onClick={toggleVisible}
+            className="mt-5 flex bg-accent h-[45px] rounded px-2 items-center whitespace-nowrap text-base font-semibold text-white md:mt-0 md:ms-5"
+            // onClick={toggleVisible}
+            onClick={()=>{
+              // alert("")
+              setOpen(true)
+            }}
           >
-            {t('common:text-filter')}{' '}
+
+            Add Product
+
+            {/* {t('common:text-filter')}{' '}
             {visible ? (
               <ArrowUp className="ms-2" />
             ) : (
               <ArrowDown className="ms-2" />
-            )}
+            )} */}
           </button>
         </div>
 
@@ -109,7 +120,11 @@ export default function ProductsPage() {
         onOrder={setOrder}
         onSort={setColumn}
       />
+      {open && <AddProductModal open={open} onClose={()=>{
+        setOpen(false)
+      }}/>}
     </>
+    
   );
 }
 ProductsPage.authenticate = {
