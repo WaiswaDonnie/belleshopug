@@ -13,6 +13,8 @@ import {
 import { mapPaginatorData } from '@/utils/data-mappers';
 import { Routes } from '@/config/routes';
 import { Config } from '@/config';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useContext } from 'react';
 
 export const useCreateProductMutation = () => {
   const queryClient = useQueryClient();
@@ -89,9 +91,10 @@ export const useProductsQuery = (
       ...options,
     }
   );
+  const {ownerProducts} =  useContext(GlobalContext)
 
   return {
-    products: data?.data ?? [],
+    products: ownerProducts ?? [],
     paginatorInfo: mapPaginatorData(data),
     error,
     loading: isLoading,

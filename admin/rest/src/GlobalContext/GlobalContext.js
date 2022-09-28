@@ -234,6 +234,7 @@ export default function GlobalContextProvider({ children }) {
         console.log(username, email, password)
         setLoading(true)
         // setAuthCredentials(data?.token, data?.permissions)
+
         createUserWithEmailAndPassword(auth, email, password)
             .then(async userCredentials => {
                 updateProfile(auth.currentUser, {
@@ -386,6 +387,7 @@ export default function GlobalContextProvider({ children }) {
             .then(res => {
                 toast.success("Shop Created")
                 setIsLoading(false)
+                getShopDetails()
             })
             .catch(error => {
                 toast.error(error.code)
@@ -408,7 +410,7 @@ export default function GlobalContextProvider({ children }) {
                 console.log(res.data())
             })
     }
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
 
 
     const createProduct = async (newProduct, setLoading) => {
@@ -417,15 +419,20 @@ export default function GlobalContextProvider({ children }) {
         delete newProduct['variation_options']
         delete newProduct['variations']
         delete newProduct['manufacturer_id']
+        newProduct['shop'] = {
+            id:shopDetails.owner_id,
+            name:shopDetails.name,
+        };
 
         console.log("new product", newProduct)
-        addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), {
-            newProduct
-        })
+        addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'),newProduct)
             .then(res => {
                 toast.success("Product added successfully")
                 setOpen(false)
                 setLoading(false)
+                updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products',res.id),{
+                    slug:res.id
+                })
             })
             .catch(error => {
                 toast.error(error.code)
@@ -444,6 +451,7 @@ export default function GlobalContextProvider({ children }) {
                 data.push(product.data())
             })
             setOwnerProducts(data)
+            console.log("products",data)
         })
 
     }

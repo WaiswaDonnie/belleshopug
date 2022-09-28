@@ -16,7 +16,7 @@ import AddProductModal from '@/components/ui/modal/addProductModal'
 import { ArrowDown } from '@/components/icons/arrow-down';
 import { ArrowUp } from '@/components/icons/arrow-up';
 import { adminOnly } from '@/utils/auth-utils';
-import { useContext } from 'react';
+import { useContext,useEffect } from 'react';
 import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export default function ProductsPage() {
@@ -29,8 +29,12 @@ export default function ProductsPage() {
   const [orderBy, setOrder] = useState('created_at');
   const [sortedBy, setColumn] = useState<SortOrder>(SortOrder.Desc);
   const [visible, setVisible] = useState(false);
-  const {open,setOpen} =  useContext(GlobalContext)
-
+  const {open,setOpen,getOwnerProducts,user} =  useContext(GlobalContext)
+  useEffect(()=>{
+    if(user){
+      getOwnerProducts()
+    }
+  },[user])
   const toggleVisible = () => {
     setVisible((v) => !v);
   };
@@ -57,6 +61,8 @@ export default function ProductsPage() {
   function handlePagination(current: any) {
     setPage(current);
   }
+
+ 
 
   return (
     <>

@@ -82,7 +82,7 @@ export default function CreateOrUpdateProductForm({
   const [loading, setLoading] = useState(false)
 
   const onSubmit = async (values: ProductFormValues) => {
-    alert("")
+  
     const inputValues = {
       language: router.locale,
       ...getProductInputValues(values, initialValues),
