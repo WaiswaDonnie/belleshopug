@@ -27,6 +27,10 @@ const Banner: React.FC<{ layout: string; variables: any }> = ({
   const { type, error } = useType(variables.type);
   if (error) return <ErrorMessage message={error.message} />;
   const Component = MAP_BANNER_TO_GROUP[layout];
+  console.log("baners", type?.banners)
+  const newBanners =[
+    
+  ]
   return (
     <Component banners={type?.banners} layout={layout} slug={type?.slug} />
   );

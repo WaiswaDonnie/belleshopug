@@ -34,7 +34,6 @@ function CustomApp({
 
   return (
     <div dir={dir}>
-
       <SessionProvider session={session}>
         <QueryProvider pageProps={pageProps}>
           <SearchProvider>
