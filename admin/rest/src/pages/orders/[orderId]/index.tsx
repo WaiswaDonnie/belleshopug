@@ -21,11 +21,11 @@ import SelectInput from '@/components/ui/select-input';
 import { useIsRTL } from '@/utils/locals';
 import { DownloadIcon } from '@/components/icons/download-icon';
 import { useCart } from '@/contexts/quick-cart/cart.context';
-import { useEffect } from 'react';
+import { useContext, useEffect,useState } from 'react';
 import { useAtom } from 'jotai';
 import { clearCheckoutAtom } from '@/contexts/checkout';
 import { useOrderStatusesQuery } from '@/data/order-status';
-
+ import {GlobalContext} from '@/GlobalContext/GlobalContext'
 type FormValues = {
   order_status: any;
 };
@@ -41,13 +41,14 @@ export default function OrderDetailsPage() {
     resetCheckout();
   }, [resetCart, resetCheckout]);
 
-  const { mutate: updateOrder, isLoading: updating } = useUpdateOrderMutation();
+  const { mutate: updateOrder, } = useUpdateOrderMutation();
   const { orderStatuses } = useOrderStatusesQuery({ language: locale });
   const {
     order,
     isLoading: loading,
     error,
   } = useOrderQuery({ id: query.orderId as string, language: locale! });
+  const {updateMyOrder} =  useContext(GlobalContext)
   const { refetch } = useDownloadInvoiceMutation(
     {
       order_id: query.orderId as string,
@@ -56,6 +57,8 @@ export default function OrderDetailsPage() {
     },
     { enabled: false }
   );
+
+  const [updating,setUpdating] = useState(false)
 
   const {
     handleSubmit,
@@ -66,11 +69,19 @@ export default function OrderDetailsPage() {
     defaultValues: { order_status: order?.status?.id ?? '' },
   });
 
+
   const ChangeStatus = ({ order_status }: FormValues) => {
-    updateOrder({
-      id: order?.id as string,
-      status: order_status?.id as string,
-    });
+    updateMyOrder(
+      {
+        id: order?.orderId as string,
+        status: order_status,
+      },
+      setUpdating
+    )
+    // updateOrder({
+    //   id: order?.orderId as string,
+    //   status: order_status,
+    // });
   };
   const { price: subtotal } = usePrice(
     order && {
@@ -138,7 +149,7 @@ export default function OrderDetailsPage() {
           <span>{name}</span>
           <span className="mx-2">x</span>
           <span className="font-semibold text-heading">
-            {item.pivot.order_quantity}
+            {item.order_quantity}
           </span>
         </div>
       ),
@@ -150,7 +161,7 @@ export default function OrderDetailsPage() {
       align: alignRight,
       render: function Render(_: any, item: any) {
         const { price } = usePrice({
-          amount: parseFloat(item.pivot.subtotal),
+          amount: parseFloat(item.subtotal),
         });
         return <span>{price}</span>;
       },
@@ -159,7 +170,7 @@ export default function OrderDetailsPage() {
 
   return (
     <Card>
-      <div className="flex w-full">
+      {/* <div className="flex w-full">
         <Button
           onClick={handleDownloadInvoice}
           className="mb-5 bg-blue-500 ltr:ml-auto rtl:mr-auto"
@@ -167,7 +178,7 @@ export default function OrderDetailsPage() {
           <DownloadIcon className="h-4 w-4 me-3" />
           {t('common:text-download')} {t('common:text-invoice')}
         </Button>
-      </div>
+      </div> */}
 
       <div className="flex flex-col items-center lg:flex-row">
         <h3 className="mb-8 w-full whitespace-nowrap text-center text-2xl font-semibold text-heading lg:mb-0 lg:w-1/3 lg:text-start">

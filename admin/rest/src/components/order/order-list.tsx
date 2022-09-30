@@ -164,7 +164,7 @@ const OrderList = ({
     },
     {
       title: t('table:table-item-actions'),
-      dataIndex: 'id',
+      dataIndex: 'orderId',
       key: 'actions',
       align: 'center',
       width: 100,

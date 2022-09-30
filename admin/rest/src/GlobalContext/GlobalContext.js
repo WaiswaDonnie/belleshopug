@@ -20,6 +20,7 @@ import { signOut as socialLoginSignOut } from 'next-auth/react';
 
 import { useStateMachine } from 'little-state-machine';
 import { useEffect } from 'react';
+import { stubFalse } from 'lodash';
 
 export const GlobalContext = createContext()
 
@@ -420,19 +421,19 @@ export default function GlobalContextProvider({ children }) {
         delete newProduct['variations']
         delete newProduct['manufacturer_id']
         newProduct['shop'] = {
-            id:shopDetails.owner_id,
-            name:shopDetails.name,
+            id: shopDetails.owner_id,
+            name: shopDetails.name,
         };
 
         console.log("new product", newProduct)
-        addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'),newProduct)
+        addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), newProduct)
             .then(res => {
                 toast.success("Product added successfully")
                 setOpen(false)
                 setLoading(false)
-                updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products',res.id),{
-                    slug:res.id,
-                    id:res.id
+                updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products', res.id), {
+                    slug: res.id,
+                    id: res.id
                 })
             })
             .catch(error => {
@@ -452,16 +453,88 @@ export default function GlobalContextProvider({ children }) {
                 data.push(product.data())
             })
             setOwnerProducts(data)
-            console.log("products",data)
+            console.log("products", data)
         })
 
     }
+
+    const [myOrderDetails, setMyOrderDetails] = useState(null)
+    const [myOrders, setMyOrders] = useState([])
+    useEffect(() => {
+        if (user) {
+            getMyOrders()
+        }
+    }, [user])
+
+    const getMyOrder = (orderId) => {
+        onSnapshot(query(collection(db, 'Orders'), where("orderId", "==", orderId)), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+
+                data.push(doc.data())
+            })
+            if (data.length > 0) {
+                setMyOrderDetails(data[0])
+                console.log("order", data[0])
+            }
+
+        })
+    }
+
+
+    const getMyOrders = () => {
+        onSnapshot(query(collection(db,'Orders')), snapshot => {
+        // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+
+                data.push(doc.data())
+            })
+            if (data.length > 0) {
+                setMyOrders(data)
+                console.log("my orders", data)
+            }
+
+        })
+    }
+
+    const updateMyOrder = (order,setUpdating)=>{
+    console.log("order to be updated",order)
+    setUpdating(true)
+    updateDoc(doc(db,'Orders',order.id),{
+        status:order.status
+    })
+    .then(res=>{
+        toast.success("Sucessfully Updated")
+        setUpdating(false)
+    })
+    .catch(error=>{
+        toast.error(error.code)
+        setUpdating(false)
+    })
+    //  onSnapshot(query(collectionGroup(db, 'Orders'), where("orderId", "==", order.id)), snapshot => {
+    //     let data = []
+    //     snapshot.forEach(doc => {
+
+    //         data.push(doc.data())
+    //     })
+    //     if (data.length > 0) {
+    //         setMyOrderDetails(data[0])
+    //         updateDoc()
+    //         console.log("order", data[0])
+    //     }
+
+    // })
+
+    }
+
 
 
 
     return (
         <GlobalContext.Provider
             value={{
+                updateMyOrder,
                 user,
                 addProduct,
                 createProduct,
@@ -477,6 +550,9 @@ export default function GlobalContextProvider({ children }) {
                 loading,
                 setVisible,
                 editProduct,
+                myOrderDetails,
+                myOrders,
+                getMyOrder,
                 productId,
                 ownerProducts,
                 getOwnerProducts,

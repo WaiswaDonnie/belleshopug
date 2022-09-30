@@ -12,6 +12,9 @@ import {
 } from '@/types';
 import { orderClient } from './client/order';
 import { exportClient } from '@/data/client/export';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useEffect } from 'react';
 
 export const useOrdersQuery = (
   params: Partial<OrderQueryOptions>,
@@ -26,8 +29,10 @@ export const useOrdersQuery = (
       ...options,
     }
   );
+  const {myOrders} =  useContext(GlobalContext)
   return {
-    orders: data?.data ?? [],
+    orders: myOrders ?? [],
+    // orders: data?.data ?? [],
     paginatorInfo: mapPaginatorData(data),
     error,
     loading: isLoading,
@@ -46,8 +51,18 @@ export const useOrderQuery = ({
     () => orderClient.get({ id, language })
   );
 
+
+  const {getMyOrder,myOrderDetails} =  useContext(GlobalContext)
+  console.log("order id is going to be",id)
+  useEffect(()=>{
+    if(id){
+      getMyOrder(id)
+    }
+  },[id])
+
   return {
-    order: data,
+    order: myOrderDetails,
+    // order: data,
     error,
     isLoading,
   };
