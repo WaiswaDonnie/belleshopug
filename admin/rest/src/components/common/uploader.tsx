@@ -29,7 +29,7 @@ export default function Uploader({
   const { t } = useTranslation();
   const { uploadFiles } = useContext(GlobalContext);
   const [files, setFiles] = useState<Attachment[]>(getPreviewImage(value));
-  const [uploadedFiles,setUploadedFiles] = useState([])
+  const [uploadedFiles,setUploadedFiles] = useState<Attachment[]>(getPreviewImage(value))
   const [loading, setLoading] = useState(false)
   const { mutate: upload, } = useUploadMutation();
   const [error, setError] = useState<string | null>(null);
@@ -183,12 +183,27 @@ export default function Uploader({
     [files]
   );
 
+  useEffect(()=>{
+    if (onChange) {
+      let mergedData;
+      if (multiple) {
+        
+        mergedData = uploadedFiles.concat(uploadedFiles);
+      } else {
+        mergedData = uploadedFiles[0];
+      }
+      console.log("merged data got is",mergedData)
+      onChange(mergedData);
+    }
+  },[onChange,multiple,uploadedFiles])
+
+
   return (
     <section className="upload">
       <Dropzone onDrop={async (acceptedFiles) => {
         if (acceptedFiles.length) {
           uploadFiles(acceptedFiles,setLoading,setUploadedFiles,multiple)
-          
+
           // upload(
           //   acceptedFiles, // it will be an array of uploaded attachments
           //   {
@@ -205,6 +220,7 @@ export default function Uploader({
           //         console.log("ds", files.concat(data))
           //       }
           //       if (onChange) {
+          //         console.log("merged data",mergedData)
           //         onChange(mergedData);
           //       }
           //     },

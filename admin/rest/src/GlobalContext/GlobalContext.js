@@ -52,28 +52,28 @@ export default function GlobalContextProvider({ children }) {
             for (var i = 0; i < files.length; i++) {
                 // files.values contains all the files objects
                 const file = files[i];
-                 const metadata = {
-                  contentType: "image/jpeg",
+                const metadata = {
+                    contentType: "image/jpeg",
                 };
-                const storageRef = ref(storage,  `users/${user.uid}/attachments/${file.name}`);
-            
-                promises.push(uploadBytes(storageRef, file, metadata).then(uploadResult => {return getDownloadURL(uploadResult.ref)}))
-                
-              }
-              const photos = await Promise.all(promises);
-              if(photos){
-                  let nowFiles = []
-                  photos.map((photo,index)=>{
-                      nowFiles.push({
-                          id:index,
-                          thumbnail:photo,
-                          original:photo
-                      })
-                  })
-                  setLoading(false)
-                  setFiles(nowFiles)
-                  console.log("Photos", nowFiles)
-              }
+                const storageRef = ref(storage, `users/${user.uid}/attachments/${file.name}`);
+
+                promises.push(uploadBytes(storageRef, file, metadata).then(uploadResult => { return getDownloadURL(uploadResult.ref) }))
+
+            }
+            const photos = await Promise.all(promises);
+            if (photos) {
+                let nowFiles = []
+                photos.map((photo, index) => {
+                    nowFiles.push({
+                        id: index,
+                        thumbnail: photo,
+                        original: photo
+                    })
+                })
+                setLoading(false)
+                setFiles(nowFiles)
+                console.log("Photos", nowFiles)
+            }
             // files.forEach(async (file) => {
             //     const storageRef = ref(storage, `users/${user.uid}/attachments/${file.name}`);
             //     console.log("file to be uploaded", files)
@@ -184,7 +184,7 @@ export default function GlobalContextProvider({ children }) {
         //  }
     }
 
-    function uploadImageAsPromise(file,setFiles) {
+    function uploadImageAsPromise(file, setFiles) {
         const er = []
         return new Promise(function (resolve, reject) {
             const storageRef = ref(storage, `users/${user.uid}/attachments/${file.name}`);
@@ -221,8 +221,8 @@ export default function GlobalContextProvider({ children }) {
                         })
                         setLoading(false)
                         setFiles(er)
-                        resolve(downloadURL) 
-                       
+                        resolve(downloadURL)
+
                     });
                 }
             )
@@ -568,14 +568,14 @@ export default function GlobalContextProvider({ children }) {
         setIsLoading(true)
         setDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
             cover_image: {
-                original: newShop.values.thumbnail,
-                thumbnail: newShop.values. thumbnail
+                original: newShop.values.orignal ? newShop.values.orignal : "sdas",
+                thumbnail: newShop.values.thumbnail ? newShop.values.original : "adftgdf"
                 // original: newShop.values.cover_image.original,
                 // thumbnail: newShop.values.cover_image.thumbnail
             },
             name: newShop.values.name,
             description: newShop.values.description,
-            logo: newShop.values.logo,
+            logo: newShop.values.logo ? newShop.values.logo : "asdasd",
             owner_id: user.uid,
             createdOn: serverTimestamp()
         })
@@ -595,7 +595,7 @@ export default function GlobalContextProvider({ children }) {
 
     useEffect(() => {
         if (user) {
-            console.log("auth",user.uid)
+            console.log("auth", user.uid)
             getShopDetails()
         }
     }, [user])
@@ -603,7 +603,7 @@ export default function GlobalContextProvider({ children }) {
         getDoc(query(doc(db, 'Vendors', user.uid, 'Shops', user.uid)))
             .then(res => {
                 setShopDetails(res.data())
-                console.log("shop details are all here",res.data())
+                console.log("shop details are all here", res.data())
             })
     }
     const [open, setOpen] = useState(false);
@@ -611,37 +611,38 @@ export default function GlobalContextProvider({ children }) {
 
     const createProduct = async (newProduct, setLoading) => {
         setLoading(true)
-       if(newProduct.shopDetails){
-    
+        console.log("newProduct.shopDetails",newProduct)
+        if (shopDetails) {
 
-        delete newProduct['author_id']
-        delete newProduct['variation_options']
-        delete newProduct['variations']
-        delete newProduct['manufacturer_id']
-        newProduct['shop'] = {
-            id: shopDetails.user.uid,
-            name: shopDetails.name,
-        };
 
-        console.log("new product", newProduct)
-        addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), newProduct)
-            .then(res => {
-                toast.success("Product added successfully")
-                setOpen(false)
-                setLoading(false)
-                updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products', res.id), {
-                    slug: res.id,
-                    id: res.id
+            delete newProduct['author_id']
+            delete newProduct['variation_options']
+            delete newProduct['variations']
+            delete newProduct['manufacturer_id']
+            newProduct['shop'] = {
+                id: shopDetails.owner_id,
+                name: shopDetails.name,
+            };
+
+            console.log("new product", newProduct)
+            addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), newProduct)
+                .then(res => {
+                    toast.success("Product added successfully")
+                    setOpen(false)
+                    setLoading(false)
+                    updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products', res.id), {
+                        slug: res.id,
+                        id: res.id
+                    })
                 })
-            })
-            .catch(error => {
-                toast.error(error.code)
-                setLoading(false)
-            })
-       }else{
-           toast.error("You have no shop")
-setLoading(false)
-       }
+                .catch(error => {
+                    toast.error(error.code)
+                    setLoading(false)
+                })
+        } else {
+            toast.error("You have no shop")
+            setLoading(false)
+        }
 
     }
 

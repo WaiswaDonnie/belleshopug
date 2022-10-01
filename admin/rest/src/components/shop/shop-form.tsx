@@ -112,16 +112,17 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
   });
 
   function onSubmit(values: FormValues) {
-    const settings = {
-      ...values?.settings,
-      location: { ...omit(values?.settings?.location, '__typename') },
-      socials: values?.settings?.socials
-        ? values?.settings?.socials?.map((social: any) => ({
-            icon: social?.icon?.value,
-            url: social?.url,
-          }))
-        : [],
-    };
+    console.log("form ",values)
+    // const settings = {
+    //   ...values?.settings,
+    //   location: { ...omit(values?.settings?.location, '__typename') },
+    //   socials: values?.settings?.socials
+    //     ? values?.settings?.socials?.map((social: any) => ({
+    //         icon: social?.icon?.value,
+    //         url: social?.url,
+    //       }))
+    //     : [],
+    // };
     if (initialValues) {
       const { ...restAddress } = values.address;
       updateShop({

@@ -57,6 +57,7 @@ export default function CreateOrUpdateProductForm({
   const { createProduct,shopDetails } = useContext(GlobalContext)
 
   const shopId = shopDetails?.owner_id!;
+  console.log("shopDetails?.owner_id",shopDetails?.owner_id!)
   
   const isNewTranslation = router?.query?.action === 'translate';
   const methods = useForm<ProductFormValues>({
