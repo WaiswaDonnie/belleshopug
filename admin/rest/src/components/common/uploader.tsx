@@ -9,7 +9,9 @@ import { useUploadMutation } from '@/data/upload';
 import Image from 'next/image';
 import { zipPlaceholder } from '@/utils/placeholders';
 import { ACCEPTED_FILE_TYPES } from '@/utils/constants';
-
+import Dropzone from 'react-dropzone'
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 const getPreviewImage = (value: any) => {
   let images: any[] = [];
   if (value) {
@@ -25,8 +27,11 @@ export default function Uploader({
   helperText,
 }: any) {
   const { t } = useTranslation();
+  const { uploadFiles } = useContext(GlobalContext);
   const [files, setFiles] = useState<Attachment[]>(getPreviewImage(value));
-  const { mutate: upload, isLoading: loading } = useUploadMutation();
+  const [uploadedFiles,setUploadedFiles] = useState([])
+  const [loading, setLoading] = useState(false)
+  const { mutate: upload, } = useUploadMutation();
   const [error, setError] = useState<string | null>(null);
   const { getRootProps, getInputProps } = useDropzone({
     ...(!acceptFile ? { accept: 'image/*' } : { accept: ACCEPTED_FILE_TYPES }),
@@ -41,9 +46,12 @@ export default function Uploader({
               if (multiple) {
                 mergedData = files.concat(data);
                 setFiles(files.concat(data));
+                console.log("Uploaded Dtae", files.concat(data))
+
               } else {
                 mergedData = data[0];
                 setFiles(data);
+                console.log("Uploaded Dtae", data)
               }
               if (onChange) {
                 onChange(mergedData);
@@ -68,9 +76,11 @@ export default function Uploader({
   });
 
   const handleDelete = (image: string) => {
-    const images = files.filter((file) => file.thumbnail !== image);
+    const images = uploadedFiles.filter((file) => file.thumbnail !== image);
+    // const images = files.filter((file) => file.thumbnail !== image);
 
-    setFiles(images);
+    // setFiles(images);
+    setUploadedFiles(images);
     if (onChange) {
       onChange(images);
     }
@@ -101,13 +111,13 @@ export default function Uploader({
 
       const fileType = fileSplitName.pop(); // it will pop the last item from the fileSplitName arr which is the file ext
       const filename = fileSplitName.join('.'); // it will join the array with dot, which restore the original filename
-      const isImage = file?.thumbnail && imgTypes.includes(fileType); // check if the original filename has the img ext
+      const isImage = file?.thumbnail; // check if the original filename has the img ext
+      // const isImage = file?.thumbnail && imgTypes.includes(fileType); // check if the original filename has the img ext
 
       return (
         <div
-          className={`relative mt-2 inline-flex flex-col overflow-hidden rounded me-2 ${
-            isImage ? 'border border-border-200' : ''
-          }`}
+          className={`relative mt-2 inline-flex flex-col overflow-hidden rounded me-2 ${isImage ? 'border border-border-200' : ''
+            }`}
           key={idx}
         >
           {/* {file?.thumbnail && isImage ? ( */}
@@ -175,33 +185,73 @@ export default function Uploader({
 
   return (
     <section className="upload">
-      <div
-        {...getRootProps({
-          className:
-            'border-dashed border-2 border-border-base h-36 rounded flex flex-col justify-center items-center cursor-pointer focus:border-accent-400 focus:outline-none',
-        })}
-      >
-        <input {...getInputProps()} />
-        <UploadIcon className="text-muted-light" />
-        <p className="mt-4 text-center text-sm text-body">
-          {helperText ? (
-            <span className="font-semibold text-gray-500">{helperText}</span>
-          ) : (
-            <>
-              <span className="font-semibold text-accent">
-                {t('text-upload-highlight')}
-              </span>{' '}
-              {t('text-upload-message')} <br />
-              <span className="text-xs text-body">{t('text-img-format')}</span>
-            </>
-          )}
-        </p>
-        {error && (
-          <p className="mt-4 text-center text-sm text-body text-red-600">
-            {error}
-          </p>
+      <Dropzone onDrop={async (acceptedFiles) => {
+        if (acceptedFiles.length) {
+          uploadFiles(acceptedFiles,setLoading,setUploadedFiles,multiple)
+          
+          // upload(
+          //   acceptedFiles, // it will be an array of uploaded attachments
+          //   {
+          //     onSuccess: (data: any) => {
+          //       let mergedData;
+          //       if (multiple) {
+          //         mergedData = files.concat(data);
+          //         setFiles(files.concat(data));
+          //         console.log(files.concat(data))
+          //       } else {
+          //         mergedData = data[0];
+          //         setFiles(data);
+          //         console.log("raw", data)
+          //         console.log("ds", files.concat(data))
+          //       }
+          //       if (onChange) {
+          //         onChange(mergedData);
+          //       }
+          //     },
+          //   }
+          // );
+        }
+      }
+
+      }>
+        {({ getRootProps, getInputProps }) => (
+          <section>
+            {/* <div {...getRootProps()}>
+              <input {...getInputProps()} />
+              <p>Drag  drop some files here, or click to select files</p>
+            </div> */}
+            <div
+              {...getRootProps({
+                className:
+                  'border-dashed border-2 border-border-base h-36 rounded flex flex-col justify-center items-center cursor-pointer focus:border-accent-400 focus:outline-none',
+              })}
+            >
+              <input {...getInputProps()} />
+              <UploadIcon className="text-muted-light" />
+              <p className="mt-4 text-center text-sm text-body">
+                {helperText ? (
+                  <span className="font-semibold text-gray-500">{helperText}</span>
+                ) : (
+                  <>
+                    <span className="font-semibold text-accent">
+                      {t('text-upload-highlight')}
+                    </span>{' '}
+                    {t('text-upload-message')} <br />
+                    <span className="text-xs text-body">{t('text-img-format')}</span>
+                  </>
+                )}
+              </p>
+              {error && (
+                <p className="mt-4 text-center text-sm text-body text-red-600">
+                  {error}
+                </p>
+              )}
+            </div>
+          </section>
         )}
-      </div>
+      </Dropzone>
+
+
 
       {(!!thumbs.length || loading) && (
         <aside className="mt-2 flex flex-wrap">
@@ -213,6 +263,26 @@ export default function Uploader({
           )}
         </aside>
       )}
+      {uploadedFiles.map((file,index)=>(
+        <div  key={index} className={`relative mt-2 inline-flex flex-col overflow-hidden rounded me-2 border border-border-200 `}>
+         <figure key={index} className="relative h-16 w-28">
+         <Image
+           src={file.thumbnail}
+           alt={'image'}
+           layout="fill"
+           objectFit="contain"
+         />
+          
+            <button
+              className="absolute top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs text-light shadow-xl outline-none end-1"
+              onClick={() => handleDelete(file.thumbnail)}
+            >
+              <CloseIcon width={10} height={10} />
+            </button>
+          
+       </figure>
+        </div>
+      ))}
     </section>
   );
 }

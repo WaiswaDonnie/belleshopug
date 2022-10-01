@@ -1,8 +1,10 @@
 import React, { useContext, createContext, useState, useLayoutEffect } from 'react'
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy } from 'firebase/firestore';
-import { db, auth } from '../../firebase'
+import { db, auth, storage } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
+
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import Cookies from 'js-cookie'
@@ -15,10 +17,10 @@ import {
 } from 'react-query';
 // import { toast } from 'react-toastify';
 // import client from './client';
- // import { API_ENDPOINTS } from './client/api-endpoints';
+// import { API_ENDPOINTS } from './client/api-endpoints';
 
- import { useEffect } from 'react';
-import { stubFalse } from 'lodash';
+import { useEffect } from 'react';
+import { forEach, stubFalse } from 'lodash';
 
 export const GlobalContext = createContext()
 
@@ -42,8 +44,191 @@ export default function GlobalContextProvider({ children }) {
         })
     }, [user])
 
+    const uploadFiles = async (files, setLoading, setFiles, multiple) => {
+        setLoading(true)
+        console.log("files ares", files)
+        if (multiple) {
+            const promises = [];
+            for (var i = 0; i < files.length; i++) {
+                // files.values contains all the files objects
+                const file = files[i];
+                 const metadata = {
+                  contentType: "image/jpeg",
+                };
+                const storageRef = ref(storage,  `users/${user.uid}/attachments/${file.name}`);
+            
+                promises.push(uploadBytes(storageRef, file, metadata).then(uploadResult => {return getDownloadURL(uploadResult.ref)}))
+                
+              }
+              const photos = await Promise.all(promises);
+              if(photos){
+                  let nowFiles = []
+                  photos.map((photo,index)=>{
+                      nowFiles.push({
+                          id:index,
+                          thumbnail:photo,
+                          original:photo
+                      })
+                  })
+                  setLoading(false)
+                  setFiles(nowFiles)
+                  console.log("Photos", nowFiles)
+              }
+            // files.forEach(async (file) => {
+            //     const storageRef = ref(storage, `users/${user.uid}/attachments/${file.name}`);
+            //     console.log("file to be uploaded", files)
+
+            //     const uploadTask = uploadBytesResumable(storageRef, file);
+            //     uploadTask.on('state_changed',
+            //         (snapshot) => {
+
+            //             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            //             console.log('Upload is ' + progress + '% done');
+            //             switch (snapshot.state) {
+            //                 case 'paused':
+            //                     console.log('Upload is paused');
+            //                     break;
+            //                 case 'running':
+            //                     console.log('Upload is running');
+            //                     break;
+            //             }
+            //         },
+            //         (error) => {
+            //             // Handle unsuccessful uploads
+
+            //         },
+            //         () => {
 
 
+            //             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            //                 console.log('File available at', downloadURL);
+            //                 setLoading(false)
+            //                 customFiles.push({
+            //                     thumbnail: downloadURL,
+            //                     original: downloadURL,
+            //                     id: downloadURL
+            //                 })
+            //                 console.log()
+            //             });
+            //         }
+            //     )
+            //     if (customFiles.length > 0) {
+            //         console.log("total files uploaded", customFiles)
+            //     }
+            // })
+
+        }
+        else {
+
+            const storageRef = ref(storage, `users/${user.uid}/attachments/${files[0].name}`);
+            console.log("file to be uploaded", files)
+
+            const uploadTask = uploadBytesResumable(storageRef, files[0]);
+
+            // Register three observers:
+            // 1. 'state_changed' observer, called any time the state changes
+            // 2. Error observer, called on failure
+            // 3. Completion observer, called on successful completion
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    // Observe state change events such as progress, pause, and resume
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                    }
+                },
+                (error) => {
+                    // Handle unsuccessful uploads
+
+                },
+                () => {
+                    // Handle successful uploads on complete
+                    // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('single file File available at', downloadURL);
+                        setLoading(false)
+                        // customFiles.push({
+                        //     thumbnail: downloadURL,
+                        //     original: downloadURL,
+                        //     id: downloadURL
+                        // })
+                        setFiles([{
+                            thumbnail: downloadURL,
+                            original: downloadURL,
+                            id: downloadURL
+                        }])
+                        console.log('single file File available at', files);
+
+
+
+
+                    });
+                }
+            )
+
+        }
+
+
+        // setFiles(customFiles)
+        // console.log("leng", customFiles.length)
+        // console.log("lengs", files.length)
+        //  if(customFiles.length === files.length -1){
+        //     setLoading(false)
+        //  }
+    }
+
+    function uploadImageAsPromise(file,setFiles) {
+        const er = []
+        return new Promise(function (resolve, reject) {
+            const storageRef = ref(storage, `users/${user.uid}/attachments/${file.name}`);
+            console.log("file to be uploaded", file)
+
+            const uploadTask = uploadBytesResumable(storageRef, file);
+            uploadTask.on('state_changed',
+                (snapshot) => {
+
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                    }
+                },
+                (error) => {
+                    // Handle unsuccessful uploads
+
+                },
+                () => {
+
+
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+                        er.push({
+                            thumbnail: downloadURL,
+                            original: downloadURL,
+                            id: downloadURL
+                        })
+                        setLoading(false)
+                        setFiles(er)
+                        resolve(downloadURL) 
+                       
+                    });
+                }
+            )
+
+        });
+    }
 
 
     const addProduct = async (newProduct) => {
@@ -218,8 +403,8 @@ export default function GlobalContextProvider({ children }) {
 
     const [productDetails, setProductDetails] = useState(null)
     const getProductDetails = async (productId) => {
-        if(productId){
-            onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==",productId)), snapshot => {
+        if (productId) {
+            onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==", productId)), snapshot => {
                 let data = []
                 snapshot.forEach(doc => {
                     data.push(doc.data())
@@ -234,9 +419,9 @@ export default function GlobalContextProvider({ children }) {
             //     })
             //     console.log("product got is", data)
             //     setProductDetails(data[0])
-               
+
             // })
-           }
+        }
     }
     const createUser = async (username, email, password, setLoading, setAuthCredentials, routes) => {
         console.log(username, email, password)
@@ -383,8 +568,10 @@ export default function GlobalContextProvider({ children }) {
         setIsLoading(true)
         setDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
             cover_image: {
-                original: newShop.values.cover_image.original,
-                thumbnail: newShop.values.cover_image.thumbnail
+                original: newShop.values.thumbnail,
+                thumbnail: newShop.values. thumbnail
+                // original: newShop.values.cover_image.original,
+                // thumbnail: newShop.values.cover_image.thumbnail
             },
             name: newShop.values.name,
             description: newShop.values.description,
@@ -408,6 +595,7 @@ export default function GlobalContextProvider({ children }) {
 
     useEffect(() => {
         if (user) {
+            console.log("auth",user.uid)
             getShopDetails()
         }
     }, [user])
@@ -415,7 +603,7 @@ export default function GlobalContextProvider({ children }) {
         getDoc(query(doc(db, 'Vendors', user.uid, 'Shops', user.uid)))
             .then(res => {
                 setShopDetails(res.data())
-                console.log(res.data())
+                console.log("shop details are all here",res.data())
             })
     }
     const [open, setOpen] = useState(false);
@@ -423,12 +611,15 @@ export default function GlobalContextProvider({ children }) {
 
     const createProduct = async (newProduct, setLoading) => {
         setLoading(true)
+       if(newProduct.shopDetails){
+    
+
         delete newProduct['author_id']
         delete newProduct['variation_options']
         delete newProduct['variations']
         delete newProduct['manufacturer_id']
         newProduct['shop'] = {
-            id: shopDetails.owner_id,
+            id: shopDetails.user.uid,
             name: shopDetails.name,
         };
 
@@ -447,6 +638,10 @@ export default function GlobalContextProvider({ children }) {
                 toast.error(error.code)
                 setLoading(false)
             })
+       }else{
+           toast.error("You have no shop")
+setLoading(false)
+       }
 
     }
 
@@ -490,8 +685,8 @@ export default function GlobalContextProvider({ children }) {
 
 
     const getMyOrders = () => {
-        onSnapshot(query(collection(db,'Orders')), snapshot => {
-        // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
+        onSnapshot(query(collection(db, 'Orders')), snapshot => {
+            // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
             let data = []
             snapshot.forEach(doc => {
 
@@ -505,33 +700,33 @@ export default function GlobalContextProvider({ children }) {
         })
     }
 
-    const updateMyOrder = (order,setUpdating)=>{
-    console.log("order to be updated",order)
-    setUpdating(true)
-    updateDoc(doc(db,'Orders',order.id),{
-        status:order.status
-    })
-    .then(res=>{
-        toast.success("Sucessfully Updated")
-        setUpdating(false)
-    })
-    .catch(error=>{
-        toast.error(error.code)
-        setUpdating(false)
-    })
-    //  onSnapshot(query(collectionGroup(db, 'Orders'), where("orderId", "==", order.id)), snapshot => {
-    //     let data = []
-    //     snapshot.forEach(doc => {
+    const updateMyOrder = (order, setUpdating) => {
+        console.log("order to be updated", order)
+        setUpdating(true)
+        updateDoc(doc(db, 'Orders', order.id), {
+            status: order.status
+        })
+            .then(res => {
+                toast.success("Sucessfully Updated")
+                setUpdating(false)
+            })
+            .catch(error => {
+                toast.error(error.code)
+                setUpdating(false)
+            })
+        //  onSnapshot(query(collectionGroup(db, 'Orders'), where("orderId", "==", order.id)), snapshot => {
+        //     let data = []
+        //     snapshot.forEach(doc => {
 
-    //         data.push(doc.data())
-    //     })
-    //     if (data.length > 0) {
-    //         setMyOrderDetails(data[0])
-    //         updateDoc()
-    //         console.log("order", data[0])
-    //     }
+        //         data.push(doc.data())
+        //     })
+        //     if (data.length > 0) {
+        //         setMyOrderDetails(data[0])
+        //         updateDoc()
+        //         console.log("order", data[0])
+        //     }
 
-    // })
+        // })
 
     }
 
@@ -553,6 +748,7 @@ export default function GlobalContextProvider({ children }) {
                 visible,
                 loading, setLoading,
                 createUser,
+                uploadFiles,
                 open, setOpen,
                 loading,
                 setVisible,
