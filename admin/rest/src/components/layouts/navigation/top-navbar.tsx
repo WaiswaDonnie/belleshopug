@@ -13,9 +13,12 @@ import {
 } from '@/utils/auth-utils';
 import LanguageSwitcher from './language-switer';
 import { Config } from '@/config';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useContext } from 'react';
 
 const Navbar = () => {
   const { t } = useTranslation();
+  const { shopDetails } = useContext(GlobalContext)
   const { toggleSidebar } = useUI();
 
   const { permissions } = getAuthCredentials();
@@ -40,13 +43,18 @@ const Navbar = () => {
 
         <div className="space-s-8 flex items-center">
           {hasAccess(adminAndOwnerOnly, permissions) && (
-            <LinkButton
-              href={Routes.shop.create}
-              className="ms-4 md:ms-6"
-              size="small"
-            >
-              {t('common:text-create-shop')}
-            </LinkButton>
+            <>
+              {shopDetails === undefined &&
+                <LinkButton
+                  href={Routes.shop.create}
+                  className="ms-4 md:ms-6"
+                  size="small"
+                >
+                  {t('common:text-create-shop')}
+                </LinkButton>
+                
+              }
+            </>
           )}
           {enableMultiLang ? <LanguageSwitcher /> : null}
           <AuthorizedMenu />

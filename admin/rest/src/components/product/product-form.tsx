@@ -57,7 +57,7 @@ export default function CreateOrUpdateProductForm({
   const { createProduct,shopDetails } = useContext(GlobalContext)
 
   const shopId = shopDetails?.owner_id!;
-  console.log("shopDetails?.owner_id",shopDetails?.owner_id!)
+  console.log("shopDetails? initial",initialValues!)
   
   const isNewTranslation = router?.query?.action === 'translate';
   const methods = useForm<ProductFormValues>({
@@ -76,7 +76,7 @@ export default function CreateOrUpdateProductForm({
     formState: { errors },
   } = methods;
 
-  const { isLoading: creating } =
+  const {   } =
     useCreateProductMutation();
   const { mutate: updateProduct, isLoading: updating } =
     useUpdateProductMutation();
@@ -88,36 +88,31 @@ export default function CreateOrUpdateProductForm({
       language: router.locale,
       ...getProductInputValues(values, initialValues),
     };
-    createProduct({
-      ...inputValues,
-      ...(initialValues?.slug && { slug: initialValues.slug }),
-      shop_id: shopId || initialValues?.shop_id,
-    }, setLoading)
 
+   
+    if(!initialValues){
+      createProduct({
+        ...inputValues,
+        ...(initialValues?.slug && { slug: initialValues.slug }),
+        shop_id: shopId || initialValues?.shop_id,
+      }, setLoading)
+  
+    }else{
+      console.log("Donnie",initialValues)
+      // @ts-ignore
+      updateProduct({
+        ...inputValues,
+        id: initialValues.id!,
+        shop_id: initialValues.shop_id!,
+      },setLoading);
+    }
+
+    
     try {
-      // createProduct({
-      //   ...inputValues,
-      //   ...(initialValues?.slug && { slug: initialValues.slug }),
-      //   shop_id: shopId || initialValues?.shop_id,
-      // },setLoading)
-      // if (
-      //   !initialValues ||
-      //   !initialValues.translated_languages.includes(router.locale!)
-      // ) {
-      //   //@ts-ignore
-      //   createProduct({
-      //     ...inputValues,
-      //     ...(initialValues?.slug && { slug: initialValues.slug }),
-      //     shop_id: shopId || initialValues?.shop_id,
-      //   },setLoading);
-      // } else {
-      //   //@ts-ignore
-      //   updateProduct({
-      //     ...inputValues,
-      //     id: initialValues.id!,
-      //     shop_id: initialValues.shop_id!,
-      //   });
-      // }
+       
+        
+        
+    
     } catch (error) {
       const serverErrors = getErrorMessage(error);
       Object.keys(serverErrors?.validation).forEach((field: any) => {

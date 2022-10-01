@@ -6,9 +6,12 @@ import Link from '@/components/ui/link';
 import { siteSettings } from '@/settings/site.settings';
 import { useTranslation } from 'next-i18next';
 import { useMeQuery } from '@/data/user';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export default function AuthorizedMenu() {
   const { data } = useMeQuery();
+  const { userInfo,shopDetails } = useContext(GlobalContext)
   const { t } = useTranslation('common');
 
   // Again, we're using framer-motion for the transition effect
@@ -17,7 +20,7 @@ export default function AuthorizedMenu() {
       <Menu.Button className="flex items-center focus:outline-none">
         <Avatar
           src={
-            data?.profile?.avatar?.thumbnail ??
+            userInfo?.profile?.avatar?.thumbnail ??
             siteSettings?.avatar?.placeholder
           }
           alt="avatar"
@@ -37,13 +40,13 @@ export default function AuthorizedMenu() {
           as="ul"
           className="end-0 origin-top-end absolute mt-1 w-48 rounded bg-white shadow-md focus:outline-none"
         >
-          <Menu.Item key={data?.email}>
+          <Menu.Item key={userInfo?.email}>
             <li
               className="flex w-full flex-col space-y-1 rounded-t
              bg-[#00b791] px-4 py-3 text-sm text-white"
             >
-              <span className="font-semibold capitalize">{data?.name}</span>
-              <span className="text-xs">{data?.email}</span>
+              <span className="font-semibold capitalize">{userInfo?.name}</span>
+              <span className="text-xs">{userInfo?.email}</span>
             </li>
           </Menu.Item>
 

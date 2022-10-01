@@ -8,6 +8,9 @@ import TextArea from '@/components/ui/text-area';
 import { useTranslation } from 'next-i18next';
 import FileInput from '@/components/ui/file-input';
 import pick from 'lodash/pick';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useState } from 'react';
 
 type FormValues = {
   name: string;
@@ -25,7 +28,9 @@ type FormValues = {
 
 export default function ProfileUpdate({ me }: any) {
   const { t } = useTranslation();
-  const { mutate: updateUser, isLoading: loading } = useUpdateUserMutation();
+  const {updateUser} =  useContext(GlobalContext)
+  const [loading,setLoading] = useState(false)
+   // const { mutate: updateUser, isLoading: loading } = useUpdateUserMutation();
   const {
     register,
     handleSubmit,
@@ -37,6 +42,7 @@ export default function ProfileUpdate({ me }: any) {
         pick(me, ['name', 'profile.bio', 'profile.contact', 'profile.avatar'])),
     },
   });
+  
 
   async function onSubmit(values: FormValues) {
     const { name, profile } = values;
@@ -44,6 +50,7 @@ export default function ProfileUpdate({ me }: any) {
       id: me?.id,
       input: {
         name: name,
+        id: me?.id,
         profile: {
           id: me?.profile?.id,
           bio: profile?.bio,
@@ -55,7 +62,7 @@ export default function ProfileUpdate({ me }: any) {
           },
         },
       },
-    });
+    },setLoading);
   }
 
   return (

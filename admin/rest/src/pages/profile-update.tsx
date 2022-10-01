@@ -6,13 +6,24 @@ import Loader from '@/components/ui/loader/loader';
 import { useMeQuery } from '@/data/user';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useContext, useEffect } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export default function ProfilePage() {
   const { t } = useTranslation();
+  const { userInfo, getUserInfo,user } = useContext(GlobalContext)
   const { data, isLoading: loading, error } = useMeQuery();
+  useEffect(() => {
+    if(user){
+      getUserInfo()
+    }
+  },[user])
   if (loading) return <Loader text={t('common:text-loading')} />;
   if (error) return <ErrorMessage message={error.message} />;
-  return (
+
+
+ 
+   return (
     <>
       <div className="flex border-b border-dashed border-border-base py-5 sm:py-8">
         <h1 className="text-lg font-semibold text-heading">
@@ -20,8 +31,9 @@ export default function ProfilePage() {
         </h1>
       </div>
 
-      <ProfileUpdateFrom me={data} />
-      <ChangePasswordForm />
+
+      <ProfileUpdateFrom me={userInfo} />
+      {/* <ChangePasswordForm /> */}
     </>
   );
 }

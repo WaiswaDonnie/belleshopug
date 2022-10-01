@@ -118,6 +118,9 @@ export default function GlobalContextProvider({ children }) {
                                 data.push(doc.data())
                             })
                             console.log("pshop is comeas got is", data[0].shop_id)
+                            updateDoc(doc(db,'Vendors',data[0].shop_id,'Shops',data[0].shop_id,'Products',product.product_id),{
+                                quantity:increment(-product.order_quantity)
+                            })
                             addDoc(collection(db,'Vendors',data[0].shop_id,'Shops',data[0].shop_id,'Orders'),{
                                 amount:product?.subtotal,
                                 billing_address:newProduct?.billing_address,

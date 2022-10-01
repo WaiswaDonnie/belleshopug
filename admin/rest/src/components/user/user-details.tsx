@@ -6,13 +6,17 @@ import Link from '@/components/ui/link';
 import { Routes } from '@/config/routes';
 import Loader from '@/components/ui/loader/loader';
 import { useMeQuery } from '@/data/user';
+import { useState } from 'react';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 const UserDetails: React.FC = () => {
   const { t } = useTranslation('common');
+  const {userInfo} = useContext(GlobalContext)
   const { data, isLoading: loading } = useMeQuery();
   if (loading) return <Loader text={t('text-loading')} />;
 
-  const { name, email, profile, is_active } = data!;
+  const { name, email, profile, is_active } = userInfo || {};
 
   return (
     <div className="flex h-full flex-col items-center p-5">

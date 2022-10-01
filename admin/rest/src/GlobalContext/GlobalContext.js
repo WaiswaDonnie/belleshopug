@@ -435,10 +435,16 @@ export default function GlobalContextProvider({ children }) {
                 })
                 setUser(userCredentials.user)
                 setDoc(doc(db, 'Vendors', userCredentials.user.uid), {
-                    displayName: username,
-                    userId: userCredentials.user.uid,
-                    joinedOn: serverTimestamp(),
+                    name: username,
+                    id: userCredentials.user.uid,
+                    created_at: serverTimestamp(),
                     email: email,
+                    profile:{
+                        avatar:null,
+                        bio:null,
+                        contact:null,
+
+                    }
                 })
                     .then(async result => {
                         setLoading(false)
@@ -475,6 +481,24 @@ export default function GlobalContextProvider({ children }) {
                 // setFormError(error.code)
                 toast.error((error.code));
             })
+    }
+
+    
+    const updateUser = (newUser,setLoading)=>{
+    setLoading(true)
+        console.log("newUser",newUser.input)
+        updateDoc(doc(db, 'Vendors', user.uid),newUser.input)
+        .then(res=>{
+
+            setLoading(false)
+        toast.success("Saved Sucessfully")
+        getUserInfo()
+
+        })
+        .catch(error=>{
+
+        })
+
     }
     const loginUser = async (email, password, setLoading, setFormError, closeModal, setAuthorized) => {
         console.log(email, password)
@@ -653,13 +677,15 @@ export default function GlobalContextProvider({ children }) {
     }
     const [productInfo, setProductInfo] = useState(null)
     const getProductInfo = async (id, setLoading) => {
+        console.log("got it",id)
         setLoading(true)
-        onSnapshot(query(collection(db, 'Vendors', user.id, 'Shops', id, "Products"), where("id", "==", id)), snapshot => {
+        onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, "Products"), where("id", "==", id)), snapshot => {
             let data = [];
             snapshot.forEach(doc => {
                 data.push(doc.data())
             })
             setProductInfo(data[0])
+            console.log("we got", data)
 
         })
         setLoading(false)
@@ -695,8 +721,8 @@ export default function GlobalContextProvider({ children }) {
                     })
                     updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
                         products_count: increment(newProduct?.quantity),
-                        orders_count:0
-                         
+                        orders_count: 0
+
                     })
                 })
                 .catch(error => {
@@ -707,6 +733,47 @@ export default function GlobalContextProvider({ children }) {
             toast.error("You have no shop")
             setLoading(false)
         }
+
+    }
+    const updateProduct = async (newProduct, setLoading) => {
+        setLoading(true)
+        console.log("update Product", newProduct)
+        // if (shopDetails) {
+
+
+        //     delete newProduct['author_id']
+        //     delete newProduct['variation_options']
+        //     delete newProduct['variations']
+        //     delete newProduct['manufacturer_id']
+        //     newProduct['shop'] = {
+        //         id: shopDetails.owner_id,
+        //         name: shopDetails.name,
+        //     };
+
+        //     console.log("new product", newProduct)
+        //     addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), newProduct)
+        //         .then(res => {
+        //             toast.success("Product added successfully")
+        //             setOpen(false)
+        //             setLoading(false)
+        //             updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products', res.id), {
+        //                 slug: res.id,
+        //                 id: res.id
+        //             })
+        //             updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
+        //                 products_count: increment(newProduct?.quantity),
+        //                 orders_count: 0
+
+        //             })
+        //         })
+        //         .catch(error => {
+        //             toast.error(error.code)
+        //             setLoading(false)
+        //         })
+        // } else {
+        //     toast.error("You have no shop")
+        //     setLoading(false)
+        // }
 
     }
 
@@ -795,6 +862,26 @@ export default function GlobalContextProvider({ children }) {
 
     }
 
+    const [userInfo, setUserInfo] = useState({})
+
+    useEffect(() => {
+        if (user) {
+            getUserInfo()
+        }
+    }, [user])
+    const getUserInfo = async () => {
+        if (user) {
+            getDoc(doc(db, 'Vendors', user.uid))
+                .then(res => {
+                    console.log("user info",res.data())
+                    setUserInfo(res.data())
+                })
+                .catch(error => {
+                    console.log("user Info")
+                })
+        }
+    }
+
 
 
 
@@ -803,6 +890,8 @@ export default function GlobalContextProvider({ children }) {
             value={{
                 updateMyOrder,
                 user,
+                userInfo,
+                getUserInfo,
                 productInfo,
                 getProductInfo,
                 addProduct,
@@ -813,6 +902,7 @@ export default function GlobalContextProvider({ children }) {
                 products,
                 getProducts,
                 shopDetails,
+                updateUser,
                 createShop,
                 visible,
                 loading, setLoading,
@@ -833,6 +923,7 @@ export default function GlobalContextProvider({ children }) {
                 getOwnerProducts,
                 createOrder,
                 setProductId,
+                updateProduct,
                 productDetails,
                 setProductDetails,
                 getProductDetails,
