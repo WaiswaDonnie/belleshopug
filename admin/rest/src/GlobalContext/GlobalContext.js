@@ -693,6 +693,11 @@ export default function GlobalContextProvider({ children }) {
                         slug: res.id,
                         id: res.id
                     })
+                    updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
+                        products_count: increment(newProduct?.quantity),
+                        orders_count:0
+                         
+                    })
                 })
                 .catch(error => {
                     toast.error(error.code)

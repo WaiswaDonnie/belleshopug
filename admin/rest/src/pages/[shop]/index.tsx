@@ -120,7 +120,7 @@ export default function ShopPage() {
             <ReadMore character={70}>{description!}</ReadMore>
           </p>
 
-          <div className="mt-5 flex w-full justify-start">
+          {/* <div className="mt-5 flex w-full justify-start">
             <span className="me-2 mt-0.5 text-muted-light">
               <MapPin width={16} />
             </span>
@@ -130,9 +130,9 @@ export default function ShopPage() {
                 ? formatAddress(address!)
                 : t('common:text-no-address')}
             </address>
-          </div>
+          </div> */}
 
-          <div className="mt-3 flex w-full justify-start">
+          {/* <div className="mt-3 flex w-full justify-start">
             <span className="me-2 mt-0.5 text-muted-light">
               <PhoneIcon width={16} />
             </span>
@@ -141,11 +141,11 @@ export default function ShopPage() {
                 ? settings?.contact
                 : t('common:text-no-contact')}
             </a>
-          </div>
+          </div> */}
 
           <div className="mt-7 grid w-full grid-cols-1">
             <a
-              href={`${process.env.NEXT_PUBLIC_SHOP_URL}/${locale}/shops/${slug}`}
+              href={`${process.env.NEXT_PUBLIC_SHOP_URL}/${locale}/shops/${shop}`}
               target="_blank"
               className="inline-flex h-12 flex-shrink-0 items-center justify-center rounded !bg-gray-100 px-5 py-0 !font-normal leading-none !text-heading outline-none transition duration-300 ease-in-out hover:!bg-accent hover:!text-light focus:shadow focus:outline-none focus:ring-1 focus:ring-accent-700"
               rel="noreferrer"
@@ -178,7 +178,7 @@ export default function ShopPage() {
 
       {/* Mini Dashboard */}
       <div className="order-4 col-span-12 xl:order-3 xl:col-span-9">
-        <div className="grid h-full grid-cols-1 gap-5 rounded bg-light p-4 md:grid-cols-3">
+        <div className="grid h-full grid-cols-1 gap-5 rounded bg-light p-4 md:grid-cols-2">
           <div className="space-y-3">
             <h2 className="text-lg font-semibold text-heading">
               {t('common:text-products')}
@@ -200,7 +200,30 @@ export default function ShopPage() {
                 </div>
               </div>
 
-              <div className="flex items-center py-3 px-4">
+              {/* <div className="flex items-center py-3 px-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#6EBBFD] p-3 text-light">
+                  <OrdersIcon width={16} />
+                </div>
+
+                <div className="ms-3">
+                  <p className="mb-0.5 text-lg font-semibold text-sub-heading">
+                    {orders_count}
+                  </p>
+                  <p className="mt-0 text-sm text-muted">
+                    {t('common:text-total-orders')}
+                  </p>
+                </div>
+              </div> */}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold text-heading">
+              {'Orders'}
+            </h2>
+
+            <div className="border border-gray-100">
+            <div className="flex items-center py-3 px-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#6EBBFD] p-3 text-light">
                   <OrdersIcon width={16} />
                 </div>
@@ -214,31 +237,8 @@ export default function ShopPage() {
                   </p>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-heading">
-              {t('common:text-revenue')}
-            </h2>
-
-            <div className="border border-gray-100">
-              <div className="flex items-center border-b border-gray-100 py-3 px-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#C7AF99] p-3 text-light">
-                  <PriceWalletIcon width={16} />
-                </div>
-
-                <div className="ms-3">
-                  <p className="mb-0.5 text-lg font-semibold text-sub-heading">
-                    {totalEarnings}
-                  </p>
-                  <p className="mt-0 text-sm text-muted">
-                    {t('common:text-gross-sales')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center py-3 px-4">
+              {/* <div className="flex items-center py-3 px-4">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FFA7AE] p-3 text-light">
                   <DollarIcon width={12} />
                 </div>
@@ -251,11 +251,11 @@ export default function ShopPage() {
                     {t('common:text-current-balance')}
                   </p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
-          <div className="space-y-3">
+          {/* <div className="space-y-3">
             <h2 className="text-lg font-semibold text-heading">
               {t('common:text-others')}
             </h2>
@@ -276,7 +276,7 @@ export default function ShopPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -291,12 +291,12 @@ export default function ShopPage() {
           </span>
         </div>
 
-        <div className="flex flex-col p-6 2xl:p-7">
-          <span className="mb-4 text-lg font-semibold text-sub-heading">
+        {/* <div className="flex flex-col p-6 2xl:p-7"> */}
+          {/* <span className="mb-4 text-lg font-semibold text-sub-heading">
             {t('common:text-payment-info')}
-          </span>
+          </span> */}
 
-          <div className="flex flex-col space-y-3">
+          {/* <div className="flex flex-col space-y-3">
             <p className="text-sm text-sub-heading">
               <span className="block w-full text-muted">
                 {t('common:text-name')}:
@@ -329,8 +329,8 @@ export default function ShopPage() {
                 {balance?.payment_info?.account}
               </span>
             </p>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
     </div>
   );

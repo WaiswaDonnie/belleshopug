@@ -153,11 +153,17 @@ export default function GlobalContextProvider({ children }) {
                             })
                             .then((res)=>{
                                 console.log("finished")
+                              
+                                
 
                             })
                             .catch(error => {
                                 console.log(error.code)
 
+                            })
+
+                            updateDoc(doc(db,'Vendors',data[0].shop_id,'Shops'),{
+                                products_count:increment(1)
                             })
                             
                         }) 
