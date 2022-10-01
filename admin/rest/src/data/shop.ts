@@ -8,6 +8,8 @@ import { mapPaginatorData } from '@/utils/data-mappers';
 import { useRouter } from 'next/router';
 import { adminOnly, getAuthCredentials, hasAccess } from '@/utils/auth-utils';
 import { Shop, ShopPaginator, ShopQueryOptions } from '@/types';
+import { useContext,useEffect } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export const useApproveShopMutation = () => {
   const { t } = useTranslation();
@@ -87,9 +89,15 @@ export const useShopsQuery = (options: Partial<ShopQueryOptions>) => {
       keepPreviousData: true,
     }
   );
+  const { shops, getShops, user } = useContext(GlobalContext)
 
+  useEffect(() => {
+    if (user) {
+      getShops()
+    }
+  }, [user])
   return {
-    shops: data?.data ?? [],
+    shops: shops ?? [],
     paginatorInfo: mapPaginatorData(data),
     error,
     loading: isLoading,

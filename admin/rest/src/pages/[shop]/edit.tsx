@@ -7,20 +7,31 @@ import ShopForm from '@/components/shop/shop-form';
 import ShopLayout from '@/components/layouts/shop';
 import { adminAndOwnerOnly } from '@/utils/auth-utils';
 import { useShopQuery } from '@/data/shop';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useEffect,useState } from 'react';
 
 export default function UpdateShopPage() {
   const { query } = useRouter();
   const { shop } = query;
   const { t } = useTranslation();
-  const {
-    data,
-    isLoading: loading,
-    error,
-  } = useShopQuery({
-    slug: shop as string,
-  });
+  const { getShopInfo, shopInfo } = useContext(GlobalContext)
+  const [loading,setLoading] = useState(false)
+
+  useEffect(() => {
+    if (shop) {
+      getShopInfo(shop as string,setLoading)
+    }
+  }, [shop])
+  // const {
+  //   data,
+  //   isLoading: loading,
+  //   error,
+  // } = useShopQuery({
+  //   slug: shop as string,
+  // });
   if (loading) return <Loader text={t('common:text-loading')} />;
-  if (error) return <ErrorMessage message={error.message} />;
+  // if (error) return <ErrorMessage message={error.message} />;
   return (
     <>
       <div className="flex border-b border-dashed border-border-base py-5 sm:py-8">
@@ -28,7 +39,7 @@ export default function UpdateShopPage() {
           {t('form:form-title-edit-shop')}
         </h1>
       </div>
-      <ShopForm initialValues={data} />
+      <ShopForm initialValues={shopInfo} />
     </>
   );
 }

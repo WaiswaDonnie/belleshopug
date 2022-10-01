@@ -5,12 +5,12 @@ import Loader from '@/components/ui/loader/loader';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import ShopList from '@/components/shop/shop-list';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Search from '@/components/common/search';
 import { adminOnly } from '@/utils/auth-utils';
 import { useShopsQuery } from '@/data/shop';
 import { SortOrder } from '@/types';
-
+import {GlobalContext} from '@/GlobalContext/GlobalContext'
 export default function AllShopPage() {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,6 +25,7 @@ export default function AllShopPage() {
     sortedBy,
   });
 
+ 
   if (loading) return <Loader text={t('common:text-loading')} />;
   if (error) return <ErrorMessage message={error.message} />;
 

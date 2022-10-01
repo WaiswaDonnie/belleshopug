@@ -29,33 +29,46 @@ import { PriceWalletIcon } from '@/components/icons/shops/price-wallet';
 import { PercentageIcon } from '@/components/icons/shops/percentage';
 import { DollarIcon } from '@/components/icons/shops/dollar';
 import ReadMore from '@/components/ui/truncate';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useEffect,useState } from 'react';
 
 export default function ShopPage() {
   const { t } = useTranslation();
+  const { getShopInfo, shopInfo } = useContext(GlobalContext)
+  const [loading,setLoading] = useState(false)
+
   const { permissions } = getAuthCredentials();
   const {
     query: { shop },
     locale,
   } = useRouter();
-  const {
-    data,
-    isLoading: loading,
-    error,
-  } = useShopQuery({
-    slug: shop!.toString(),
-  });
+  // const {
+  //   data,
+  //   isLoading: loading,
+  //   error,
+  // } = useShopQuery({
+  //   slug: shop!.toString(),
+  // });
+
+  useEffect(() => {
+    if (shop) {
+      getShopInfo(shop!.toString(),setLoading)
+    }
+  }, [shop])
+
   const { price: totalEarnings } = usePrice(
-    data && {
-      amount: data?.balance?.total_earnings!,
+    shopInfo && {
+      amount: shopInfo?.balance?.total_earnings!,
     }
   );
   const { price: currentBalance } = usePrice(
-    data && {
-      amount: data?.balance?.current_balance!,
+    shopInfo && {
+      amount: shopInfo?.balance?.current_balance!,
     }
   );
   if (loading) return <Loader text={t('common:text-loading')} />;
-  if (error) return <ErrorMessage message={error.message} />;
+  // if (error) return <ErrorMessage message={error.message} />;
   const {
     name,
     is_active,
@@ -69,7 +82,7 @@ export default function ShopPage() {
     created_at,
     settings,
     slug,
-  } = data ?? {};
+  } = shopInfo ?? {};
 
   return (
     <div className="grid grid-cols-12 gap-6">

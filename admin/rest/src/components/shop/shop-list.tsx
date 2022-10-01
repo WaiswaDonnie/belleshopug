@@ -92,13 +92,13 @@ const ShopList = ({
         </Link>
       ),
     },
-    {
-      title: t('table:table-item-owner-name'),
-      dataIndex: 'owner',
-      key: 'owner',
-      align: 'center',
-      render: (owner: any) => owner.name,
-    },
+    // {
+    //   title: t('table:table-item-owner-name'),
+    //   dataIndex: 'owner',
+    //   key: 'owner',
+    //   align: 'center',
+    //   render: (owner: any) => owner.name,
+    // },
     {
       title: (
         <TitleWithSort
@@ -166,7 +166,7 @@ const ShopList = ({
           <ActionButtons
             id={id}
             approveButton={true}
-            detailsUrl={`/${slug}`}
+            detailsUrl={`/${id}`}
             isShopActive={is_active}
           />
         );

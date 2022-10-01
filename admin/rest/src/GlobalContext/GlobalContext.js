@@ -583,9 +583,28 @@ export default function GlobalContextProvider({ children }) {
                 toast.success("Shop Created")
                 setIsLoading(false)
                 getShopDetails()
+                updateDoc(doc(db, 'Venders', user.uid, "Shops", res.id), {
+                    id: res.id
+                })
             })
             .catch(error => {
                 toast.error(error.code)
+                setIsLoading(false)
+            })
+
+    }
+
+    const updateShop = async (newShop, setIsLoading) => {
+        setIsLoading(true)
+        console.log("Shop to edit", newShop)
+        delete newShop['balance']
+        updateDoc(doc(db, 'Vendors', user.uid, 'Shops', newShop.id), newShop)
+            .then(() => {
+                toast.success("Updated Sucessfully")
+                setIsLoading(false)
+                navigate.push('/shops')
+            })
+            .catch(error => {
                 setIsLoading(false)
             })
 
@@ -599,6 +618,8 @@ export default function GlobalContextProvider({ children }) {
             getShopDetails()
         }
     }, [user])
+
+
     const getShopDetails = () => {
         getDoc(query(doc(db, 'Vendors', user.uid, 'Shops', user.uid)))
             .then(res => {
@@ -606,12 +627,50 @@ export default function GlobalContextProvider({ children }) {
                 console.log("shop details are all here", res.data())
             })
     }
+
+    const [shops, setShops] = useState([])
+    const getShops = async () => {
+        onSnapshot(collection(db, 'Vendors', user.uid, 'Shops'), snap => {
+            let data = [];
+            snap.forEach(doc => {
+                data.push(doc.data())
+            })
+            setShops(data)
+        })
+    }
+    const [shopInfo, setShopInfo] = useState(null)
+    const getShopInfo = async (id, setLoading) => {
+        setLoading(true)
+        onSnapshot(query(collection(db, 'Vendors', id, 'Shops'), where("id", "==", id)), snapshot => {
+            let data = [];
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            setShopInfo(data[0])
+
+        })
+        setLoading(false)
+    }
+    const [productInfo, setProductInfo] = useState(null)
+    const getProductInfo = async (id, setLoading) => {
+        setLoading(true)
+        onSnapshot(query(collection(db, 'Vendors', user.id, 'Shops', id, "Products"), where("id", "==", id)), snapshot => {
+            let data = [];
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            setProductInfo(data[0])
+
+        })
+        setLoading(false)
+    }
+
     const [open, setOpen] = useState(false);
 
 
     const createProduct = async (newProduct, setLoading) => {
         setLoading(true)
-        console.log("newProduct.shopDetails",newProduct)
+        console.log("newProduct.shopDetails", newProduct)
         if (shopDetails) {
 
 
@@ -739,9 +798,13 @@ export default function GlobalContextProvider({ children }) {
             value={{
                 updateMyOrder,
                 user,
+                productInfo,
+                getProductInfo,
                 addProduct,
                 createProduct,
                 loginWithGoogle,
+                shops,
+                getShops,
                 products,
                 getProducts,
                 shopDetails,
@@ -754,8 +817,11 @@ export default function GlobalContextProvider({ children }) {
                 loading,
                 setVisible,
                 editProduct,
+                updateShop,
                 myOrderDetails,
                 myOrders,
+                shopInfo,
+                getShopInfo,
                 getMyOrder,
                 productId,
                 ownerProducts,

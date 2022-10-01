@@ -23,7 +23,7 @@ import SelectInput from '@/components/ui/select-input';
 import * as socialIcons from '@/components/icons/social';
 import omit from 'lodash/omit';
 import { useContext, useState } from 'react';
-import { GlobalContext} from '@/GlobalContext/GlobalContext'
+import { GlobalContext } from '@/GlobalContext/GlobalContext'
 
 const socialIcon = [
   {
@@ -71,10 +71,13 @@ type FormValues = {
 };
 
 const ShopForm = ({ initialValues }: { initialValues?: any }) => {
-  const { mutate: createShoap,  } = useCreateShopMutation();
-  const { mutate: updateShop, isLoading: updating } = useUpdateShopMutation();
-  const {createShop} = useContext(GlobalContext)
-  const [isLoading,setIsLoading] =useState(false)
+  const { mutate: createShoap, } = useCreateShopMutation();
+  // const { mutate: updateShop, isLoading: updating } = useUpdateShopMutation();
+  const { createShop, updateShop } = useContext(GlobalContext)
+  const [isLoading, setIsLoading] = useState(false)
+  const [updating,setUpdating] = useState(false);
+  console.log("inital values", initialValues)
+
   const {
     register,
     handleSubmit,
@@ -85,23 +88,23 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
     shouldUnregister: true,
     ...(initialValues
       ? {
-          defaultValues: {
-            ...initialValues,
-            logo: getFormattedImage(initialValues.logo),
-            cover_image: getFormattedImage(initialValues.cover_image),
-            // settings: {
-            //   ...initialValues?.settings,
-            //   socials: initialValues?.settings?.socials
-            //     ? initialValues?.settings?.socials.map((social: any) => ({
-            //         icon: updatedIcons?.find(
-            //           (icon) => icon?.value === social?.icon
-            //         ),
-            //         url: social?.url,
-            //       }))
-            //     : [],
-            // },
-          },
-        }
+        defaultValues: {
+          ...initialValues,
+          logo: getFormattedImage(initialValues.logo),
+          cover_image: getFormattedImage(initialValues.cover_image),
+          // settings: {
+          //   ...initialValues?.settings,
+          //   socials: initialValues?.settings?.socials
+          //     ? initialValues?.settings?.socials.map((social: any) => ({
+          //         icon: updatedIcons?.find(
+          //           (icon) => icon?.value === social?.icon
+          //         ),
+          //         url: social?.url,
+          //       }))
+          //     : [],
+          // },
+        },
+      }
       : {}),
     resolver: yupResolver(shopValidationSchema),
   });
@@ -112,7 +115,6 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
   });
 
   function onSubmit(values: FormValues) {
-    console.log("form ",values)
     // const settings = {
     //   ...values?.settings,
     //   location: { ...omit(values?.settings?.location, '__typename') },
@@ -125,6 +127,7 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
     // };
     if (initialValues) {
       const { ...restAddress } = values.address;
+      
       updateShop({
         id: initialValues.id,
         ...values,
@@ -134,7 +137,7 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
         //   id: initialValues.balance?.id,
         //   ...values.balance,
         // },
-      });
+      },setUpdating);
     } else {
       createShop({
         values,
@@ -142,7 +145,7 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
         // balance: {
         //   ...values.balance,
         // },
-      },setIsLoading);
+      }, setIsLoading);
     }
   }
 
@@ -284,14 +287,14 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
           </Card>
         </div> */}
         {/* <div className="my-5 flex flex-wrap border-b border-dashed border-gray-300 pb-8 sm:my-8"> */}
-          {/* <Description
+        {/* <Description
             title={t('form:shop-settings')}
             details={t('form:shop-settings-helper-text')}
             className="sm:pe-4 md:pe-5 w-full px-0 pb-5 sm:w-4/12 sm:py-8 md:w-1/3"
           /> */}
 
-          {/* <Card className="w-full sm:w-8/12 md:w-2/3"> */}
-            {/* <div className="mb-5">
+        {/* <Card className="w-full sm:w-8/12 md:w-2/3"> */}
+        {/* <div className="mb-5">
               <Label>{t('form:input-label-autocomplete')}</Label>
               <Controller
                 control={control}
@@ -304,7 +307,7 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
                 )}
               />
             </div> */}
-            {/* <Input
+        {/* <Input
               label={t('form:input-label-contact')}
               {...register('settings.contact')}
               variant="outline"
@@ -318,7 +321,7 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
               className="mb-5"
               error={t(errors.settings?.website?.message!)}
             /> */}
-            {/* <div>
+        {/* <div>
               {fields.map(
                 (item: ShopSocialInput & { id: string }, index: number) => (
                   <div
@@ -364,7 +367,7 @@ const ShopForm = ({ initialValues }: { initialValues?: any }) => {
                 )
               )}
             </div> */}
-            {/* <Button
+        {/* <Button
               type="button"
               onClick={() => append({ icon: '', url: '' })}
               className="w-full sm:w-auto"
