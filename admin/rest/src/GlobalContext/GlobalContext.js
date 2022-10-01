@@ -219,17 +219,26 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [productDetails, setProductDetails] = useState(null)
-    const getProductDetails = () => {
-
-        if (productId) {
-            getDoc(doc(db, 'Products', productId))
-                .then(res => {
-                    setProductDetails(res.data)
+    const getProductDetails = async (productId) => {
+        if(productId){
+            onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==",productId)), snapshot => {
+                let data = []
+                snapshot.forEach(doc => {
+                    data.push(doc.data())
                 })
-                .catch(error => {
-                    console.log(error)
-                })
-        }
+                console.log("product", data)
+                setClientProduct(data)
+            })
+            // onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==", productId)), snapshot => {
+            //     let data = []
+            //     snapshot.forEach(doc => {
+            //         data.push(doc.data())
+            //     })
+            //     console.log("product got is", data)
+            //     setProductDetails(data[0])
+               
+            // })
+           }
     }
     const createUser = async (username, email, password, setLoading, setAuthCredentials, routes) => {
         console.log(username, email, password)

@@ -24,7 +24,7 @@ import { verifiedResponseAtom } from '@/store/checkout';
 import { useRouter } from 'next/router';
 import { Routes } from '@/config/routes';
 import { mapPaginatorData } from '@/framework/utils/data-mappers';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export function useOrders(options?: Partial<OrderQueryOptions>) {
@@ -119,9 +119,67 @@ export function useOrderStatuses(options: Pick<QueryOptions, 'limit' | 'language
   function handleLoadMore() {
     fetchNextPage();
   }
-
+const [statuses,setStatuses] = useState([
+  [
+    {
+      color: "#23b848",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:1,language:"en",
+      name:"Order Received",
+      serial:1,
+      slug:"order-received",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+    {
+      color: "#d87b64",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:2,
+      language:"en",
+      name:"Order Processing",
+      serial:2,
+      slug:"order-processing",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+    // {
+    //   color: "#d87b64",
+    //   created_at: "2021-03-08T21:33:52.000Z",
+    //   id:3,
+    //   language:"en",
+    //   name:"Ready To Dispatch",
+    //   serial:3,
+    //   slug:"ready-to-dispatch",
+    //   translated_languages:['en'],
+    //   updated_at:"2021-03-08T21:34:04.000Z"
+    // },
+    {
+      color: "#23b848",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:4,
+      language:"en",
+      name:"Order Dispatched",
+      serial:4,
+      slug:"order-dispatched",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+    {
+      color: "#23b848",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:7,
+      language:"en",
+      name:"Delivered",
+      serial:7,
+      slug:"delivered",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+  ]
+])
   return {
-    orderStatuses: data?.pages?.flatMap((page) => page.data) ?? [],
+    orderStatuses: statuses?.flatMap((page) => page) ?? [],
+    // orderStatuses: data?.pages?.flatMap((page) => page.data) ?? [],
     paginatorInfo: Array.isArray(data?.pages)
       ? mapPaginatorData(data?.pages[data.pages.length - 1])
       : null,

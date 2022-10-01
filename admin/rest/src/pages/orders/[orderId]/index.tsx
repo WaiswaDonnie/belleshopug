@@ -26,6 +26,7 @@ import { useAtom } from 'jotai';
 import { clearCheckoutAtom } from '@/contexts/checkout';
 import { useOrderStatusesQuery } from '@/data/order-status';
  import {GlobalContext} from '@/GlobalContext/GlobalContext'
+
 type FormValues = {
   order_status: any;
 };
@@ -59,7 +60,31 @@ export default function OrderDetailsPage() {
   );
 
   const [updating,setUpdating] = useState(false)
+  const {getProductDetails,productDetails} = useContext(GlobalContext)
+  const [name,setName] = useState("")
+  const [thumbnail,setThumbnail] = useState("")
+  useEffect(()=>{
+   if(order !== undefined){
+     
+    order?.products.map((res:any)=>{
+      // alert(res.product_id)
+      getProductDetails(res.product_id)
+      
+    })
+   } 
+  },[order?.products])
+  useEffect(()=>{
+    if(productDetails){
 
+      console.log("ypp",productDetails)
+      setName(productDetails?.name)
+      setThumbnail(productDetails?.image?.thumbnail)
+      order['image']={
+        thumbnail:productDetails?.image?.thumbnail
+      }
+    }
+   },[productDetails])
+   console.log("order details",order)
   const {
     handleSubmit,
     control,
@@ -167,6 +192,7 @@ export default function OrderDetailsPage() {
       },
     },
   ];
+  console.log("Products",order?.products)
 
   return (
     <Card>

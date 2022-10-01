@@ -14,6 +14,8 @@ import {
 import { mapPaginatorData } from '@/utils/data-mappers';
 import { orderStatusClient } from '@/data/client/order-status';
 import { Config } from '@/config';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 export const useCreateOrderStatusMutation = () => {
   const queryClient = useQueryClient();
@@ -86,9 +88,69 @@ export const useOrderStatusesQuery = (
       keepPreviousData: true,
     }
   );
+  console.log("Order statuses", data?.data)
+
+  const [statuses, setStatuses] = useState([
+    {
+      color: "#23b848",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:1,language:"en",
+      name:"Order Received",
+      serial:1,
+      slug:"order-received",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+    {
+      color: "#d87b64",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:2,
+      language:"en",
+      name:"Order Processing",
+      serial:2,
+      slug:"order-processing",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+    // {
+    //   color: "#d87b64",
+    //   created_at: "2021-03-08T21:33:52.000Z",
+    //   id:3,
+    //   language:"en",
+    //   name:"Ready To Dispatch",
+    //   serial:3,
+    //   slug:"ready-to-dispatch",
+    //   translated_languages:['en'],
+    //   updated_at:"2021-03-08T21:34:04.000Z"
+    // },
+    {
+      color: "#23b848",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:4,
+      language:"en",
+      name:"Order Dispatched",
+      serial:4,
+      slug:"order-dispatched",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+    {
+      color: "#23b848",
+      created_at: "2021-03-08T21:33:52.000Z",
+      id:7,
+      language:"en",
+      name:"Delivered",
+      serial:7,
+      slug:"delivered",
+      translated_languages:['en'],
+      updated_at:"2021-03-08T21:34:04.000Z"
+    },
+  ])
+
+
 
   return {
-    orderStatuses: data?.data ?? [],
+    orderStatuses: statuses ?? [],
     paginatorInfo: mapPaginatorData(data),
     error,
     loading: isLoading,

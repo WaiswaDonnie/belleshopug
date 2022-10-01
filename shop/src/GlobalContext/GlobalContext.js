@@ -76,19 +76,9 @@ export default function GlobalContextProvider({ children }) {
       
         setLoading(true)
         console.log("product", newProduct)
-        // newProduct.products.forEach(async product=>{
-        //     onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", product.product_id)), snapshot => {
-        //         let data = []
-        //         snapshot.forEach(doc => {
-        //             data.push(doc.data())
-        //         })
-        //         console.log("pshop is comeas got is", data[0].shop_id)
-        //         setProductDetails(data[0])
-               
-        //     }) 
-        // })
+      
          addDoc(collection(db,'Orders'), newProduct)
-            .then(res => {
+            .then(async res => {
                 updateDoc(doc(db,'Orders', res.id), {
                     orderId: res.id,
                     tracking_number: res.id,
@@ -119,6 +109,60 @@ export default function GlobalContextProvider({ children }) {
 
                     }
                 })
+               
+                    
+                    newProduct.products.forEach(async product=>{
+                        onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", product.product_id)), snapshot => {
+                            let data = []
+                            snapshot.forEach(doc => {
+                                data.push(doc.data())
+                            })
+                            console.log("pshop is comeas got is", data[0].shop_id)
+                            addDoc(collection(db,'Vendors',data[0].shop_id,'Shops',data[0].shop_id,'Orders'),{
+                                amount:product?.subtotal,
+                                billing_address:newProduct?.billing_address,
+                                coupon_id:newProduct?.coupon_id,
+                                customer: {
+                                    "id": user.uid,
+                                    "name": user.displayName,
+                                    "email": user.email,
+                                    "profile": {
+                                        "avatar": {
+                                            "thumbnail": user?.photoURL,
+                                            "original": user?.photoURL,
+            
+                                        }
+                                    }
+            
+                                },
+                                customer_contact:newProduct?.customer_contact,
+                                customer_id: user.uid,
+                                delivery_fee:0,
+                                delivery_time:newProduct?.delivery_time,
+                                orderId:res.id,
+                                paid_total:"",
+                                payment_gateway:newProduct?.payment_gateway,
+                                products:[product],
+                                sales_tax:0,
+                                shipping_address:newProduct?.shipping_address,
+                                shop_id:newProduct?.shop_id,
+                                status:newProduct?.status,
+                                tracking_number:res.id,
+                                use_wallet_points:newProduct?.use_wallet_points,
+                                vendor_id:newProduct?.vendor_id,
+                            })
+                            .then((res)=>{
+                                console.log("finished")
+
+                            })
+                            .catch(error => {
+                                console.log(error.code)
+
+                            })
+                            
+                        }) 
+                    })
+                
                 navigate.push(`/orders/${res.id}`)
                 setLoading(false)
 
@@ -162,7 +206,7 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [productDetails, setProductDetails] = useState(null)
-    const getProductDetails = (productId) => {
+    const getProductDetails = async(productId) => {
        
        if(productId){
         onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", productId)), snapshot => {

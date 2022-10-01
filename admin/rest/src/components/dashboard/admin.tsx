@@ -68,11 +68,11 @@ export default function Dashboard() {
   }
   return (
     <>
-      <div className="mb-6 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-6 grid w-full grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         <div className="w-full ">
           <StickerCard
             titleTransKey="sticker-card-title-rev"
-            subtitleTransKey="sticker-card-subtitle-rev"
+            subtitleTransKey=""
             icon={<DollarIcon className="h-7 w-7" color="#047857" />}
             iconBgStyle={{ backgroundColor: '#A7F3D0' }}
             price={total_revenue}
@@ -81,18 +81,18 @@ export default function Dashboard() {
         <div className="w-full ">
           <StickerCard
             titleTransKey="sticker-card-title-order"
-            subtitleTransKey="sticker-card-subtitle-order"
+            subtitleTransKey=""
             icon={<CartIconBig />}
             price={data?.totalOrders}
           />
         </div>
-        <div className="w-full ">
+        {/* <div className="w-full ">
           <StickerCard
             titleTransKey="sticker-card-title-today-rev"
             icon={<CoinIcon />}
             price={todays_revenue}
           />
-        </div>
+        </div> */}
         <div className="w-full ">
           <StickerCard
             titleTransKey="sticker-card-title-total-shops"
@@ -125,28 +125,29 @@ export default function Dashboard() {
         />
       </div>
 
+       
       <div className="mb-6 flex w-full flex-wrap space-y-6 rtl:space-x-reverse xl:flex-nowrap xl:space-y-0 xl:space-x-5">
-        <div className="w-full xl:w-1/2">
+        <div className="w-full  ">
           <RecentOrders
             orders={orderData}
             title={t('table:recent-order-table-title')}
           />
         </div>
 
-        <div className="w-full xl:w-1/2">
+        {/* <div className="w-full xl:w-1/2">
           <WithdrawTable
             //@ts-ignore
             withdraws={withdraws}
             title={t('table:withdraw-table-title')}
           />
-        </div>
+        </div> */}
       </div>
-      <div className="mb-6 w-full xl:mb-0">
+      {/* <div className="mb-6 w-full xl:mb-0">
         <PopularProductList
           products={popularProductData}
           title={t('table:popular-products-table-title')}
         />
-      </div>
+      </div> */}
     </>
   );
 }
