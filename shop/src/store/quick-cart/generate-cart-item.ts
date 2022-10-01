@@ -14,12 +14,24 @@ interface Item {
   language: string;
 }
 interface Variation {
+  // id: string | number;
+  // title: string;
+  // price: number;
+  // sale_price?: number;
+  // quantity: number;
+  // [key: string]: unknown;
   id: string | number;
-  title: string;
+  name: string;
+  slug: string;
+  image: {
+    thumbnail: string;
+    [key: string]: unknown;
+  };
   price: number;
   sale_price?: number;
-  quantity: number;
+  quantity?: number;
   [key: string]: unknown;
+  language: string;
 }
 export function generateCartItem(item: Item, variation: Variation) {
   const {

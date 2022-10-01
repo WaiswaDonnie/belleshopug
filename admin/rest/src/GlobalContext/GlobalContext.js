@@ -15,11 +15,9 @@ import {
 } from 'react-query';
 // import { toast } from 'react-toastify';
 // import client from './client';
-import { signOut as socialLoginSignOut } from 'next-auth/react';
-// import { API_ENDPOINTS } from './client/api-endpoints';
+ // import { API_ENDPOINTS } from './client/api-endpoints';
 
-import { useStateMachine } from 'little-state-machine';
-import { useEffect } from 'react';
+ import { useEffect } from 'react';
 import { stubFalse } from 'lodash';
 
 export const GlobalContext = createContext()
