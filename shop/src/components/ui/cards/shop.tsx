@@ -6,8 +6,9 @@ import { Routes } from '@/config/routes';
 import Link from '@/components/ui/link';
 import isEmpty from 'lodash/isEmpty';
 import { productPlaceholder } from '@/lib/placeholders';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import CustomShopDetailsModal from '../modal/customShopDetailsModal';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 type ShopCardProps = {
   shop: any;
@@ -16,6 +17,7 @@ type ShopCardProps = {
 const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
   const { t } = useTranslation();
 
+  const {setShopInfo} = useContext(GlobalContext)
   const isNew = false;
 
   const [open,setOpen] = useState(false)
@@ -51,7 +53,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
           </span>
         </div>
       </div>
-      <CustomShopDetailsModal open={open} onClose={()=>{setOpen(false)}} shopInfo={shop}/>
+      <CustomShopDetailsModal open={open} setOpen={setOpen} onClose={()=>{setOpen(false),setShopInfo({})}} shopInfo={shop}/>
     </div>
   );
 };

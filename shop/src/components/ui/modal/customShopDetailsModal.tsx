@@ -16,7 +16,8 @@ import classNames from 'classnames';
 import { getStaticPaths, getStaticProps } from '@/framework/shop.ssr';
 import { GlobalContext } from '@/GlobalContext/GlobalContext';
 import CartCounterButton from '@/components/cart/cart-counter-button';
-function CustomShopDetailsModal({ onClose, open, shopInfo,variables }) {
+import BackButton from '../back-button';
+function CustomShopDetailsModal({ onClose, setOpen, open, shopInfo,variables }) {
     const router = useRouter();
     const { width } = useWindowSize();
     const { t } = useTranslation('banner');
@@ -31,12 +32,16 @@ function CustomShopDetailsModal({ onClose, open, shopInfo,variables }) {
     // }, [id])
     return (
         <Modal open={open} onClose={()=>{
-            onClose()
-            setShopInfo({})
+            setOpen(false)
         }}>
             <Card className="flex w-screen flex-col">
                 {/* <Details product={product} onClose={onClose} /> */}
                 <div className="flex flex-col bg-gray-100 lg:flex-row lg:items-start lg:p-8">
+                    
+                    <BackButton  isModal={true} onClose={()=>{
+                        setOpen(false)
+                    }}/>
+                    
                     <ShopSidebar shop={shopInfo} className="sticky top-24 lg:top-28" />
 
                     <div className="flex w-full flex-col p-4 lg:p-0 ltr:lg:pl-8 rtl:lg:pr-8">
