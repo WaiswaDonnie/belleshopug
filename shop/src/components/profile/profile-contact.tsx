@@ -3,23 +3,34 @@ import Card from '@/components/ui/cards/card';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import PhoneInput from '@/components/ui/forms/phone-input';
-
+import {useContext, useState} from 'react'
+import CustomPhoneModal from '@/components/ui/modal/customPhoneModal'
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 interface Props {
   userId: string;
   profileId: string;
   contact: string;
 }
 
+
 const ProfileContact = ({ userId, profileId, contact }: Props) => {
   const { openModal } = useModalAction();
   const { t } = useTranslation('common');
+  const [open,setOpen] =useState(false)
+  const [isLoading,setIsLoading] = useState(false)
+  const {updateUserContact} =  useContext(GlobalContext)
+
 
   function onAdd() {
-    openModal('ADD_OR_UPDATE_PROFILE_CONTACT', {
-      customerId: userId,
-      profileId,
-      contact,
-    });
+    // openModal('ADD_OR_UPDATE_PROFILE_CONTACT', {
+    //   customerId: userId,
+    //   profileId,
+    //   contact,
+    // });
+    setOpen(true)
+  }
+  const onSubmit = (value: { phone_number: any; })=>{
+     updateUserContact(value.phone_number,setIsLoading,setOpen)
   }
   return (
     <Card className="flex w-full flex-col">
@@ -48,6 +59,11 @@ const ProfileContact = ({ userId, profileId, contact }: Props) => {
           dropdownClass="focus:!ring-0 !border !border-border-base !shadow-350"
         />
       </div>
+     
+ 
+      <CustomPhoneModal open={open} onClose={()=>{
+        setOpen(false)
+      }} onSubmit={onSubmit} phoneNumber={contact} isLoading={isLoading}    />
     </Card>
   );
 };

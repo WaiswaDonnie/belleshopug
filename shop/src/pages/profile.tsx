@@ -6,30 +6,34 @@ import ProfileContact from '@/components/profile/profile-contact';
 import Seo from '@/components/seo/seo';
 import { useUser } from '@/framework/user';
 import DashboardLayout from '@/layouts/_dashboard';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 export { getStaticProps } from '@/framework/general.ssr';
 
 const ProfilePage = () => {
   const { t } = useTranslation('common');
   const { me } : any = useUser();
-  if (!me) return null;
+  const {userInfo} = useContext(GlobalContext)
+  if (!userInfo) return null;
+  console.log("a",me)
   return (
     <>
       <Seo noindex={true} nofollow={true} />
       <div className="w-full overflow-hidden px-1 pb-1">
         <div className="mb-8">
-          <ProfileForm user={me} />
+          <ProfileForm user={userInfo} />
           <ProfileContact
-            userId={me.id}
-            profileId={me.profile?.id!}
-            contact={me.profile?.contact!}
+            userId={userInfo.id}
+            profileId={userInfo.profile?.id!}
+            contact={userInfo.profile?.contact!}
           />
         </div>
 
         <Card className="w-full">
           <ProfileAddressGrid
-            userId={me.id}
+            userId={userInfo.id}
             //@ts-ignore
-            addresses={me.address}
+            addresses={userInfo.address}
             label={t('text-addresses')}
           />
         </Card>

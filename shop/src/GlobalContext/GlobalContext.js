@@ -1,6 +1,6 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy } from 'firebase/firestore';
-import { db, auth } from '../../firebase'
+import { db, auth, storage } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
 import { useModalAction } from '@/components/ui/modal/modal.context';
@@ -29,6 +29,7 @@ import {
     updateFormState,
 } from '@/components/auth/forgot-password';
 import { clearCheckoutAtom } from '@/store/checkout';
+import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
 export const GlobalContext = createContext()
 
 
@@ -54,7 +55,7 @@ export default function GlobalContextProvider({ children }) {
 
 
 
-     
+
     const [orderDetails, setOrderDetails] = useState(null)
 
     const getOrder = (orderId) => {
@@ -64,22 +65,22 @@ export default function GlobalContextProvider({ children }) {
 
                 data.push(doc.data())
             })
-            if(data.length>0){
+            if (data.length > 0) {
                 setOrderDetails(data[0])
-                console.log("order",data[0])
+                console.log("order", data[0])
             }
 
         })
     }
 
     const createOrder = async (newProduct, setLoading) => {
-      
+
         setLoading(true)
         console.log("product", newProduct)
-      
-         addDoc(collection(db,'Orders'), newProduct)
+
+        addDoc(collection(db, 'Orders'), newProduct)
             .then(async res => {
-                updateDoc(doc(db,'Orders', res.id), {
+                updateDoc(doc(db, 'Orders', res.id), {
                     orderId: res.id,
                     tracking_number: res.id,
                     customer_id: user.uid,
@@ -109,55 +110,55 @@ export default function GlobalContextProvider({ children }) {
 
                     }
                 })
-               
-                    
-                    newProduct.products.forEach(async product=>{
-                        onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", product.product_id)), snapshot => {
-                            let data = []
-                            snapshot.forEach(doc => {
-                                data.push(doc.data())
-                            })
-                            console.log("pshop is comeas got is", data[0].shop_id)
-                            updateDoc(doc(db,'Vendors',data[0].shop_id,'Shops',data[0].shop_id,'Products',product.product_id),{
-                                quantity:increment(-product.order_quantity)
-                            })
-                            addDoc(collection(db,'Vendors',data[0].shop_id,'Shops',data[0].shop_id,'Orders'),{
-                                amount:product?.subtotal,
-                                billing_address:newProduct?.billing_address,
-                                coupon_id:newProduct?.coupon_id,
-                                customer: {
-                                    "id": user.uid,
-                                    "name": user.displayName,
-                                    "email": user.email,
-                                    "profile": {
-                                        "avatar": {
-                                            "thumbnail": user?.photoURL,
-                                            "original": user?.photoURL,
-            
-                                        }
+
+
+                newProduct.products.forEach(async product => {
+                    onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", product.product_id)), snapshot => {
+                        let data = []
+                        snapshot.forEach(doc => {
+                            data.push(doc.data())
+                        })
+                        console.log("pshop is comeas got is", data[0].shop_id)
+                        updateDoc(doc(db, 'Vendors', data[0].shop_id, 'Shops', data[0].shop_id, 'Products', product.product_id), {
+                            quantity: increment(-product.order_quantity)
+                        })
+                        addDoc(collection(db, 'Vendors', data[0].shop_id, 'Shops', data[0].shop_id, 'Orders'), {
+                            amount: product?.subtotal,
+                            billing_address: newProduct?.billing_address,
+                            coupon_id: newProduct?.coupon_id,
+                            customer: {
+                                "id": user.uid,
+                                "name": user.displayName,
+                                "email": user.email,
+                                "profile": {
+                                    "avatar": {
+                                        "thumbnail": user?.photoURL,
+                                        "original": user?.photoURL,
+
                                     }
-            
-                                },
-                                customer_contact:newProduct?.customer_contact,
-                                customer_id: user.uid,
-                                delivery_fee:0,
-                                delivery_time:newProduct?.delivery_time,
-                                orderId:res.id,
-                                paid_total:"",
-                                payment_gateway:newProduct?.payment_gateway,
-                                products:[product],
-                                sales_tax:0,
-                                shipping_address:newProduct?.shipping_address,
-                                shop_id:newProduct?.shop_id,
-                                status:newProduct?.status,
-                                tracking_number:res.id,
-                                use_wallet_points:newProduct?.use_wallet_points,
-                                vendor_id:newProduct?.vendor_id,
-                            })
-                            .then((res)=>{
+                                }
+
+                            },
+                            customer_contact: newProduct?.customer_contact,
+                            customer_id: user.uid,
+                            delivery_fee: 0,
+                            delivery_time: newProduct?.delivery_time,
+                            orderId: res.id,
+                            paid_total: "",
+                            payment_gateway: newProduct?.payment_gateway,
+                            products: [product],
+                            sales_tax: 0,
+                            shipping_address: newProduct?.shipping_address,
+                            shop_id: newProduct?.shop_id,
+                            status: newProduct?.status,
+                            tracking_number: res.id,
+                            use_wallet_points: newProduct?.use_wallet_points,
+                            vendor_id: newProduct?.vendor_id,
+                        })
+                            .then((res) => {
                                 console.log("finished")
-                              
-                                
+
+
 
                             })
                             .catch(error => {
@@ -165,13 +166,13 @@ export default function GlobalContextProvider({ children }) {
 
                             })
 
-                            updateDoc(doc(db,'Vendors',data[0].shop_id,'Shops'),{
-                                products_count:increment(1)
-                            })
-                            
-                        }) 
+                        updateDoc(doc(db, 'Vendors', data[0].shop_id, 'Shops', data[0].shop_id), {
+                            products_count: increment(1)
+                        })
+
                     })
-                
+                })
+
                 navigate.push(`/orders/${res.id}`)
                 setLoading(false)
 
@@ -215,19 +216,19 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [productDetails, setProductDetails] = useState(null)
-    const getProductDetails = async(productId) => {
-       
-       if(productId){
-        onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", productId)), snapshot => {
-            let data = []
-            snapshot.forEach(doc => {
-                data.push(doc.data())
+    const getProductDetails = async (productId) => {
+
+        if (productId) {
+            onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", productId)), snapshot => {
+                let data = []
+                snapshot.forEach(doc => {
+                    data.push(doc.data())
+                })
+                console.log("product got is", data)
+                setProductDetails(data[0])
+
             })
-            console.log("product got is", data)
-            setProductDetails(data[0])
-           
-        })
-       }
+        }
         // if (productId) {
         //     getDoc(doc(db, 'Products', productId))
         //         .then(res => {
@@ -248,10 +249,16 @@ export default function GlobalContextProvider({ children }) {
                 })
                 setUser(userCredentials.user)
                 setDoc(doc(db, 'Users', userCredentials.user.uid), {
-                    displayName: username,
-                    userId: userCredentials.user.uid,
-                    joinedOn: serverTimestamp(),
+                    name: username,
+                    id: userCredentials.user.uid,
+                    created_at: serverTimestamp(),
                     email: email,
+                    profile: {
+                        avatar: null,
+                        bio: null,
+                        contact: null,
+
+                    }
                 })
                     .then(async result => {
                         setLoading(false)
@@ -287,6 +294,102 @@ export default function GlobalContextProvider({ children }) {
                 setFormError(error.code)
                 toast.error((error.code));
             })
+    }
+
+    const [userInfo, setUserInfo] = useState({})
+
+    useEffect(() => {
+        if (user) {
+            getUserInfo()
+        }
+    }, [user])
+    const getUserInfo = async () => {
+        if (user) {
+            getDoc(doc(db, 'Users', user.uid))
+                .then(res => {
+                    console.log("user info", res.data())
+                    setUserInfo(res.data())
+                })
+                .catch(error => {
+                    console.log("user Info")
+                })
+        }
+    }
+
+    const updateUser = (newUser, setLoading) => {
+        setLoading(true)
+        console.log("newUser", newUser.input)
+        updateDoc(doc(db, 'Users', user.uid), newUser.input)
+            .then(res => {
+
+                setLoading(false)
+                toast.success("Saved Sucessfully")
+                getUserInfo()
+
+            })
+            .catch(error => {
+
+            })
+
+    }
+    const updateUserProfile = (newUser, setLoading) => {
+        if (user) {
+            setLoading(true)
+            console.log("profile", newUser)
+            newUser['id'] = user.uid
+            newUser['profile.avatar'] = newUser.profile.avatar ? newUser.profile.avatar : null
+            updateDoc(doc(db, 'Users', user.uid), newUser)
+                .then(res => {
+
+                    setLoading(false)
+                    toast.success("Saved Sucessfully")
+                    getUserInfo()
+
+                })
+                .catch(error => {
+
+                })
+        }
+
+    }
+    const updateUserContact = (contact, setLoading, setOpen) => {
+        setLoading(true)
+        console.log("phone", contact)
+        updateDoc(doc(db, 'Users', user.uid), {
+            "profile.contact": contact
+        })
+            .then(res => {
+
+                setLoading(false)
+                toast.success("Saved Sucessfully")
+                setOpen(false)
+                getUserInfo()
+
+
+            })
+            .catch(error => {
+                setLoading(false)
+            })
+
+    }
+    const updateUserAddress = (address, setLoading,closeModal) => {
+        setLoading(true)
+        console.log("address", address)
+        updateDoc(doc(db, 'Users', user.uid), {
+            "address":[address]
+        })
+            .then(res => {
+
+                setLoading(false)
+                toast.success("Saved Sucessfully")
+                getUserInfo()
+                closeModal()
+
+            })
+            .catch(error => {
+
+            })
+
     }
     const loginUser = async (email, password, setLoading, setFormError, closeModal, setAuthorized) => {
         console.log(email, password)
@@ -391,11 +494,106 @@ export default function GlobalContextProvider({ children }) {
 
 
 
+    const uploadFiles = async (files, setLoading, setFiles, multiple) => {
+        setLoading(true)
+        console.log("files ares", files)
+        if (multiple) {
+            const promises = [];
+            for (var i = 0; i < files.length; i++) {
+                // files.values contains all the files objects
+                const file = files[i];
+                const metadata = {
+                    contentType: "image/jpeg",
+                };
+                const storageRef = ref(storage, `users/${user.uid}/attachments/${file.name}`);
+
+                promises.push(uploadBytes(storageRef, file, metadata).then(uploadResult => { return getDownloadURL(uploadResult.ref) }))
+
+            }
+            const photos = await Promise.all(promises);
+            if (photos) {
+                let nowFiles = []
+                photos.map((photo, index) => {
+                    nowFiles.push({
+                        id: index,
+                        thumbnail: photo,
+                        original: photo
+                    })
+                })
+                setLoading(false)
+                setFiles(nowFiles)
+                console.log("Photos", nowFiles)
+            }
+
+
+        }
+        else {
+
+            const storageRef = ref(storage, `users/${user.uid}/attachments/${files[0].name}`);
+            console.log("file to be uploaded", files)
+
+            const uploadTask = uploadBytesResumable(storageRef, files[0]);
+
+            // Register three observers:
+            // 1. 'state_changed' observer, called any time the state changes
+            // 2. Error observer, called on failure
+            // 3. Completion observer, called on successful completion
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    // Observe state change events such as progress, pause, and resume
+                    // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                    switch (snapshot.state) {
+                        case 'paused':
+                            console.log('Upload is paused');
+                            break;
+                        case 'running':
+                            console.log('Upload is running');
+                            break;
+                    }
+                },
+                (error) => {
+                    // Handle unsuccessful uploads
+
+                },
+                () => {
+                    // Handle successful uploads on complete
+                    // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        console.log('single file File available at', downloadURL);
+                        setLoading(false)
+                        // customFiles.push({
+                        //     thumbnail: downloadURL,
+                        //     original: downloadURL,
+                        //     id: downloadURL
+                        // })
+                        setFiles([{
+                            thumbnail: downloadURL,
+                            original: downloadURL,
+                            id: downloadURL
+                        }])
+                        console.log('single file File available at', files);
+
+
+
+
+                    });
+                }
+            )
+
+        }
+
+
+    }
     return (
         <GlobalContext.Provider
             value={{
                 user,
-                 
+                userInfo,
+                getUserInfo,
+                uploadFiles,
+                updateUser,
                 loginWithGoogle,
                 setClientProduct,
                 getProduct,
@@ -410,6 +608,9 @@ export default function GlobalContextProvider({ children }) {
                 getOrder,
                 editProduct,
                 productId,
+                updateUserProfile,
+                updateUserContact,
+                updateUserAddress,
                 createOrder,
                 setProductId,
                 productDetails,

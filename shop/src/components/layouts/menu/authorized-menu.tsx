@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useContext } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { siteSettings } from '@/config/site';
 import Avatar from '@/components/ui/avatar';
@@ -8,10 +8,12 @@ import cn from 'classnames';
 import { avatarPlaceholder } from '@/lib/placeholders';
 import { UserOutlinedIcon } from '@/components/icons/user-outlined';
 import { useLogout, useUser } from '@/framework/user';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 const AuthorizedMenu: React.FC<{ minimal?: boolean }> = ({ minimal }) => {
   const { mutate: logout } = useLogout();
   const { me } = useUser();
+  const {userInfo} = useContext(GlobalContext)
   const router = useRouter();
   const { t } = useTranslation('common');
 
@@ -29,7 +31,7 @@ const AuthorizedMenu: React.FC<{ minimal?: boolean }> = ({ minimal }) => {
           <UserOutlinedIcon className="h-5 w-5" />
         ) : (
           <Avatar
-            src={me?.profile?.avatar?.thumbnail ?? avatarPlaceholder}
+            src={userInfo?.profile?.avatar?.thumbnail ?? avatarPlaceholder}
             title="user name"
             className="h-10 w-10"
           />
@@ -55,12 +57,12 @@ const AuthorizedMenu: React.FC<{ minimal?: boolean }> = ({ minimal }) => {
             }
           )}
         >
-          <Menu.Item>
+          {/* <Menu.Item>
             <li className="flex w-full items-center justify-between bg-accent-500 px-6 py-4 text-xs font-semibold capitalize text-light focus:outline-none ltr:text-left rtl:text-right">
               <span>{t('text-points')}</span>
               <span>{me?.wallet?.available_points ?? 0}</span>
             </li>
-          </Menu.Item>
+          </Menu.Item> */}
           {siteSettings.authorizedLinks.map(({ href, label }) => (
             <Menu.Item key={`${href}${label}`}>
               {({ active }) => (

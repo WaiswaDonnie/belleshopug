@@ -9,6 +9,9 @@ import { useModalState } from '@/components/ui/modal/modal.context';
 import { Form } from '@/components/ui/forms/form';
 import { AddressType } from '@/framework/utils/constants';
 import { useUpdateUser } from '@/framework/user';
+import { useContext, useState } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+ import { useModalAction } from '@/components/ui/modal/modal.context';
 
 type FormValues = {
   title: string;
@@ -31,8 +34,8 @@ const addressSchema = yup.object().shape({
   address: yup.object().shape({
     country: yup.string().required('error-country-required'),
     city: yup.string().required('error-city-required'),
-    state: yup.string().required('error-state-required'),
-    zip: yup.string().required('error-zip-required'),
+    // state: yup.string().required('error-state-required'),
+    // zip: yup.string().required('error-zip-required'),
     street_address: yup.string().required('error-street-required'),
   }),
 });
@@ -40,13 +43,23 @@ const addressSchema = yup.object().shape({
 export const AddressForm: React.FC<any> = ({
   onSubmit,
   defaultValues,
-  isLoading,
+  // isLoading,
 }) => {
   const { t } = useTranslation('common');
+  const [isLoading,setIsLoading] = useState(false)
+  const { openModal,closeModal } = useModalAction();
 
+  const {updateUserAddress} = useContext(GlobalContext)
+  const submit = (values: any)=>{
+    console.log(values,"asd")
+    // onSubmit(values)
+    updateUserAddress(values,setIsLoading,closeModal)
+
+  }
+  console.log("default values", defaultValues)
   return (
     <Form<FormValues>
-      onSubmit={onSubmit}
+      onSubmit={submit}
       className="grid h-full grid-cols-2 gap-5"
       //@ts-ignore
       validationSchema={addressSchema}
@@ -68,13 +81,13 @@ export const AddressForm: React.FC<any> = ({
                 value={AddressType.Billing}
                 label={t('text-billing')}
               />
-              <Radio
+              {/* <Radio
                 id="shipping"
                 {...register('type')}
                 type="radio"
                 value={AddressType.Shipping}
                 label={t('text-shipping')}
-              />
+              /> */}
             </div>
           </div>
 

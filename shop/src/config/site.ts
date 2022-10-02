@@ -27,54 +27,54 @@ export const siteSettings = {
   authorizedLinks: [
     { href: Routes.profile, label: 'auth-menu-profile' },
     { href: Routes.orders, label: 'auth-menu-my-orders' },
-    { href: Routes.wishlists, label: 'profile-sidebar-my-wishlist' },
+    // { href: Routes.wishlists, label: 'profile-sidebar-my-wishlist' },
     { href: Routes.checkout, label: 'auth-menu-checkout' },
   ],
   authorizedLinksMobile: [
     { href: Routes.profile, label: 'auth-menu-profile' },
     { href: Routes.orders, label: 'auth-menu-my-orders' },
-    { href: Routes.wishlists, label: 'profile-sidebar-my-wishlist' },
-    { href: Routes.refunds, label: 'text-my-refunds' },
+    // { href: Routes.wishlists, label: 'profile-sidebar-my-wishlist' },
+    // { href: Routes.refunds, label: 'text-my-refunds' },
     { href: Routes.checkout, label: 'auth-menu-checkout' },
-    { href: Routes.changePassword, label: 'profile-sidebar-password' },
+    // { href: Routes.changePassword, label: 'profile-sidebar-password' },
   ],
   dashboardSidebarMenu: [
     {
       href: Routes.profile,
       label: 'profile-sidebar-profile',
     },
-    {
-      href: Routes.changePassword,
-      label: 'profile-sidebar-password',
-    },
+    // {
+    //   href: Routes.changePassword,
+    //   label: 'profile-sidebar-password',
+    // },
     {
       href: Routes.orders,
       label: 'profile-sidebar-orders',
     },
-    {
-      href: Routes.downloads,
-      label: 'profile-sidebar-downloads',
-    },
-    {
-      href: Routes.wishlists,
-      label: 'profile-sidebar-my-wishlist',
-    },
-    {
-      href: Routes.questions,
-      label: 'profile-sidebar-my-questions',
-    },
-    {
-      href: Routes.refunds,
-      label: 'text-my-refunds',
-    },
-    {
-      href: Routes.reports,
-      label: 'profile-sidebar-my-reports',
-    },
-    {
-      href: Routes.help,
-      label: 'profile-sidebar-help',
-    },
+    // {
+    //   href: Routes.downloads,
+    //   label: 'profile-sidebar-downloads',
+    // },
+    // {
+    //   href: Routes.wishlists,
+    //   label: 'profile-sidebar-my-wishlist',
+    // },
+    // {
+    //   href: Routes.questions,
+    //   label: 'profile-sidebar-my-questions',
+    // },
+    // {
+    //   href: Routes.refunds,
+    //   label: 'text-my-refunds',
+    // },
+    // {
+    //   href: Routes.reports,
+    //   label: 'profile-sidebar-my-reports',
+    // },
+    // {
+    //   href: Routes.help,
+    //   label: 'profile-sidebar-help',
+    // },
     {
       href: Routes.logout,
       label: 'profile-sidebar-logout',
@@ -93,11 +93,11 @@ export const siteSettings = {
   },
   footer: {
     copyright: {
-      name: 'RedQ, Inc',
-      href: 'https://redq.io/',
+      name: 'Belle Beauty Shop',
+      href: 'https://wwww.bellebeautyshop.com/',
     },
     address: '2429 River Drive, Suite 35 Cottonhall, CA 2296 United Kingdom',
-    email: 'dummy@dummy.com',
+    email: 'support@bellebeautyshop.com',
     phone: '+1 256-698-0694',
     menus: [
       {

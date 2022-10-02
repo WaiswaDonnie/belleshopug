@@ -8,25 +8,31 @@ import pick from 'lodash/pick';
 import { Form } from '@/components/ui/forms/form';
 import { useUpdateUser } from '@/framework/user';
 import type { UpdateUserInput, User } from '@/types';
+import { useContext, useState } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 const ProfileForm = ({ user }: { user: User }) => {
   const { t } = useTranslation('common');
-  const { mutate: updateProfile, isLoading } = useUpdateUser();
+  // const { mutate: updateProfile, isLoading } = useUpdateUser();
+  const [isLoading,setIsLoading] = useState(false)
+  const {updateUserProfile} =useContext(GlobalContext)
+
 
   function onSubmit(values: UpdateUserInput) {
     if (!user) {
       return false;
     }
-    updateProfile({
+    console.log("vaaleee",values)
+    updateUserProfile({
       id: user.id,
       name: values.name,
       profile: {
-        id: user?.profile?.id,
+        id: user?.profile?.id? user?.profile?.id:null,
         bio: values?.profile?.bio ?? '',
         //@ts-ignore
-        avatar: values?.profile?.avatar?.[0],
+        avatar: values?.profile?.avatar ?values?.profile?.avatar:null,
       },
-    });
+    },setIsLoading);
   }
 
   return (
