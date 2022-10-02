@@ -3,7 +3,7 @@ import { useQuery } from 'react-query';
 import client from './client';
 import { API_ENDPOINTS } from './client/api-endpoints';
 import { useRouter } from 'next/router';
-
+import {customTypes} from '@/assets/types'
 export function useTypes(options?: Partial<TypeQueryOptions>) {
   const { locale } = useRouter();
 
@@ -16,8 +16,11 @@ export function useTypes(options?: Partial<TypeQueryOptions>) {
     [API_ENDPOINTS.TYPES, formattedOptions],
     ({ queryKey }) => client.types.all(Object.assign({}, queryKey[1]))
   );
+
+  
+  console.log("Types",customTypes)
   return {
-    types: data,
+    types: customTypes,
     isLoading,
     error,
   };

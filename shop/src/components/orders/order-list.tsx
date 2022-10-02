@@ -43,7 +43,7 @@ export default function OrderList({
                 key={index}
                 order={order}
                 onClick={() => setSelectedOrder(order)}
-                isActive={order?.id === selectedOrder?.id}
+                isActive={order?.orderId === selectedOrder?.orderId}
               />
             ))}
             {hasMore && (

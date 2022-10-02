@@ -5,6 +5,8 @@ import { getLayout } from '@/components/layouts/layout';
 import { AddressType } from '@/framework/utils/constants';
 import Seo from '@/components/seo/seo';
 import { useUser } from '@/framework/user';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useContext } from 'react';
 export { getStaticProps } from '@/framework/general.ssr';
 
 const ScheduleGrid = dynamic(
@@ -23,9 +25,10 @@ const RightSideView = dynamic(
 );
 
 export default function CheckoutPage() {
+  const {userInfo} = useContext(GlobalContext)
   const { t } = useTranslation();
   const { me } = useUser();
-  const { id, address, profile } = me ?? {};
+  const { id, address, profile,orderId } = userInfo ?? {};
   return (
     <>
       <Seo noindex={true} nofollow={true} />
@@ -40,29 +43,29 @@ export default function CheckoutPage() {
             />
 
             <AddressGrid
-              userId={id!}
+              userId={orderId!}
               className="p-5 bg-light shadow-700 md:p-8"
               label={t('text-billing-address')}
               count={2}
               //@ts-ignore
               addresses={address?.filter(
-                (item) => item?.type === AddressType.Billing
+                (item: { type: AddressType; }) => item?.type === AddressType.Billing
               )}
               atom={billingAddressAtom}
               type={AddressType.Billing}
             />
-            <AddressGrid
+            {/* <AddressGrid
               userId={me?.id!}
               className="p-5 bg-light shadow-700 md:p-8"
               label={t('text-shipping-address')}
               count={3}
               //@ts-ignore
               addresses={address?.filter(
-                (item) => item?.type === AddressType.Shipping
+                (item: { type: AddressType; }) => item?.type === AddressType.Shipping
               )}
               atom={shippingAddressAtom}
               type={AddressType.Shipping}
-            />
+            /> */}
             <ScheduleGrid
               className="p-5 bg-light shadow-700 md:p-8"
               label={t('text-delivery-schedule')}

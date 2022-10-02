@@ -291,6 +291,7 @@ export interface Order {
   id: number | string;
   tracking_number: string;
   customer_id: number | string;
+  orderId: number | string;
   // customer?: Maybe<User>;
   status: OrderStatus;
   amount: number;

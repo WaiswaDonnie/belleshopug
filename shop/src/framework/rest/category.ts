@@ -33,7 +33,11 @@ export function useCategories(options?: Partial<CategoryQueryOptions>) {
 
   function handleLoadMore() {
     fetchNextPage();
+  
   }
+
+  console.log("catagories", data)
+
 
   return {
     categories: data?.pages?.flatMap((page) => page.data) ?? [],

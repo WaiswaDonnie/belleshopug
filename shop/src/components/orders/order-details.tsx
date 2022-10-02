@@ -86,6 +86,7 @@ const OrderDetails = ({ order }: Props) => {
   const { t } = useTranslation('common');
   const {
     id,
+    orderId,
     products,
     status,
     shipping_address,
@@ -118,7 +119,7 @@ const OrderDetails = ({ order }: Props) => {
           {tracking_number}
         </h2>
         <div className="flex items-center">
-          <RefundView status={refund?.status} orderId={id} />
+          {/* <RefundView status={refund?.status} orderId={id} /> */}
 
           <Link
             href={Routes.order(tracking_number)}

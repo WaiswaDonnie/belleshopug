@@ -26,9 +26,9 @@ import {
   updateFormState,
 } from '@/components/auth/forgot-password';
 import { clearCheckoutAtom } from '@/store/checkout';
-
+import { useContext } from 'react'
 export function useUser() {
-  const [isAuthorized] = useAtom(authorizationAtom);
+   const [isAuthorized] = useAtom(authorizationAtom);
   const { data, isLoading, error } = useQuery(
     [API_ENDPOINTS.USERS_ME],
     client.users.me,
@@ -39,6 +39,7 @@ export function useUser() {
       },
     }
   );
+
   //TODO: do some improvement here
   return { me: data, isLoading, error, isAuthorized };
 }

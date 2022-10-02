@@ -363,7 +363,8 @@ export default function GlobalContextProvider({ children }) {
                     data.push(doc.data())
                 })
                 console.log("product", data)
-                setClientProduct(data)
+                // setClientProduct(data)
+                setProductDetails(data)
             })
             // onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==", productId)), snapshot => {
             //     let data = []

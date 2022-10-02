@@ -71,7 +71,7 @@ export function Grid({
               <ProductCard product={product} key={product.slug} />
             ))}
       </div>
-      {hasMore && (
+      {/* {hasMore && (
         <div className="mt-8 flex justify-center lg:mt-12">
           <Button
             loading={isLoadingMore}
@@ -81,7 +81,7 @@ export function Grid({
             {t('text-load-more')}
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

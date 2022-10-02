@@ -73,6 +73,29 @@ export default function GlobalContextProvider({ children }) {
         })
     }
 
+
+
+    const [myOrders, setMyOrders] = useState([])
+
+    const getMyOrders = async (setIsLoading) => {
+
+        if (user) {
+            // setIsLoading(true)
+            onSnapshot(query(collection(db, 'Orders'), where('customer.id', "==", user.uid),orderBy("ordered_on",'desc')), snapshot => {
+                let data = []
+                snapshot.forEach(doc => {
+                    data.push(doc.data())
+                })
+                console.log("my orders are",data)
+                setMyOrders(data)
+               
+            })
+            // setIsLoading(false)
+
+        }
+    }
+
+
     const createOrder = async (newProduct, setLoading) => {
 
         setLoading(true)
@@ -84,6 +107,7 @@ export default function GlobalContextProvider({ children }) {
                     orderId: res.id,
                     tracking_number: res.id,
                     customer_id: user.uid,
+                    ordered_on:serverTimestamp(),
                     "status": {
                         "id": 1,
                         "name": "Order Received",
@@ -184,6 +208,8 @@ export default function GlobalContextProvider({ children }) {
                 console.log(error)
             })
     }
+
+
     const trackProduct = async (trackingId) => {
         console.log("id", trackingId)
         getDoc(doc(db, 'Products', trackingId))
@@ -372,11 +398,11 @@ export default function GlobalContextProvider({ children }) {
             })
 
     }
-    const updateUserAddress = (address, setLoading,closeModal) => {
+    const updateUserAddress = (address, setLoading, closeModal) => {
         setLoading(true)
         console.log("address", address)
         updateDoc(doc(db, 'Users', user.uid), {
-            "address":[address]
+            "address": [address]
         })
             .then(res => {
 
@@ -481,6 +507,7 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [clientProduct, setClientProduct] = useState(null)
+    
     const getProduct = (slug) => {
         onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==", slug)), snapshot => {
             let data = []
@@ -607,6 +634,8 @@ export default function GlobalContextProvider({ children }) {
                 orderDetails,
                 getOrder,
                 editProduct,
+                myOrders,
+                getMyOrders,
                 productId,
                 updateUserProfile,
                 updateUserContact,

@@ -9,7 +9,10 @@ import OrderListMobile from '@/components/orders/order-list-mobile';
 import NotFound from '@/components/ui/not-found';
 import { getLayout as getSiteLayout } from '@/components/layouts/layout';
 import DashboardSidebar from '@/components/dashboard/sidebar';
+import {useEffect,useContext, useState} from 'react';
+import {GlobalContext} from '@/GlobalContext/GlobalContext'
 export { getStaticProps } from '@/framework/general.ssr';
+
 
 function NoOrderFound() {
   return (
@@ -20,11 +23,21 @@ function NoOrderFound() {
 }
 
 export default function OrdersPage() {
-  const { orders, isLoading, error, hasMore, loadMore, isLoadingMore } =
+  const {getMyOrders,myOrders,user} =  useContext(GlobalContext)
+  const [isLoading,setIsLoading] =useState(false)
+   useEffect(()=>{
+    if(user){
+       
+      getMyOrders(setIsLoading)
+    }
+  },[user])
+  const { orders, error, hasMore, loadMore, isLoadingMore } =
     useOrders();
   const [selectedOrder] = useSelectedOrder();
 
-  const ordersItem:any = orders;
+
+  const ordersItem:any = myOrders;
+  // const ordersItem:any = orders;
 
   if (error) return <ErrorMessage message={error.message} />;
   // if (isLoading && !isEmpty(orders)) {
@@ -52,7 +65,7 @@ export default function OrdersPage() {
         />
         {selectedOrder && (
           <OrderDetails
-            order={ordersItem.find((order:any) => order.id === selectedOrder.id)!}
+            order={ordersItem.find((order:any) => order.orderId === selectedOrder.orderId)!}
           />
         )}
       </div>

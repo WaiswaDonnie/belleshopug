@@ -94,6 +94,7 @@ const Details: React.FC<Props> = ({
   product,
   backBtn = true,
   isModal = false,
+  onClose,
 }) => {
   const {
     id,
@@ -141,6 +142,7 @@ const Details: React.FC<Props> = ({
   const navigate = (path: string) => {
     router.push(path);
     closeModal();
+    onClose()
   };
 
   const variations = useMemo(
@@ -173,7 +175,7 @@ const Details: React.FC<Props> = ({
       <div className="flex flex-col border-b border-border-200 border-opacity-70 md:flex-row">
         <div className="p-6 pt-10 md:w-1/2 lg:p-14 xl:p-16">
           <div className="mb-8 flex items-center justify-between lg:mb-10">
-            {backBtn && <BackButton />}
+            {backBtn && <BackButton isModal={true} onClose={onClose} />}
             {discount && (
               <div className="rounded-full bg-yellow-500 px-3 text-xs font-semibold leading-6 text-light ltr:ml-auto rtl:mr-auto">
                 {discount}
@@ -201,18 +203,18 @@ const Details: React.FC<Props> = ({
                   }
                 )}
                 {...(isModal && {
-                  onClick: () => navigate(Routes.product(slug)),
+                  onClick: () => navigate(Routes.product(shop.id)),
                 })}
               >
                 {name}
               </h1>
 
-              <span>
+              {/* <span>
                 <FavoriteButton
                   productId={id}
                   className={classNames({ 'mr-1': isModal })}
                 />
-              </span>
+              </span> */}
             </div>
             <div className="mt-2 flex items-center justify-between">
               {unit && !hasVariations && (
@@ -305,13 +307,13 @@ const Details: React.FC<Props> = ({
             </div>
           </div>
 
-          {!!categories?.length && (
+          {/* {!!categories?.length && (
             <CategoryBadges
               categories={categories}
               basePath={`/${type?.slug}`}
               onClose={closeModal}
             />
-          )}
+          )} */}
 
           {shop?.name && (
             <div className="mt-2 flex items-center">

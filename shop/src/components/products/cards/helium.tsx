@@ -6,7 +6,8 @@ import { useTranslation } from 'next-i18next';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { productPlaceholder } from '@/lib/placeholders';
 import CartIcon from '@/components/icons/cart';
-
+import CustomProductDetailsModal from '@/components/ui/modal/customProductDetailsModal';
+import {useState} from 'react';
 type HeliumProps = {
   product: any;
   className?: string;
@@ -28,10 +29,14 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
   });
 
   const { openModal } = useModalAction();
+  const [open,setOpen] = useState(false)
 
   function handleProductQuickView() {
-    return openModal('PRODUCT_DETAILS', product.slug);
+    return setOpen(true);
+    // return openModal('PRODUCT_DETAILS', product.slug);
   }
+
+ 
 
   return (
     <article
@@ -109,7 +114,9 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
               </div>
 
               {Number(quantity) > 0 && (
+               <>
                 <AddToCart data={product} variant="single" />
+               </>
               )}
             </>
           )}
@@ -122,6 +129,7 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
           {/* End of product price */}
         </div>
       </header>
+      <CustomProductDetailsModal  onClose={()=>{setOpen(false)}} open={open} product={product}/>
     </article>
   );
 };
