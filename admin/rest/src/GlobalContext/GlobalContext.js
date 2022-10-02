@@ -412,8 +412,8 @@ export default function GlobalContextProvider({ children }) {
                                 Cookies.set('AUTH_CRED', "{%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}")
                                 setToken(token);
                                 setAuthCredentials(token, 'STORE_OWNER')
-                                navigate.push(routes)
-                                toast.success("Logged In")
+                                navigate.push('/login')
+                                toast.success("Account Creates Sucessfully")
                             })
                             .catch(error => { })
 
