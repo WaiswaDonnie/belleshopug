@@ -6,6 +6,8 @@ import { Routes } from '@/config/routes';
 import Link from '@/components/ui/link';
 import isEmpty from 'lodash/isEmpty';
 import { productPlaceholder } from '@/lib/placeholders';
+import { useState } from 'react';
+import CustomShopDetailsModal from '../modal/customShopDetailsModal';
 
 type ShopCardProps = {
   shop: any;
@@ -16,8 +18,12 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
 
   const isNew = false;
 
+  const [open,setOpen] = useState(false)
+
   return (
-    <Link href={Routes.shop(shop.slug)}>
+    <div onClick={()=>{
+      setOpen(true)
+     }}>
       <div className="relative flex cursor-pointer items-center rounded border border-gray-200 p-5">
         {isNew && (
           <span className="absolute top-2 rounded bg-blue-500 px-2 py-1 text-xs text-light ltr:right-2 rtl:left-2">
@@ -27,7 +33,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
         <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-300">
           <Image
             alt={t('common:text-logo')}
-            src={shop?.logo?.thumbnail ?? productPlaceholder}
+            src={shop?.logo?.original ?? productPlaceholder}
             layout="fill"
             objectFit="cover"
           />
@@ -45,7 +51,8 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
           </span>
         </div>
       </div>
-    </Link>
+      <CustomShopDetailsModal open={open} onClose={()=>{setOpen(false)}} shopInfo={shop}/>
+    </div>
   );
 };
 

@@ -28,6 +28,7 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
   function handleMoreInfoModal() {
     return openModal('SHOP_INFO', { shop });
   }
+  console.log(shop,"mog")
   return (
     <>
       <div
@@ -46,7 +47,7 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
         </div>
 
         <div className="w-full">
-          <h3 className="text-base font-semibold text-heading">{shop.name}</h3>
+          <h3 className="text-base font-semibold text-heading">{shop?.name}</h3>
 
           <button
             className="text-sm font-semibold transition text-accent hover:text-accent-hover"
@@ -76,12 +77,12 @@ const ShopSidebar: React.FC<ShopSidebarProps> = ({
               </div>
 
               <h3 className="mb-2 text-lg font-semibold text-heading">
-                {shop.name}
+                {shop?.name}
               </h3>
 
               {shop?.description && (
                 <p className="mb-2 text-sm leading-relaxed text-center text-body">
-                  <ReadMore character={70}>{shop.description}</ReadMore>
+                  <ReadMore character={70}>{shop?.description}</ReadMore>
                 </p>
               )}
 

@@ -556,7 +556,7 @@ export default function GlobalContextProvider({ children }) {
             logo: newShop.values.logo ? newShop.values.logo : "asdasd",
             owner_id: user.uid,
             createdOn: serverTimestamp()
-        })
+         })
             .then(res => {
                 toast.success("Shop Created")
                 setIsLoading(false)

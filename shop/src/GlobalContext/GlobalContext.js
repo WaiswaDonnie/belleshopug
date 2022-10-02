@@ -81,21 +81,62 @@ export default function GlobalContextProvider({ children }) {
 
         if (user) {
             // setIsLoading(true)
-            onSnapshot(query(collection(db, 'Orders'), where('customer.id', "==", user.uid),orderBy("ordered_on",'desc')), snapshot => {
+            onSnapshot(query(collection(db, 'Orders'), where('customer.id', "==", user.uid), orderBy("ordered_on", 'desc')), snapshot => {
                 let data = []
                 snapshot.forEach(doc => {
                     data.push(doc.data())
                 })
-                console.log("my orders are",data)
+                console.log("my orders are", data)
                 setMyOrders(data)
-               
+
             })
             // setIsLoading(false)
 
         }
     }
+    const [shopInfo, setShopInfo] = useState({})
+    const getShopInfo = async (id, setLoading) => {
+        // setLoading(true)
+        if(id){
+            onSnapshot(query(collectionGroup(db, 'Shops'), where("id", "==", id)), snapshot => {
+                let data = [];
+                snapshot.forEach(doc => {
+                    data.push(doc.data())
+                })
+                setShopInfo(data[0])
+    
+            })
+        }
+        // setLoading(false)
+    }
+    const [shopProducts, setShopProducts] = useState([])
+    const getShopProducts = async (id, setLoading) => {
+        setLoading(true)
+        onSnapshot(query(collectionGroup(db, 'Products'), where("shop_id", "==", id)), snapshot => {
+            let data = [];
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            setShopProducts(data)
+
+        })
+        setLoading(false)
+    }
+    const [shops, setShops] = useState([])
+    const getShops = async (setIsLoading) => {
+        setIsLoading(true)
+
+        onSnapshot(collectionGroup(db, 'Shops'), snap => {
+            let data = [];
+            snap.forEach(doc => {
+                data.push(doc.data())
+            })
+            setShops(data)
+        })
 
 
+        // setIsLoading(false)
+    }
     const createOrder = async (newProduct, setLoading) => {
 
         setLoading(true)
@@ -107,7 +148,7 @@ export default function GlobalContextProvider({ children }) {
                     orderId: res.id,
                     tracking_number: res.id,
                     customer_id: user.uid,
-                    ordered_on:serverTimestamp(),
+                    ordered_on: serverTimestamp(),
                     "status": {
                         "id": 1,
                         "name": "Order Received",
@@ -507,7 +548,7 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [clientProduct, setClientProduct] = useState(null)
-    
+
     const getProduct = (slug) => {
         onSnapshot(query(collectionGroup(db, 'Products'), where("slug", "==", slug)), snapshot => {
             let data = []
@@ -613,6 +654,9 @@ export default function GlobalContextProvider({ children }) {
 
 
     }
+
+
+
     return (
         <GlobalContext.Provider
             value={{
@@ -634,6 +678,13 @@ export default function GlobalContextProvider({ children }) {
                 orderDetails,
                 getOrder,
                 editProduct,
+                shopInfo,
+                getShopInfo,
+                shops,
+                getShops,
+                setShopInfo,
+                shopProducts,
+                getShopProducts,
                 myOrders,
                 getMyOrders,
                 productId,
