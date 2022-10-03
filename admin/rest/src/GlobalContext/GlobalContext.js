@@ -134,7 +134,7 @@ export default function GlobalContextProvider({ children }) {
 
         }
 
- 
+
     }
 
     function uploadImageAsPromise(file, setFiles) {
@@ -393,10 +393,10 @@ export default function GlobalContextProvider({ children }) {
                     id: userCredentials.user.uid,
                     created_at: serverTimestamp(),
                     email: email,
-                    profile:{
-                        avatar:null,
-                        bio:null,
-                        contact:null,
+                    profile: {
+                        avatar: null,
+                        bio: null,
+                        contact: null,
 
                     }
                 })
@@ -437,24 +437,37 @@ export default function GlobalContextProvider({ children }) {
             })
     }
 
-    
-    const updateUser = (newUser,setLoading)=>{
-    setLoading(true)
-        console.log("newUser",newUser.input)
-        updateDoc(doc(db, 'Vendors', user.uid),newUser.input)
-        .then(res=>{
 
-            setLoading(false)
-        toast.success("Saved Sucessfully")
-        getUserInfo()
+    const updateUser = (newUser, setLoading) => {
+        setLoading(true)
+        console.log("newUser", newUser.input)
+        updateDoc(doc(db, 'Vendors', user.uid), newUser.input)
+            .then(res => {
 
-        })
-        .catch(error=>{
+                setLoading(false)
+                toast.success("Saved Sucessfully")
+                getUserInfo()
 
-        })
+            })
+            .catch(error => {
+
+            })
 
     }
-    const loginUser = async (email, password, setLoading, setFormError, closeModal, setAuthorized) => {
+
+    const logoutUser = () => {
+        signOut(auth).then(() => {
+            // Sign-out successful.
+            console.log('called')
+            setUser(null)
+            setMyOrders([])
+            setShops([])
+        }).catch((error) => {
+            // An error happened.
+        });
+    }
+
+    const loginUser = async (email, password, setLoading, hasAccess, allowedRoles, Routes, setAuthCredentials, setErrorMessage) => {
         console.log(email, password)
         setLoading(true)
         signInWithEmailAndPassword(auth, email, password)
@@ -466,14 +479,36 @@ export default function GlobalContextProvider({ children }) {
                         updateDoc(doc(db, 'Users', userCredentials.user.uid), {
                             token: token
                         })
-                        Cookies.set('auth_token', token)
+
                         setToken(token);
-                        setLoading(false)
-                        closeModal();
-                        setAuthorized(true)
+                        // setLoading(false)
+                        // closeModal();
+                        // setAuthorized(true)
+                        if (token) {
+                            if (hasAccess(
+                                allowedRoles,
+                                [
+                                    "super_admin",
+                                    "customer"
+                                ])) {
+                                setAuthCredentials(token,
+                                    [
+                                        "super_admin",
+                                        "customer"
+                                    ]);
+                                setUser(userCredentials.user)
+                                navigate.push(Routes.dashboard);
+                                return;
+                            }
+                            setErrorMessage('form:error-enough-permission');
+                        } else {
+                            setErrorMessage('form:error-credential-wrong');
+                        }
+
                     })
                     .catch(error => {
                         toast.error((error.code));
+                        setErrorMessage('form:error-credential-wrong');
                     })
 
 
@@ -484,7 +519,7 @@ export default function GlobalContextProvider({ children }) {
             }).catch(error => {
                 setLoading(false)
                 console.log(error.code)
-                setFormError(error.code)
+                setErrorMessage('form:error-credential-wrong');
                 toast.error((error.code));
             })
     }
@@ -546,8 +581,8 @@ export default function GlobalContextProvider({ children }) {
         setIsLoading(true)
         setDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
             cover_image: {
-                original: newShop.values.orignal ? newShop.values.orignal : "sdas",
-                thumbnail: newShop.values.thumbnail ? newShop.values.original : "adftgdf"
+                original: newShop.values.cover_image.original,
+                thumbnail: newShop.values.cover_image.thumbnail
                 // original: newShop.values.cover_image.original,
                 // thumbnail: newShop.values.cover_image.thumbnail
             },
@@ -555,15 +590,24 @@ export default function GlobalContextProvider({ children }) {
             description: newShop.values.description,
             logo: newShop.values.logo ? newShop.values.logo : "asdasd",
             owner_id: user.uid,
-            createdOn: serverTimestamp()
-         })
+            id: user.uid,
+            createdOn: serverTimestamp(),
+            is_active: false,
+            orders_count: 0,
+            products_count: 0
+        })
             .then(res => {
                 toast.success("Shop Created")
                 setIsLoading(false)
                 getShopDetails()
-                updateDoc(doc(db, 'Venders', user.uid, "Shops", res.id), {
-                    id: res.id
-                })
+                // updateDoc(doc(db, 'Venders', user.uid, "Shops", res.id), {
+                //     orders_count: 0,
+                //     products_count: 0
+                // })
+                //     .then(res => { })
+                //     .catch(error => { })
+                
+                navigate.push('/shops')
             })
             .catch(error => {
                 toast.error(error.code)
@@ -631,7 +675,7 @@ export default function GlobalContextProvider({ children }) {
     }
     const [productInfo, setProductInfo] = useState(null)
     const getProductInfo = async (id, setLoading) => {
-        console.log("got it",id)
+        console.log("got it", id)
         setLoading(true)
         onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, "Products"), where("id", "==", id)), snapshot => {
             let data = [];
@@ -675,9 +719,10 @@ export default function GlobalContextProvider({ children }) {
                     })
                     updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
                         products_count: increment(newProduct?.quantity),
-                        orders_count: 0
 
                     })
+                        .then(() => { })
+                        .catch(error => { })
                 })
                 .catch(error => {
                     toast.error(error.code)
@@ -755,7 +800,7 @@ export default function GlobalContextProvider({ children }) {
     }, [user])
 
     const getMyOrder = (orderId) => {
-        onSnapshot(query(collectionGroup(db, 'MyOrders'), where("orderId", "==", orderId)), snapshot => {
+        onSnapshot(query(collectionGroup(db, 'MyOrders'), where("shop_id", '==', user.uid), where("orderId", "==", orderId)), snapshot => {
             let data = []
             snapshot.forEach(doc => {
 
@@ -771,26 +816,26 @@ export default function GlobalContextProvider({ children }) {
 
 
     const getMyOrders = () => {
-            onSnapshot(query(collectionGroup(db,'MyOrders')), snapshot => {
-                // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
-                let data = []
-                snapshot.forEach(doc => {
-                    data.push(doc.data())
-                })
-                setMyOrders(data)
-                console.log("my orders", data)
-                // if (data.length > 0) {
-                //     console.log("my orders", data)
-                // }
-    
+        onSnapshot(query(collectionGroup(db, 'MyOrders'), where("shop_id", '==', user.uid)), snapshot => {
+            // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
             })
-        
+            setMyOrders(data)
+            console.log("my orders", data)
+            // if (data.length > 0) {
+            //     console.log("my orders", data)
+            // }
+
+        })
+
     }
 
     const updateMyOrder = (order, setUpdating) => {
         console.log("order to be updated", order)
         setUpdating(true)
-        updateDoc(doc(db, 'Vendors',user.uid,'Shops',user.uid,'MyOrders', order.id), {
+        updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'MyOrders', order.id), {
             status: order.status
         })
             .then(res => {
@@ -828,7 +873,7 @@ export default function GlobalContextProvider({ children }) {
         if (user) {
             getDoc(doc(db, 'Vendors', user.uid))
                 .then(res => {
-                    console.log("user info",res.data())
+                    console.log("user info", res.data())
                     setUserInfo(res.data())
                 })
                 .catch(error => {
@@ -878,6 +923,7 @@ export default function GlobalContextProvider({ children }) {
                 getOwnerProducts,
                 createOrder,
                 setProductId,
+                logoutUser,
                 updateProduct,
                 productDetails,
                 setProductDetails,

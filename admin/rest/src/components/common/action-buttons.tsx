@@ -138,7 +138,7 @@ const ActionButtons = ({
           <EditIcon width={16} />
         </button>
       )}
-      {approveButton &&
+      {/* {approveButton &&
         (!isShopActive ? (
           <button
             onClick={() => handleShopStatus(true)}
@@ -155,7 +155,7 @@ const ActionButtons = ({
           >
             <CloseFillIcon width={20} />
           </button>
-        ))}
+        ))} */}
       {userStatus && (
         <>
           {isUserActive ? (

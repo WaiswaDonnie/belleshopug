@@ -16,6 +16,8 @@ import {
   hasAccess,
   setAuthCredentials,
 } from '@/utils/auth-utils';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { useContext } from 'react';
 
 const loginFormSchema = yup.object().shape({
   email: yup
@@ -28,30 +30,37 @@ const loginFormSchema = yup.object().shape({
 const LoginForm = () => {
   const { t } = useTranslation();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { mutate: login, isLoading, error } = useLogin();
+  // const { mutate: login, isLoading, error } = useLogin();
+  const [isLoading, setIsLoading] = useState(false)
+  const { loginUser } = useContext(GlobalContext)
 
   function onSubmit({ email, password }: LoginInput) {
-    login(
-      {
-        email,
-        password,
-      },
-      {
-        onSuccess: (data) => {
-          if (data?.token) {
-            if (hasAccess(allowedRoles, data?.permissions)) {
-              setAuthCredentials(data?.token, data?.permissions);
-              Router.push(Routes.dashboard);
-              return;
-            }
-            setErrorMessage('form:error-enough-permission');
-          } else {
-            setErrorMessage('form:error-credential-wrong');
-          }
-        },
-        onError: () => {},
-      }
-    );
+    loginUser(
+      email,
+      password,
+      setIsLoading,hasAccess, allowedRoles, Routes, setAuthCredentials, setErrorMessage
+    )
+    // login(
+    //   {
+    //     email,
+    //     password,
+    //   },
+    //   {
+    //     onSuccess: (data) => {
+    //       if (data?.token) {
+    //         if (hasAccess(allowedRoles, data?.permissions)) {
+    //           setAuthCredentials(data?.token, data?.permissions);
+    //           Router.push(Routes.dashboard);
+    //           return;
+    //         }
+    //         setErrorMessage('form:error-enough-permission');
+    //       } else {
+    //         setErrorMessage('form:error-credential-wrong');
+    //       }
+    //     },
+    //     onError: () => {},
+    //   }
+    // );
   }
 
   return (

@@ -9,6 +9,8 @@ import { API_ENDPOINTS } from './client/api-endpoints';
 import { userClient } from './client/user';
 import { User, QueryOptionsType, UserPaginator } from '@/types';
 import { mapPaginatorData } from '@/utils/data-mappers';
+import { useContext } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 export const useMeQuery = () => {
   return useQuery<User, Error>([API_ENDPOINTS.ME], userClient.me);
@@ -21,12 +23,14 @@ export function useLogin() {
 export const useLogoutMutation = () => {
   const router = useRouter();
   const { t } = useTranslation();
-
+  const {logoutUser} = useContext(GlobalContext)
+  
   return useMutation(userClient.logout, {
     onSuccess: () => {
       Cookies.remove(AUTH_CRED);
       router.replace(Routes.login);
       toast.success(t('common:successfully-logout'));
+      logoutUser()
     },
   });
 };

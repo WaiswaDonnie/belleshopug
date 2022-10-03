@@ -18,6 +18,7 @@ import { ArrowUp } from '@/components/icons/arrow-up';
 import { adminOnly } from '@/utils/auth-utils';
 import { useContext,useEffect } from 'react';
 import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { toast } from 'react-toastify';
 
 export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,7 +30,7 @@ export default function ProductsPage() {
   const [orderBy, setOrder] = useState('created_at');
   const [sortedBy, setColumn] = useState<SortOrder>(SortOrder.Desc);
   const [visible, setVisible] = useState(false);
-  const {open,setOpen,getOwnerProducts,user} =  useContext(GlobalContext)
+  const {open,setOpen,getOwnerProducts,user,shopDetails} =  useContext(GlobalContext)
   useEffect(()=>{
     if(user){
       getOwnerProducts()
@@ -83,7 +84,16 @@ export default function ProductsPage() {
             // onClick={toggleVisible}
             onClick={()=>{
               // alert("")
-              setOpen(true)
+              if(shopDetails){
+                if(shopDetails.is_active){
+                  setOpen(true)
+                }else{
+                  toast.error("Your shop is not active")
+                }
+              }else{
+                toast.error("No shop found")
+              }
+             
             }}
           >
 

@@ -225,7 +225,7 @@ export default function GlobalContextProvider({ children }) {
                  
                                 })
                                 updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id), {
-                                    products_count: increment(1)
+                                    orders_count: increment(1)
                                 })
 
                             })
