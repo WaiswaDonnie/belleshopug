@@ -28,7 +28,7 @@ type FormValues = {
 
 export default function ProfileUpdate({ me }: any) {
   const { t } = useTranslation();
-  const {updateUser} =  useContext(GlobalContext)
+  const {updateUser,user} =  useContext(GlobalContext)
   const [loading,setLoading] = useState(false)
    // const { mutate: updateUser, isLoading: loading } = useUpdateUserMutation();
   const {
@@ -52,7 +52,7 @@ export default function ProfileUpdate({ me }: any) {
         name: name,
         id: me?.id,
         profile: {
-          id: me?.profile?.id,
+          id: user.uid,
           bio: profile?.bio,
           contact: profile?.contact,
           avatar: {

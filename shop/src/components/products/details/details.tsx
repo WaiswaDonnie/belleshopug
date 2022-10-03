@@ -315,7 +315,7 @@ const Details: React.FC<Props> = ({
             />
           )} */}
 
-          {shop?.name && (
+          {/* {shop?.name && (
             <div className="mt-2 flex items-center">
               <span className="py-1 text-sm font-semibold capitalize text-heading ltr:mr-6 rtl:ml-6">
                 {t('common:text-sellers')}
@@ -328,7 +328,7 @@ const Details: React.FC<Props> = ({
                 {shop?.name}
               </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 

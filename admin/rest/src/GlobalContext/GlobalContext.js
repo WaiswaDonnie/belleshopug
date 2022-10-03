@@ -755,7 +755,7 @@ export default function GlobalContextProvider({ children }) {
     }, [user])
 
     const getMyOrder = (orderId) => {
-        onSnapshot(query(collection(db, 'Orders'), where("orderId", "==", orderId)), snapshot => {
+        onSnapshot(query(collectionGroup(db, 'MyOrders'), where("orderId", "==", orderId)), snapshot => {
             let data = []
             snapshot.forEach(doc => {
 
@@ -771,25 +771,26 @@ export default function GlobalContextProvider({ children }) {
 
 
     const getMyOrders = () => {
-        onSnapshot(query(collection(db, 'Orders')), snapshot => {
-            // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
-            let data = []
-            snapshot.forEach(doc => {
-
-                data.push(doc.data())
-            })
-            if (data.length > 0) {
+            onSnapshot(query(collectionGroup(db,'MyOrders')), snapshot => {
+                // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
+                let data = []
+                snapshot.forEach(doc => {
+                    data.push(doc.data())
+                })
                 setMyOrders(data)
                 console.log("my orders", data)
-            }
-
-        })
+                // if (data.length > 0) {
+                //     console.log("my orders", data)
+                // }
+    
+            })
+        
     }
 
     const updateMyOrder = (order, setUpdating) => {
         console.log("order to be updated", order)
         setUpdating(true)
-        updateDoc(doc(db, 'Orders', order.id), {
+        updateDoc(doc(db, 'Vendors',user.uid,'Shops',user.uid,'MyOrders', order.id), {
             status: order.status
         })
             .then(res => {

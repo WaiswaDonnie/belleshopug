@@ -120,7 +120,7 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
       customer_contact,
       payment_gateway,
       billing_address,
-      shipping_address,
+      // shipping_address,
       delivery_time,
       available_items,
     ];
