@@ -398,7 +398,8 @@ export default function GlobalContextProvider({ children }) {
                         bio: null,
                         contact: null,
 
-                    }
+                    },
+                    is_active:true,
                 })
                     .then(async result => {
                         setLoading(false)
@@ -588,24 +589,35 @@ export default function GlobalContextProvider({ children }) {
             },
             name: newShop.values.name,
             description: newShop.values.description,
-            logo: newShop.values.logo ? newShop.values.logo : "asdasd",
-            owner_id: user.uid,
-            id: user.uid,
+            logo: newShop?.values?.logo,
+            owner_id: user?.uid,
+            id: user?.uid,
             createdOn: serverTimestamp(),
             is_active: false,
             orders_count: 0,
-            products_count: 0
+            products_count: 0,
+            owner:{
+                name:user?.displayName,
+                avatar:user?.photoURL
+            }
         })
             .then(res => {
                 toast.success("Shop Created")
                 setIsLoading(false)
                 getShopDetails()
-                // updateDoc(doc(db, 'Venders', user.uid, "Shops", res.id), {
-                //     orders_count: 0,
-                //     products_count: 0
-                // })
-                //     .then(res => { })
-                //     .catch(error => { })
+
+                updateDoc(doc(db, 'Venders', user.uid), {
+                    shop:{
+                        name: newShop.values.name,
+                        description: newShop.values.description,
+                        logo: newShop?.values?.logo,
+                        owner_id: user.uid,
+                        id: user.uid,
+                        createdOn: serverTimestamp(),                  
+                    }
+                })
+                    .then(res => { })
+                    .catch(error => { })
                 
                 navigate.push('/shops')
             })

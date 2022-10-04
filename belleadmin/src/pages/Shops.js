@@ -1,7 +1,9 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useContext, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useContext, useState, useRef } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
+
 // material
 import {
   Card,
@@ -27,19 +29,17 @@ import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashboard/user';
 // mock
 import USERLIST from '../_mock/user';
-import { GlobalContext } from 'src/GlobalContext/GlobalContext';
-import VendorListHead from 'src/sections/@dashboard/user/VendorListHead';
+import { GlobalContext } from '../GlobalContext/GlobalContext'
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
-  { id: 'Shop', label: 'Shop', alignRight: false },
-  { id: 'contact', label: 'Contact', alignRight: false },
-  // { id: 'isVerified', label: 'Verified', alignRight: false },
+  { id: 'owner', label: 'Owner', alignRight: false },
+  { id: 'orders_count', label: 'Orders', alignRight: false },
+  { id: 'products_count', label: 'Products', alignRight: false },
   { id: 'is_active', label: 'Status', alignRight: false },
-  
-  { id: '' },
+  { id: 'id' },
 ];
 
 // ----------------------------------------------------------------------
@@ -73,8 +73,8 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function User() {
-  const { vendors } = useContext(GlobalContext)
+export default function Shops() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -87,6 +87,7 @@ export default function User() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const { shops } = useContext(GlobalContext)
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -95,7 +96,7 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = vendors.map((n) => n.name);
+      const newSelecteds = shops.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -130,18 +131,21 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - vendors.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - shops.length) : 0;
 
-  const filteredUsers = applySortFilter(vendors, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(shops, getComparator(order, orderBy), filterName);
 
   const isUserNotFound = filteredUsers.length === 0;
-
+  const ref = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const { activateShop, deactivateShop } = useContext(GlobalContext)
   return (
     <Page title="User">
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Vendors
+            Shops
           </Typography>
           {/* <Button variant="contained" component={RouterLink} to="#" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
@@ -154,18 +158,18 @@ export default function User() {
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <VendorListHead
+                <UserListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={vendors.length}
+                  rowCount={shops.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, is_active, shop,profile } = row;
+                    const { id, name, owner, logo, is_active, orders_count, products_count } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -182,20 +186,43 @@ export default function User() {
                         </TableCell>
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={profile?.avatar?.original} />
+                            <Avatar alt={name} src={logo?.original} />
                             <Typography variant="subtitle2" noWrap>
                               {name}
                             </Typography>
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">{shop?.name}</TableCell>
-                         <TableCell align="left">{profile?.contact}</TableCell>
+                        <TableCell align="left">{owner?.name}</TableCell>
+                        <TableCell align="left">{orders_count}</TableCell>
+                        <TableCell align="left">{products_count}</TableCell>
+                        {/* <TableCell align="left">{role}</TableCell> */}
                         <TableCell align="left">
-                          <Label variant="ghost" color={!is_active ? 'error' : 'success'}>
-                            {is_active? "Active" : "Inactive"}
+                          <Label variant="ghost" color={is_active===false ? 'error' : 'success'}>
+                            {is_active===true ? 'Active' : 'Inactive'}
                           </Label>
                         </TableCell>
 
+
+                        <TableCell align="right">
+                          <IconButton ref={ref} onClick={() => {
+                            navigate(`/dashboard/shops/${id}`)
+                            // alert(id)
+                          }}>
+                            <Iconify icon="eva:eye-fill" sx={{ color: 'text.disabled', width: 25, height: 25 }} />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton ref={ref} onClick={() => {
+                            if (!is_active) {
+                              activateShop(id, setLoading)
+                            } else {
+                              deactivateShop(id, setLoading)
+                            }
+                            // alert(id)
+                          }}>
+                            <Iconify icon={is_active ? 'charm:circle-cross' : 'teenyicons:tick-circle-solid'} sx={{ color: 'text.disabled', width: 20, height: 20 }} />
+                          </IconButton>
+                        </TableCell>
                         {/* <TableCell align="right">
                           <UserMoreMenu />
                         </TableCell> */}
@@ -225,7 +252,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={vendors.length}
+            count={shops.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

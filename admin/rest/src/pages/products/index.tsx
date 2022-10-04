@@ -85,7 +85,7 @@ export default function ProductsPage() {
             onClick={()=>{
               // alert("")
               if(shopDetails){
-                if(shopDetails.is_active){
+                if(shopDetails.is_active===true){
                   setOpen(true)
                 }else{
                   toast.error("Your shop is not active")

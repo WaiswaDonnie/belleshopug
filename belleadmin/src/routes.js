@@ -10,20 +10,27 @@ import NotFound from './pages/Page404';
 import Register from './pages/Register';
 import Products from './pages/Products';
 import DashboardApp from './pages/DashboardApp';
+import { useContext } from 'react';
+import { GlobalContext } from './GlobalContext/GlobalContext';
+import Cookies from 'js-cookie'
+import Shops from './pages/Shops';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const { user } = useContext(GlobalContext)
   return useRoutes([
     {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
         { path: 'app', element: <DashboardApp /> },
-        { path: 'user', element: <User /> },
-        { path: 'products', element: <Products /> },
+        { path: 'vendors', element: <User /> },
+        // { path: 'products', element: <Products /> },
         { path: 'blog', element: <Blog /> },
-      ],
+        { path: 'shops', element: <Shops /> },
+        { path: 'shops/:id', element: <Products /> },
+       ],
     },
     {
       path: 'login',
@@ -37,7 +44,7 @@ export default function Router() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/app" /> },
+        { path: '/', element: <Navigate to={Cookies.get('admin_token')?'/dashboard':'login'} /> },
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

@@ -10,7 +10,9 @@ import Logo from '../components/Logo';
 // sections
 import { LoginForm } from '../sections/auth/login';
 import AuthSocial from '../sections/auth/AuthSocial';
-
+import Cookies from 'js-cookie'
+import { useNavigate } from "react-router-dom";
+import { useEffect } from 'react';
 // ----------------------------------------------------------------------
 
 const RootStyle = styled('div')(({ theme }) => ({
@@ -58,8 +60,13 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 export default function Login() {
   const smUp = useResponsive('up', 'sm');
-
+  const navigate = useNavigate();
   const mdUp = useResponsive('up', 'md');
+  useEffect(() => {
+    if (Cookies.get('admin_token')) {
+      navigate('/dashboard/app', { replace: true });
+    }
+  }, [navigate,Cookies])
 
   return (
     <Page title="Login">
@@ -89,12 +96,12 @@ export default function Login() {
         <Container maxWidth="sm">
           <ContentStyle>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Belle Shop Admin
             </Typography>
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
 
-            <AuthSocial />
+            {/* <AuthSocial /> */}
 
             <LoginForm />
 
