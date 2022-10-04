@@ -40,7 +40,7 @@ export default function EcommerceShop() {
 
   const handleCloseFilter = () => {
     setOpenFilter(false);
-  };
+  }; 
 
   return (
     <Page title="Dashboard: Products">
