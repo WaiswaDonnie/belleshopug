@@ -1,8 +1,7 @@
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy } from 'firebase/firestore';
 import { db, auth, storage } from '../firebase'
 import { getAuth, sendPasswordResetEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
-import { useRouter } from "next/router"
-import Cookies from 'js-cookie'
+ import Cookies from 'js-cookie'
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 

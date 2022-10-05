@@ -218,68 +218,7 @@ export default function GlobalContextProvider({ children }) {
         const fullDate = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
         setLoading(true)
         console.log("product", newProduct)
-        const newOrder =
-        {
-            "id": 66,
-            "tracking_number": "CGG82oQZc4i8",
-            "customer_id": user.uid,
-            "customer_contact": "19365141641631",
-            "language": "en",
-            "status": {
-                "id": 1,
-                "name": "Order Received",
-                "serial": 1,
-                "color": "#23b848",
-                "created_at": "2021-03-08T21:33:52.000000Z",
-                "updated_at": "2021-03-08T21:34:04.000000Z",
-                "language": "en",
-                "translated_languages": [
-                    "en"
-                ]
-            },
-            "amount": 150,
-            "sales_tax": 3,
-            "paid_total": 153,
-            "total": 153,
-            "coupon_id": null,
-            "parent_id": null,
-            "shop_id": 78,
-            "discount": 0,
-            "payment_id": null,
-            "payment_gateway": "CASH_ON_DELIVERY",
-            "shipping_address": {
-                "zip": "40391",
-                "city": "Winchester",
-                "state": "KY",
-                "country": "United States",
-                "street_address": "2148  Straford Park"
-            },
-            "billing_address": {
-                "zip": "122",
-                "city": "aaa",
-                "state": "aaaa",
-                "country": "aaa",
-                "street_address": "ss"
-            },
-            "logistics_provider": null,
-            "delivery_fee": 0,
-            "delivery_time": "Express Delivery",
-            "deleted_at": null,
-            "created_at": "2022-01-12T07:29:20.000Z",
-            "updated_at": "2022-01-12T07:29:20.000Z",
-            "customer": {
-                "id": user.uid,
-                "name": user.displayName,
-                "email": user.email,
-                "email_verified_at": null,
-                "created_at": serverTimestamp(),
-                "updated_at": serverTimestamp(),
-                "is_active": 1,
-                "shop_id": null
-            },
-            "products": [],
-            "refund": null
-        }
+       
         addDoc(collection(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders'), newProduct)
             .then(res => {
                 updateDoc(doc(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders', res.id), {
@@ -295,8 +234,8 @@ export default function GlobalContextProvider({ children }) {
                         ],
                         "serial": 1,
                         "color": "#23b848",
-                        "created_at": "2021-03-08T21:33:52.000000Z",
-                        "updated_at": "2021-03-08T21:34:04.000000Z"
+                        "created_at": new Date(),
+                        "updated_at": new Date()
                     },
                     customer: {
                         "id": user.uid,
@@ -717,6 +656,7 @@ export default function GlobalContextProvider({ children }) {
             newProduct['shop'] = {
                 id: shopDetails.owner_id,
                 name: shopDetails.name,
+                logo: shopDetails.logo
             };
 
             console.log("new product", newProduct)

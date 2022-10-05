@@ -14,6 +14,7 @@ import { useContext } from 'react';
 import { GlobalContext } from './GlobalContext/GlobalContext';
 import Cookies from 'js-cookie'
 import Shops from './pages/Shops';
+import Orders from './pages/Orders';
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +31,7 @@ export default function Router() {
         { path: 'blog', element: <Blog /> },
         { path: 'shops', element: <Shops /> },
         { path: 'shops/:id', element: <Products /> },
+        { path: 'orders', element: <Orders /> },
        ],
     },
     {

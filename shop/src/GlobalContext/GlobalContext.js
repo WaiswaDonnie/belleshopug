@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
-import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy } from 'firebase/firestore';
+import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion } from 'firebase/firestore';
 import { db, auth, storage } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
@@ -100,17 +100,17 @@ export default function GlobalContextProvider({ children }) {
     let day = y.getDate()
 
     if (Number(day) < 10) {
-      day = "0" + day;
+        day = "0" + day;
     }
     if (Number(month) < 10) {
-      month = "0" + month;
+        month = "0" + month;
     }
     var full_date = years + "-" + String(month) + "-" + day;
-   
+
     const [shopInfo, setShopInfo] = useState({})
     const getShopInfo = async (id, setLoading) => {
         // setLoading(true)
-       
+
         if (id) {
             onSnapshot(query(collectionGroup(db, 'Shops'), where("id", "==", id)), snapshot => {
                 let data = [];
@@ -155,7 +155,6 @@ export default function GlobalContextProvider({ children }) {
 
         setLoading(true)
         console.log("product", newProduct)
-
         addDoc(collection(db, 'Orders'), newProduct)
             .then(async res => {
                 updateDoc(doc(db, 'Orders', res.id), {
@@ -163,7 +162,7 @@ export default function GlobalContextProvider({ children }) {
                     tracking_number: res.id,
                     customer_id: user.uid,
                     ordered_on: serverTimestamp(),
-                    created_at:full_date,
+                    created_at: full_date,
                     "status": {
                         "id": 1,
                         "name": "Order Received",
@@ -191,18 +190,18 @@ export default function GlobalContextProvider({ children }) {
                     }
                 })
                 newProduct.products.forEach(async (product) => {
-                    console.log("eached product id", product.product_id)
+                    console.log("eachedhbjhjnkml,d", product.product_id)
                     const response = await getDocs(query(collectionGroup(db, 'Products'), where('id', '==', product.product_id)))
                     if (response) {
                         response.forEach(async (res) => {
                             console.log("This porduct has been got", res.data())
-
+                            // updateDoc(doc(db,'Orders'))
                             addDoc(collection(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders'), {
                                 amount: product?.subtotal,
                                 billing_address: newProduct?.billing_address,
                                 coupon_id: newProduct?.coupon_id,
                                 ordered_on: serverTimestamp(),
-                                created_at:full_date,
+                                created_at: full_date,
                                 customer: {
                                     "id": user.uid,
                                     "name": user.displayName,
@@ -221,7 +220,7 @@ export default function GlobalContextProvider({ children }) {
                                 delivery_fee: 0,
                                 delivery_time: newProduct?.delivery_time,
                                 reference_orderId: res.id,
-                                paid_total:product?.subtotal,
+                                paid_total: product?.subtotal,
                                 payment_gateway: newProduct?.payment_gateway,
                                 products: [{
                                     order_quantity: product.order_quantity,
@@ -244,6 +243,9 @@ export default function GlobalContextProvider({ children }) {
 
                                         orderId: response.id,
                                         tracking_number: response.id
+                                    })
+                                    updateDoc(doc(db,'Orders',res.id),{
+                                        shops:arrayUnion([{shop_id:res.data()?.shop_id,name:res.data()?.shop?.name,logo:res.data()?.shop?.name}])
                                     })
                                     updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
                                         quantity: increment(-product.order_quantity)
@@ -492,7 +494,15 @@ export default function GlobalContextProvider({ children }) {
             newUser['profile.avatar'] = newUser.profile.avatar ? newUser.profile.avatar : null
             updateDoc(doc(db, 'Users', user.uid), newUser)
                 .then(res => {
-
+                    updateProfile(auth.currentUser, {
+                        photoURL: newUser.profile.avatar.original ? newUser.profile.avatar.original : null
+                    }).then(() => {
+                        // Profile updated!
+                        // ...
+                    }).catch((error) => {
+                        // An error occurred
+                        // ...
+                    });
                     setLoading(false)
                     toast.success("Saved Sucessfully")
                     getUserInfo()
