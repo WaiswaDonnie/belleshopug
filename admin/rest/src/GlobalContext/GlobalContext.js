@@ -828,7 +828,7 @@ export default function GlobalContextProvider({ children }) {
 
 
     const getMyOrders = () => {
-        onSnapshot(query(collectionGroup(db, 'MyOrders'), where("shop_id", '==', user.uid)), snapshot => {
+        onSnapshot(collection(db, 'Vendors',user.uid,'Shops',user.uid,'MyOrders'), snapshot => {
             // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
             let data = []
             snapshot.forEach(doc => {

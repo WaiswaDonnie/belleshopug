@@ -94,17 +94,31 @@ export default function GlobalContextProvider({ children }) {
 
         }
     }
+    let y = new Date()
+    let years = y.getFullYear()
+    let month = Number(y.getMonth() + 2)
+    let day = y.getDate()
+
+    if (Number(day) < 10) {
+      day = "0" + day;
+    }
+    if (Number(month) < 10) {
+      month = "0" + month;
+    }
+    var full_date = years + "-" + String(month) + "-" + day;
+   
     const [shopInfo, setShopInfo] = useState({})
     const getShopInfo = async (id, setLoading) => {
         // setLoading(true)
-        if(id){
+       
+        if (id) {
             onSnapshot(query(collectionGroup(db, 'Shops'), where("id", "==", id)), snapshot => {
                 let data = [];
                 snapshot.forEach(doc => {
                     data.push(doc.data())
                 })
                 setShopInfo(data[0])
-    
+
             })
         }
         // setLoading(false)
@@ -149,6 +163,7 @@ export default function GlobalContextProvider({ children }) {
                     tracking_number: res.id,
                     customer_id: user.uid,
                     ordered_on: serverTimestamp(),
+                    created_at:full_date,
                     "status": {
                         "id": 1,
                         "name": "Order Received",
@@ -158,8 +173,8 @@ export default function GlobalContextProvider({ children }) {
                         ],
                         "serial": 1,
                         "color": "#23b848",
-                        "created_at": "2021-03-08T21:33:52.000000Z",
-                        "updated_at": "2021-03-08T21:34:04.000000Z"
+                        "created_at": full_date,
+                        "updated_at": full_date
                     },
                     customer: {
                         "id": user.uid,
@@ -181,10 +196,13 @@ export default function GlobalContextProvider({ children }) {
                     if (response) {
                         response.forEach(async (res) => {
                             console.log("This porduct has been got", res.data())
+
                             addDoc(collection(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders'), {
                                 amount: product?.subtotal,
                                 billing_address: newProduct?.billing_address,
                                 coupon_id: newProduct?.coupon_id,
+                                ordered_on: serverTimestamp(),
+                                created_at:full_date,
                                 customer: {
                                     "id": user.uid,
                                     "name": user.displayName,
@@ -193,19 +211,26 @@ export default function GlobalContextProvider({ children }) {
                                         "avatar": {
                                             "thumbnail": user?.photoURL,
                                             "original": user?.photoURL,
-        
+
                                         }
                                     }
-        
+
                                 },
                                 customer_contact: newProduct?.customer_contact,
                                 customer_id: user.uid,
                                 delivery_fee: 0,
                                 delivery_time: newProduct?.delivery_time,
                                 reference_orderId: res.id,
-                                paid_total: "",
+                                paid_total:product?.subtotal,
                                 payment_gateway: newProduct?.payment_gateway,
-                                products: [product],
+                                products: [{
+                                    order_quantity: product.order_quantity,
+                                    product_id: product.product_id,
+                                    subtotal: product.subtotal,
+                                    unit_price: product.unit_price,
+                                    name: res.data()?.name,
+                                    image: res.data()?.image
+                                }],
                                 sales_tax: 0,
                                 shipping_address: newProduct?.shipping_address,
                                 shop_id: res.data().shop_id,
@@ -214,30 +239,30 @@ export default function GlobalContextProvider({ children }) {
                                 use_wallet_points: newProduct?.use_wallet_points,
                                 vendor_id: newProduct?.vendor_id,
                             })
-                            .then(response=>{
-                                updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id,'MyOrders',response.id), {
-                                    
-                                    orderId: response.id,
-                                    tracking_number: response.id
+                                .then(response => {
+                                    updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders', response.id), {
+
+                                        orderId: response.id,
+                                        tracking_number: response.id
+                                    })
+                                    updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
+                                        quantity: increment(-product.order_quantity)
+
+                                    })
+                                    updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id), {
+                                        orders_count: increment(1)
+                                    })
+
                                 })
-                                updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id,'Products',product.product_id), {
-                                    quantity:increment(-product.order_quantity)
-                 
-                                })
-                                updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id), {
-                                    orders_count: increment(1)
+                                .catch(error => {
+
                                 })
 
-                            })
-                            .catch(error=>{
 
-                            })
-                            
-        
                         })
                     }
                 })
-                
+
 
                 // newProduct.products.forEach(async product => {
                 //     onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", product.product_id)), snapshot => {
@@ -293,7 +318,7 @@ export default function GlobalContextProvider({ children }) {
 
                 //             })
 
-                       
+
 
                 //     })
                 // })

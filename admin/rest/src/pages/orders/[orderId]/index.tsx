@@ -21,11 +21,11 @@ import SelectInput from '@/components/ui/select-input';
 import { useIsRTL } from '@/utils/locals';
 import { DownloadIcon } from '@/components/icons/download-icon';
 import { useCart } from '@/contexts/quick-cart/cart.context';
-import { useContext, useEffect,useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { clearCheckoutAtom } from '@/contexts/checkout';
 import { useOrderStatusesQuery } from '@/data/order-status';
- import {GlobalContext} from '@/GlobalContext/GlobalContext'
+import { GlobalContext } from '@/GlobalContext/GlobalContext'
 
 type FormValues = {
   order_status: any;
@@ -45,11 +45,11 @@ export default function OrderDetailsPage() {
   const { mutate: updateOrder, } = useUpdateOrderMutation();
   const { orderStatuses } = useOrderStatusesQuery({ language: locale });
   const {
-    order,
+    // order,
     isLoading: loading,
     error,
   } = useOrderQuery({ id: query.orderId as string, language: locale! });
-  const {updateMyOrder} =  useContext(GlobalContext)
+  const { updateMyOrder } = useContext(GlobalContext)
   const { refetch } = useDownloadInvoiceMutation(
     {
       order_id: query.orderId as string,
@@ -58,33 +58,39 @@ export default function OrderDetailsPage() {
     },
     { enabled: false }
   );
+  const order_id = query.orderId as string
 
-  const [updating,setUpdating] = useState(false)
-  const {getProductDetails,productDetails} = useContext(GlobalContext)
-  const [name,setName] = useState("")
-  const [thumbnail,setThumbnail] = useState("")
-  useEffect(()=>{
-   if(order !== undefined){
-     
-    order?.products.map((res:any)=>{
-      // alert(res.product_id)
-      getProductDetails(res.product_id)
+  const [updating, setUpdating] = useState(false)
+  const { getProductDetails, productDetails, myOrderDetails, user, getMyOrder } = useContext(GlobalContext)
+  useEffect(() => {
+    if (order_id !== undefined && user !== null) {
       
-    })
-   } 
-  },[order?.products])
-  useEffect(()=>{
-    if(productDetails){
-
-      console.log("ypp",productDetails)
-      setName(productDetails?.name)
-      setThumbnail(productDetails?.image?.thumbnail)
-      order['image']={
-        thumbnail:productDetails?.image?.thumbnail
-      }
+      getMyOrder(order_id)
     }
-   },[productDetails])
-   console.log("order details",order)
+  }, [order_id, user])
+  const order = myOrderDetails?myOrderDetails:{}
+  // useEffect(() => {
+  //   if (order !== undefined) {
+
+  //     order?.products?.map((res: any) => {
+  //       // alert(res.product_id)
+  //       getProductDetails(res.product_id)
+
+  //     })
+  //   }
+  // }, [order?.products])
+  // useEffect(()=>{
+  //   if(productDetails){
+
+  //     console.log("ypp",productDetails)
+  //     setName(productDetails?.name)
+  //     setThumbnail(productDetails?.image?.thumbnail)
+  //     order['image']={
+  //       thumbnail:productDetails?.image?.thumbnail
+  //     }
+  //   }
+  //  },[productDetails])
+  console.log("order details", order)
   const {
     handleSubmit,
     control,
@@ -139,11 +145,11 @@ export default function OrderDetailsPage() {
   if (error) return <ErrorMessage message={error.message} />;
 
   async function handleDownloadInvoice() {
-    const { data } = await refetch();
+    // const { data } = await refetch();
 
-    if (data) {
+    if (myOrderDetails) {
       const a = document.createElement('a');
-      a.href = data;
+      a.href =myOrderDetails;
       a.setAttribute('download', 'order-invoice');
       a.click();
     }
@@ -192,7 +198,7 @@ export default function OrderDetailsPage() {
       },
     },
   ];
-  console.log("Products",order?.products)
+  console.log("Products", order?.products)
 
   return (
     <Card>

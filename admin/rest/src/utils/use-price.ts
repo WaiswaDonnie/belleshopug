@@ -50,7 +50,7 @@ type PriceProps = {
 export default function usePrice(data?: PriceProps | null) {
   const { currency } = useSettings();
 
-  const { amount, baseAmount, currencyCode = currency } = data ?? {};
+  const { amount, baseAmount, currencyCode = 'UGX'} = data ?? {};
   const locale = siteSettings.defaultLanguage;
   const value = useMemo(() => {
     if (typeof amount !== 'number' || !currencyCode) return '';

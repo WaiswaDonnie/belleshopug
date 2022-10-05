@@ -13,7 +13,7 @@ import {
   Route,
   useParams
 } from "react-router-dom";
-// ----------------------------------------------------------------------
+ // ----------------------------------------------------------------------
 
 export default function EcommerceShop() {
   const [openFilter, setOpenFilter] = useState(false);
@@ -27,6 +27,7 @@ export default function EcommerceShop() {
     }
 
   }, [user, id])
+
   useEffect(() => {
     if (shopInfo) {
       getShopProducts(id, setLoading)
@@ -44,7 +45,9 @@ export default function EcommerceShop() {
 
   return (
     <Page title="Dashboard: Products">
+     {/* <ShopHeader /> */}
       <Container>
+        
         <Typography variant="h4" sx={{ mb: 5 }}>
           {shopInfo?.name} Products
         </Typography>

@@ -29,7 +29,7 @@ export const useOrdersQuery = (
       ...options,
     }
   );
-  const {myOrders} =  useContext(GlobalContext)
+  const { myOrders } = useContext(GlobalContext)
   return {
     orders: myOrders ?? [],
     // orders: data?.data ?? [],
@@ -52,17 +52,12 @@ export const useOrderQuery = ({
   );
 
 
-  const {getMyOrder,myOrderDetails} =  useContext(GlobalContext)
-  console.log("order id is going to be",id)
-  useEffect(()=>{
-    if(id){
-      getMyOrder(id)
-    }
-  },[id])
+  const { getMyOrder, myOrderDetails,user } = useContext(GlobalContext)
+   
 
   return {
-    order: myOrderDetails,
-    // order: data,
+    // order: myOrderDetails,
+    order: data,
     error,
     isLoading,
   };

@@ -26,6 +26,8 @@ export default function GlobalContextProvider({ children }) {
         if (user) {
             getShops()
             getVendors()
+            getOrders()
+            getProducts()
         }
     }, [user])
     const [shops, setShops] = useState([])
@@ -36,6 +38,29 @@ export default function GlobalContextProvider({ children }) {
                 data.push(doc.data())
             })
             setShops(data)
+        })
+    }
+
+    const [clientProducts, setClientProducts] = useState([])
+    const getProducts = () => {
+            onSnapshot(collectionGroup(db, 'Products'), snapshot => {
+                let data = []
+                snapshot.forEach(doc => {
+                    data.push(doc.data())
+                })
+                console.log("products", data)
+                setClientProducts(data)
+            })
+        }
+
+    const [orders, setOrders] = useState([])
+    const getOrders = async () => {
+        onSnapshot(collectionGroup(db, 'Orders'), snap => {
+            let data = [];
+            snap.forEach(doc => {
+                data.push(doc.data())
+            })
+            setOrders(data)
         })
     }
     const [shopInfo, setShopInfo] = useState(null)
@@ -156,6 +181,7 @@ export default function GlobalContextProvider({ children }) {
         })
     }
     const [shopProducts, setShopProducts] = useState([])
+    
     const getShopProducts = async (id,setLoading) => {
         setLoading(true)
     //  getDocs(collectionGroup(db,'Products'))
@@ -163,13 +189,25 @@ export default function GlobalContextProvider({ children }) {
     //         re.
     //  })
     //  .catch((err))
-        onSnapshot(collectionGroup(db, 'Products'), snapshot => {
+        // onSnapshot(collectionGroup(db, 'Products'), snapshot => {
+        //     let data = [];
+        //     snapshot.forEach(doc => {
+        //         data.push(doc.data())
+        //     })
+        //     setShopProducts(data)
+        //     console.log("prpducts",data)
+
+        // })
+        // setLoading(false)
+        setLoading(true)
+    
+        onSnapshot(query(collectionGroup(db, 'Products'), where("shop_id", "==", id)), snapshot => {
             let data = [];
             snapshot.forEach(doc => {
                 data.push(doc.data())
             })
             setShopProducts(data)
-            console.log("prpducts",data)
+            console.log("products",data)
 
         })
         setLoading(false)
@@ -186,9 +224,11 @@ export default function GlobalContextProvider({ children }) {
                 deactivateShop,
                 deleteShop,
                 getShops,
+                orders,
                 shopInfo,
                 getShopInfo,
-                logoutUser
+                logoutUser,
+                clientProducts
             }}
         >
             {children}

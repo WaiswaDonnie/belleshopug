@@ -60,23 +60,23 @@ const OrderList = ({
 
   const columns = [
     {
-      title: t('table:table-item-tracking-number'),
-      dataIndex: 'tracking_number',
-      key: 'tracking_number',
+      title: 'Customer',
+      dataIndex: 'customer',
+      key: 'customer',
       align: 'center',
-      width: 150,
+      
+      render: function Render(value: any) {
+        return <span>{value?.name}</span>;
+      },
     },
     {
-      title: t('table:table-item-delivery-fee'),
-      dataIndex: 'delivery_fee',
-      key: 'delivery_fee',
+      title: 'Contact',
+      dataIndex: 'customer_contact',
+      key: 'customer_contact',
       align: 'center',
+      width: 150,
       render: function Render(value: any) {
-        const delivery_fee = value ? value : 0;
-        const { price } = usePrice({
-          amount: delivery_fee,
-        });
-        return <span>{price}</span>;
+        return <span>{value}</span>;
       },
     },
     {
@@ -90,8 +90,8 @@ const OrderList = ({
         />
       ),
       className: 'cursor-pointer',
-      dataIndex: 'total',
-      key: 'total',
+      dataIndex: 'amount',
+      key: 'amount',
       align: 'center',
       width: 120,
       onHeaderCell: () => onHeaderClick('total'),
@@ -124,7 +124,7 @@ const OrderList = ({
         dayjs.extend(timezone);
         return (
           <span className="whitespace-nowrap">
-            {dayjs.utc(date).tz(dayjs.tz.guess()).fromNow()}
+             {dayjs(date).format('MMMM D, YYYY')}
           </span>
         );
       },
@@ -155,11 +155,11 @@ const OrderList = ({
     },
     {
       title: t('table:table-item-shipping-address'),
-      dataIndex: 'shipping_address',
-      key: 'shipping_address',
+      dataIndex: 'billing_address',
+      key: 'billing_address',
       align: alignLeft,
-      render: (shipping_address: UserAddress) => (
-        <div>{formatAddress(shipping_address)}</div>
+      render: (billing_address: UserAddress) => (
+        <div>{formatAddress(billing_address)}</div>
       ),
     },
     {
