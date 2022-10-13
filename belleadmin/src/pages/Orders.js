@@ -1,7 +1,9 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useContext, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useContext, useRef, useState } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Menu, MenuItem, IconButton, ListItemIcon, ListItemText } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
 // material
 import {
   Card,
@@ -29,6 +31,7 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../sections/@dashbo
 import USERLIST from '../_mock/user';
 import { GlobalContext } from 'src/GlobalContext/GlobalContext';
 import VendorListHead from 'src/sections/@dashboard/user/VendorListHead';
+import SimpleDialog from 'src/components/simpleDialog';
 
 // ----------------------------------------------------------------------
 
@@ -38,7 +41,8 @@ const TABLE_HEAD = [
   { id: 'contact', label: 'Contact', alignRight: false },
   // { id: 'isVerified', label: 'Verified', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
-  
+  // { id: 'shops', label: '', alignRight: false },
+
   { id: '' },
 ];
 
@@ -74,7 +78,9 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function Orders() {
-  const {  orders} = useContext(GlobalContext)
+  const { orders } = useContext(GlobalContext)
+  const navigate = useNavigate();
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -86,6 +92,7 @@ export default function Orders() {
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [customProducts,setCustomProducts] = useState([])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -135,7 +142,19 @@ export default function Orders() {
   const filteredUsers = applySortFilter(orders, getComparator(order, orderBy), filterName);
 
   const isUserNotFound = filteredUsers.length === 0;
+  const ref = useRef(null);
+  const [open, setOpen] = useState(false);
+  const emails = ['username@gmail.com', 'user02@gmail.com'];
 
+  const [selectedValue, setSelectedValue] = useState(emails[1]);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
   return (
     <Page title="Orders">
       <Container>
@@ -165,7 +184,7 @@ export default function Orders() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, is_active,status, shop,profile,amount,customer,customer_contact } = row;
+                    const { id, name,products, is_active, status, shop, profile, amount, customer, customer_contact } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -189,12 +208,25 @@ export default function Orders() {
                           </Stack>
                         </TableCell>
                         <TableCell align="left">{amount}</TableCell>
-                         <TableCell align="left">{customer_contact}</TableCell>
+                        <TableCell align="left">{customer_contact}</TableCell>
                         <TableCell align="left">
-                            {status?.name}
+                          {status?.name}
                           {/* <Label variant="ghost" color={!is_active ? 'error' : 'success'}>
                             {is_active? "Active" : "Inactive"}
                           </Label> */}
+                        </TableCell>
+                        <TableCell align="left">{customer_contact}</TableCell>
+                        <TableCell align="right">
+                          <IconButton ref={ref} onClick={() => {
+                            // navigate(`/dashboard/shops/${id}`)
+                            handleClickOpen()
+                            // alert(id)
+                            setCustomProducts(products)
+
+                            console.log('adas',products )
+                          }}>
+                            <Iconify icon="eva:eye-fill" sx={{ color: 'text.disabled', width: 25, height: 25 }} />
+                          </IconButton>
                         </TableCell>
 
                         {/* <TableCell align="right">
@@ -234,6 +266,12 @@ export default function Orders() {
           />
         </Card>
       </Container>
+      {open && <SimpleDialog
+        products={customProducts}
+        selectedValue={selectedValue}
+        open={open}
+        onClose={handleClose}
+      />}
     </Page>
   );
 }
