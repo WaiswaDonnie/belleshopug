@@ -140,20 +140,20 @@ export default function DashboardApp() {
             />
           </Grid> */}
 
-          <Grid item xs={12} md={6} lg={8}>
+          <Grid item xs={12} md={12} lg={12}>
             <AppNewsUpdate
               title="Orders Update"
-              list={[...Array(5)].map((_, index) => ({
+              list={orders.map((order, index) => ({
                 id: faker.datatype.uuid(),
-                title: faker.name.jobTitle(),
-                description: faker.name.jobTitle(),
-                image: `/static/mock-images/covers/cover_${index + 1}.jpg`,
-                postedAt: faker.date.recent(),
+                title: order?.customer?.name,
+                description: order?.customer_contact,
+                image: order?.customer?.profile?.avatar?.original,
+                postedAt: order?.created_at,
               }))}
             />
           </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
+          {/* <Grid item xs={12} md={6} lg={4}>
             <AppOrderTimeline
               title="Order Timeline"
               list={[...Array(5)].map((_, index) => ({
@@ -169,7 +169,7 @@ export default function DashboardApp() {
                 time: faker.date.past(),
               }))}
             />
-          </Grid>
+          </Grid> */}
 
           {/* <Grid item xs={12} md={6} lg={4}>
             <AppTrafficBySite
