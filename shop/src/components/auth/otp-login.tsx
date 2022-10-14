@@ -2,20 +2,28 @@ import { useTranslation } from 'react-i18next';
 import Alert from '@/components/ui/alert';
 import { useAtom } from 'jotai';
 import { useOtpLogin, useSendOtpCode } from '@/framework/user';
-import { optAtom } from '@/components/otp/atom';
+import { optAtom ,initialOtpState} from '@/components/otp/atom';
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import Logo from '@/components/ui/logo';
 import PhoneNumberForm from '@/components/otp/phone-number-form';
 import OtpCodeForm from '@/components/otp/code-verify-form';
 import OtpRegisterForm from '@/components/otp/otp-register-form';
+import { useContext, useState } from 'react';
+import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import { authorizationAtom } from '@/store/authorization-atom';
 
 function OtpLogin() {
+  // const [otpState, setOtpState] = useAtom(optAtom);
+  const { signupWithPhoneNumber,verifyCode } = useContext(GlobalContext)
   const { t } = useTranslation('common');
-  const [otpState] = useAtom(optAtom);
+  const [otpState, setOtpState] = useAtom(optAtom);
+  const { closeModal } = useModalAction();
+  const [_, setAuthorized] = useAtom(authorizationAtom);
 
+  const [isLoading,setIsLoading] = useState(false)
   const {
     mutate: sendOtpCode,
-    isLoading,
+    // isLoading,
     serverError,
     setServerError,
   } = useSendOtpCode();
@@ -27,15 +35,28 @@ function OtpLogin() {
   } = useOtpLogin();
 
   function onSendCodeSubmission({ phone_number }: { phone_number: string }) {
-    sendOtpCode({
-      phone_number: `+${phone_number}`,
-    });
+    // sendOtpCode({
+    //   phone_number: `+${phone_number}`,
+    // });
+    // setOtpState({
+    //   ...otpState,
+    //   otpId: data?.id!,
+    //   isContactExist: data?.is_contact_exist!,
+    //   phoneNumber: data?.phone_number!,
+    //   step: data?.is_contact_exist! ? 'OtpForm' : 'RegisterForm',
+    //   ...(verifyOnly && { step: 'OtpForm' }),
+    // });
+    // setOtpState({...otpState,step:"OtpForm"})
+    // setOtpState,setLoading,otpState
+    signupWithPhoneNumber({phone_number: `+${phone_number}`},setOtpState,setIsLoading,otpState)
   }
 
   function onOtpLoginSubmission(values: any) {
-    otpLogin({
-      ...values,
-    });
+    // otpLogin({
+    //   ...values,
+    // });
+    console.log("otp", values)
+    verifyCode(values.code,setOtpState,setIsLoading,closeModal,initialOtpState,setAuthorized)
   }
 
   return (
@@ -87,13 +108,18 @@ export default function OtpLoginView() {
         {t('otp-login-helper')}
       </p>
       <OtpLogin />
-      <div className="relative flex flex-col items-center justify-center text-sm mt-9 mb-7 text-heading sm:mt-11 sm:mb-8">
+      <div className="flex justify-center align-center mt-5">
+      <div style={{
+    marginTop:20
+}} id="recaptcha-container"></div>
+      </div>
+      {/* <div className="relative flex flex-col items-center justify-center text-sm mt-9 mb-7 text-heading sm:mt-11 sm:mb-8">
         <hr className="w-full" />
         <span className="absolute -top-2.5 bg-light px-2 ltr:left-2/4 ltr:-ml-4 rtl:right-2/4 rtl:-mr-4">
           {t('text-or')}
         </span>
-      </div>
-      <div className="text-sm text-center text-body sm:text-base">
+      </div> */}
+      {/* <div className="text-sm text-center text-body sm:text-base">
         {t('text-back-to')}{' '}
         <button
           onClick={() => openModal('LOGIN_VIEW')}
@@ -101,7 +127,7 @@ export default function OtpLoginView() {
         >
           {t('text-login')}
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

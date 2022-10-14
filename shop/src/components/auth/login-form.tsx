@@ -20,6 +20,8 @@ import { Routes } from '@/config/routes';
 import { GlobalContext } from '@/GlobalContext/GlobalContext';
 import { authorizationAtom } from '@/store/authorization-atom';
 import { useAtom } from 'jotai';
+import OtpForm from '../otp/otp-form';
+import OtpRegisterForm from '../otp/otp-register-form';
 
 const loginFormSchema = yup.object().shape({
   email: yup
@@ -64,7 +66,7 @@ function LoginForm() {
         closeable={true}
         onClose={() => setServerError(null)}
       />
-      <Form<LoginUserInput>
+      {/* <Form<LoginUserInput>
         onSubmit={onSubmit}
         validationSchema={loginFormSchema}
       >
@@ -97,7 +99,7 @@ function LoginForm() {
             </div>
           </>
         )}
-      </Form>
+      </Form> */}
       {/* //===============// */}
       {/* <div className="relative mt-8 mb-6 flex flex-col items-center justify-center text-sm text-heading sm:mt-11 sm:mb-8">
         <hr className="w-full" />
@@ -118,14 +120,14 @@ function LoginForm() {
           {t('text-login-google')}
         </Button> */}
 
-        {/* <Button
+        <Button
           className="h-11 w-full !bg-gray-500 !text-light hover:!bg-gray-600 sm:h-12"
           disabled={isLoading}
           onClick={() => openModal('OTP_LOGIN')}
         >
           <MobileIcon className="h-5 text-light ltr:mr-2 rtl:ml-2" />
           {t('text-login-mobile')}
-        </Button> */}
+        </Button>
 
         {/* {isCheckout && (
           <Button
@@ -141,7 +143,7 @@ function LoginForm() {
       <div className="relative mt-8 mb-6 flex flex-col items-center justify-center text-sm text-heading sm:mt-11 sm:mb-8">
         <hr className="w-full" />
       </div>
-      <div className="text-center text-sm text-body sm:text-base">
+      {/* <div className="text-center text-sm text-body sm:text-base">
         {t('text-no-account')}{' '}
         <button
           onClick={() => openModal('REGISTER')}
@@ -149,7 +151,7 @@ function LoginForm() {
         >
           {t('text-register')}
         </button>
-      </div>
+      </div> */}
     </>
   );
 }
@@ -162,9 +164,10 @@ export default function LoginView() {
         <Logo />
       </div>
       <p className="mt-4 mb-8 text-center text-sm text-body sm:mt-5 sm:mb-10 md:text-base">
-        {t('login-helper')}
+        {t('Login with Phone number')}
       </p>
       <LoginForm />
+      {/* <OtpRegisterForm /> */}
     </div>
   );
 }

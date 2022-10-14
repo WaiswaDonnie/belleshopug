@@ -244,8 +244,8 @@ export default function GlobalContextProvider({ children }) {
                                         orderId: response.id,
                                         tracking_number: response.id
                                     })
-                                    updateDoc(doc(db,'Orders',res.id),{
-                                        shops:arrayUnion([{shop_id:res.data()?.shop_id,name:res.data()?.shop?.name,logo:res.data()?.shop?.name}])
+                                    updateDoc(doc(db, 'Orders', res.id), {
+                                        shops: arrayUnion([{ shop_id: res.data()?.shop_id, name: res.data()?.shop?.name, logo: res.data()?.shop?.name }])
                                     })
                                     updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
                                         quantity: increment(-product.order_quantity)
@@ -750,12 +750,78 @@ export default function GlobalContextProvider({ children }) {
 
     }
 
+    const [confirmationResult, setConfirmationResult] = useState(null)
 
+    const signupWithPhoneNumber = async (contact,setOtpState,setLoading,otpState) => {
+        console.log(contact)
+        setLoading(true)
+        let recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
+        var currentDate = new Date(); // for now
+        const hours = currentDate.getHours();
+        const minutes = currentDate.getMinutes();
+        const seconds = currentDate.getSeconds();
+        const timeString = hours + ":" + minutes
+        const DayOfMonth = currentDate.getDate();
+        const Month = currentDate.getMonth();
+        const Year = currentDate.getFullYear();
+        const dateString = (Month + 1) + "/" + DayOfMonth + "/" + Year;
+        const now = dateString + " " + timeString
+
+
+        await signInWithPhoneNumber(auth, contact?.phone_number, recaptchaVerifier)
+        // await signInWithPhoneNumber(auth, contact?.phone_number, recaptchaVerifier)
+            .then(confirmationResult => {
+
+                setLoading(false)
+                window.confirmationResult = confirmationResult;
+                setConfirmationResult(confirmationResult)
+                // alert(JSON.stringify(confirmationResult))
+                setOtpState({...otpState,step:"OtpForm"})
+
+            }).catch(error => {
+                alert("phone",error.message)
+                setLoading(false)
+            });
+
+    }
+
+
+    const verifyCode = (code,setOtpState,setIsLoading,closeModal,initialOtpState,setAuthorized) => {
+        setIsLoading(true)
+        confirmationResult.confirm(code).then((result) => {
+            // User signed in successfully.
+            const user = result.user;
+        console.log("newly authenticated user is",result.user)
+            toast.success("Done")
+            // ...
+            // setToken(data.token!);
+            setAuthorized(true);
+            setOtpState({
+              ...initialOtpState,
+            });
+            closeModal();
+            setIsLoading(false)
+            updateDoc(doc(db, 'Users', result.user.uid), {
+                token: user.accessToken
+            })
+            Cookies.set('auth_token', result.user.accessToken)
+            setToken(result.user.accessToken);
+            // setLoading(false)
+            // closeModal();
+            // setAuthorized(true)
+        }).catch((error) => {
+            setIsLoading(false)
+            // User couldn't sign in (bad verification code?)
+            // ...
+        });
+    }
 
     return (
         <GlobalContext.Provider
             value={{
                 user,
+                signupWithPhoneNumber,
+                verifyCode,
                 userInfo,
                 getUserInfo,
                 uploadFiles,

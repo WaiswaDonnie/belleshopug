@@ -273,3 +273,11 @@
   }
 }
 @import './custom-plugins.css';
+
+.text-sm{
+  font-size:1.1rem !important;
+}
+.text-xs{
+  font-size:0.9rem !important;
+
+}
