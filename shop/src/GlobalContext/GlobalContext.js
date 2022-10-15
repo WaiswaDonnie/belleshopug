@@ -1,7 +1,7 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion } from 'firebase/firestore';
 import { db, auth, storage } from '../../firebase'
-import { getAuth, sendPasswordResetEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail,updateEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
@@ -18,7 +18,6 @@ import {
 // import client from './client';
 import { authorizationAtom } from '@/store/authorization-atom';
 import { useAtom } from 'jotai';
-import { signOut as socialLoginSignOut } from 'next-auth/react';
 import { useToken } from '@/lib/hooks/use-token';
 // import { API_ENDPOINTS } from './client/api-endpoints';
 
@@ -450,6 +449,10 @@ export default function GlobalContextProvider({ children }) {
             })
     }
 
+
+
+
+
     const [userInfo, setUserInfo] = useState({})
 
     useEffect(() => {
@@ -457,6 +460,7 @@ export default function GlobalContextProvider({ children }) {
             getUserInfo()
         }
     }, [user])
+
     const getUserInfo = async () => {
         if (user) {
             getDoc(doc(db, 'Users', user.uid))
@@ -486,6 +490,42 @@ export default function GlobalContextProvider({ children }) {
             })
 
     }
+
+
+    const updateUserEmailAndName = (data,setLoading,onClose) => {
+        setLoading(true)
+        updateDoc(doc(db, 'Users', user.uid), {
+            email: data?.email,
+            userName: data?.name,
+            name: data?.name
+        })
+        .then(()=>{
+            updateProfile(auth.currentUser, {
+                displayName: data?.name, 
+              }).then(() => {
+                // Profile updated!
+                // ...
+              }).catch((error) => {
+                // An error occurred
+                // ...
+              });
+            updateEmail(auth.currentUser, data?.email).then(() => {
+                // Email updated!
+                // ...
+              }).catch((error) => {
+                // An error occurred
+                // ...
+              });
+            setLoading(false)
+            onClose()
+            getUserInfo()
+        })
+        .catch(err=>{
+            console.log(err)
+            setLoading(false)
+        })
+    }
+
     const updateUserProfile = (newUser, setLoading) => {
         if (user) {
             setLoading(true)
@@ -518,7 +558,8 @@ export default function GlobalContextProvider({ children }) {
         setLoading(true)
         console.log("phone", contact)
         updateDoc(doc(db, 'Users', user.uid), {
-            "profile.contact": contact
+            "profile.contact": contact,
+            phoneNumber: contact
         })
             .then(res => {
 
@@ -752,7 +793,7 @@ export default function GlobalContextProvider({ children }) {
 
     const [confirmationResult, setConfirmationResult] = useState(null)
 
-    const signupWithPhoneNumber = async (contact,setOtpState,setLoading,otpState) => {
+    const signupWithPhoneNumber = async (contact, setOtpState, setLoading, otpState) => {
         console.log(contact)
         setLoading(true)
         let recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
@@ -769,43 +810,91 @@ export default function GlobalContextProvider({ children }) {
 
 
         await signInWithPhoneNumber(auth, contact?.phone_number, recaptchaVerifier)
-        // await signInWithPhoneNumber(auth, contact?.phone_number, recaptchaVerifier)
+            // await signInWithPhoneNumber(auth, contact?.phone_number, recaptchaVerifier)
             .then(confirmationResult => {
 
                 setLoading(false)
                 window.confirmationResult = confirmationResult;
                 setConfirmationResult(confirmationResult)
                 // alert(JSON.stringify(confirmationResult))
-                setOtpState({...otpState,step:"OtpForm"})
+                setOtpState({ ...otpState, step: "OtpForm" })
 
             }).catch(error => {
-                alert("phone",error.message)
+                alert("phone", error.message)
                 setLoading(false)
             });
 
     }
 
 
-    const verifyCode = (code,setOtpState,setIsLoading,closeModal,initialOtpState,setAuthorized) => {
+    const verifyCode = (code, setOtpState, setIsLoading, closeModal, initialOtpState, setAuthorized) => {
         setIsLoading(true)
-        confirmationResult.confirm(code).then((result) => {
+        confirmationResult.confirm(code).then(async (result) => {
             // User signed in successfully.
             const user = result.user;
-        console.log("newly authenticated user is",result.user)
-            toast.success("Done")
+            console.log("newly authenticated user is", result.user)
+
             // ...
             // setToken(data.token!);
-            setAuthorized(true);
-            setOtpState({
-              ...initialOtpState,
-            });
-            closeModal();
-            setIsLoading(false)
-            updateDoc(doc(db, 'Users', result.user.uid), {
-                token: user.accessToken
-            })
-            Cookies.set('auth_token', result.user.accessToken)
-            setToken(result.user.accessToken);
+            const userInfo = await getDoc(doc(db, 'Users', result.user.uid))
+            if (userInfo.exists()) {
+                if (userInfo.data().accountType === 'Customer' || !userInfo.data().accountType) {
+                    updateDoc(doc(db, 'Users', userInfo.id), {
+                        accountType: 'Customer'
+                    })
+                    setAuthorized(true);
+                    setOtpState({
+                        ...initialOtpState,
+                    });
+                    closeModal();
+                    setIsLoading(false)
+                    updateDoc(doc(db, 'Users', result.user.uid), {
+                        token: user.accessToken
+                    })
+                    Cookies.set('auth_token', result.user.accessToken)
+                    setToken(result.user.accessToken);
+                }
+                if (userInfo.data().accountType === 'Vendor') {
+                    // alert('Account already exists as a Vendor')
+                    toast.error("Account already exists as a Vendor")
+                    setLoading(false)
+                    signOut(auth)
+                        .then(() => {
+                            setUser(null)
+
+                        })
+                        .catch(error => {
+
+                        })
+                }
+
+            } else {
+                setDoc(doc(db, 'Users', userInfo.id), {
+                    accountType: 'Customer',
+                    userId: userInfo.id,
+                    phoneNumber: result.user.phoneNumber,
+                    id: userCredentials.user.uid,
+                    created_at: serverTimestamp(),
+                    profile: {
+                        avatar: null,
+                        bio: null,
+                        contact: result.user.phoneNumber,
+                    }
+                })
+                setAuthorized(true);
+                setOtpState({
+                    ...initialOtpState,
+                });
+                closeModal();
+                setIsLoading(false)
+                updateDoc(doc(db, 'Users', result.user.uid), {
+                    token: user.accessToken
+                })
+                Cookies.set('auth_token', result.user.accessToken)
+                setToken(result.user.accessToken);
+
+            }
+
             // setLoading(false)
             // closeModal();
             // setAuthorized(true)
@@ -856,6 +945,7 @@ export default function GlobalContextProvider({ children }) {
                 setProductId,
                 productDetails,
                 setProductDetails,
+                updateUserEmailAndName,
                 getProductDetails,
                 trackProduct, loginUser,
                 productDetails,

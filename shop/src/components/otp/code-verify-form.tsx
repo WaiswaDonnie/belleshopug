@@ -6,6 +6,8 @@ import { Form } from '@/components/ui/forms/form';
 import { Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { useTranslation } from 'next-i18next';
+import { useAtom } from 'jotai';
+import { initialOtpState, optAtom } from './atom';
 
 type OptCodeFormProps = {
   code: string;
@@ -26,6 +28,7 @@ export default function OtpCodeForm({
 }: OtpLoginFormForAllUserProps) {
   const { t } = useTranslation('common');
   const { closeModal } = useModalAction();
+  const [otpState, setOtpState] = useAtom(optAtom);
 
   return (
     <div className="space-y-5 rounded border border-gray-200 p-5">
@@ -59,7 +62,12 @@ export default function OtpCodeForm({
             <div className="grid grid-cols-2 gap-5">
               <Button
                 variant="outline"
-                onClick={closeModal}
+                onClick={()=>{
+                  closeModal()
+                  setOtpState({
+                    ...initialOtpState,
+                });
+                }}
                 className="hover:border-red-500 hover:bg-red-500"
               >
                 {t('text-cancel')}

@@ -21,6 +21,7 @@ function OtpLogin() {
   const [_, setAuthorized] = useAtom(authorizationAtom);
 
   const [isLoading,setIsLoading] = useState(false)
+  const [otpLoginLoading,setOtpLoginLoading] = useState(false)
   const {
     mutate: sendOtpCode,
     // isLoading,
@@ -30,7 +31,7 @@ function OtpLogin() {
 
   const {
     mutate: otpLogin,
-    isLoading: otpLoginLoading,
+    // isLoading: otpLoginLoading,
     serverError: optLoginError,
   } = useOtpLogin();
 
@@ -56,7 +57,7 @@ function OtpLogin() {
     //   ...values,
     // });
     console.log("otp", values)
-    verifyCode(values.code,setOtpState,setIsLoading,closeModal,initialOtpState,setAuthorized)
+    verifyCode(values.code,setOtpState,setOtpLoginLoading,closeModal,initialOtpState,setAuthorized)
   }
 
   return (

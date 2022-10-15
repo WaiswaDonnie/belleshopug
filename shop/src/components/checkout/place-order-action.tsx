@@ -15,13 +15,15 @@ import {
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { GlobalContext } from '@/GlobalContext/GlobalContext';
+import CustomProfileUpdate from '../ui/modal/customProfileUpdate';
 
 export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
   const { t } = useTranslation('common');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // const { createOrder, isLoading } = useCreateOrder();
-  const [isLoading,setIsLoading] = useState<boolean>(false);
-  const { createOrder } = useContext(GlobalContext)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { createOrder, userInfo } = useContext(GlobalContext)
+  const [open, setOpen] = useState(false);
   const { locale }: any = useRouter();
   const { items } = useCart();
 
@@ -75,13 +77,12 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
     //   setErrorMessage('Please Pay First');
     //   return;
     // }
-    console.log("seadf",available_items)
-    let input = {
+     let input = {
       //@ts-ignore
       products: available_items?.map((item) => formatOrderedProduct(item)),
       status: orderStatuses[0]?.id ?? '1',
-      vendor_id:`sadasd${Math.random()}`,
-      shop_id:`sadasasdd${Math.random()}`,
+      vendor_id: `sadasd${Math.random()}`,
+      shop_id: `sadasasdd${Math.random()}`,
       amount: subtotal,
       coupon_id: Number(coupon?.id),
       discount: discount ?? 0,
@@ -108,7 +109,15 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
     delete input.billing_address.__typename;
     delete input.shipping_address.__typename;
     //@ts-ignore
-    createOrder(input,setIsLoading);
+
+    if (userInfo.userName && userInfo.email) {
+      createOrder(input, setIsLoading)
+    } else {
+      alert(userInfo.username)
+      setOpen(true)
+    }
+
+
   };
   const isDigitalCheckout = available_items.find((item) =>
     Boolean(item.is_digital)
@@ -146,6 +155,9 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
           <ValidationError message={t('text-place-order-helper-text')} />
         </div>
       )}
+      <CustomProfileUpdate open={open} onClose={()=>{
+        setOpen(!true)
+      }} />
     </>
   );
 };
