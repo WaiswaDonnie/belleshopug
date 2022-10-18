@@ -18,6 +18,9 @@ import {
 } from '@/utils/auth-utils';
 import { GlobalContext } from '@/GlobalContext/GlobalContext';
 import { useContext } from 'react';
+import PhoneNumberForm from '../otp/phone-number-form';
+import OtpCodeForm from '../otp/code-verify-form';
+import OtpRegisterForm from '../otp/otp-register-form';
 
 const loginFormSchema = yup.object().shape({
   email: yup
@@ -32,13 +35,14 @@ const LoginForm = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // const { mutate: login, isLoading, error } = useLogin();
   const [isLoading, setIsLoading] = useState(false)
-  const { loginUser } = useContext(GlobalContext)
+  const { loginUser, signupWithPhoneNumber,
+    verifyCode } = useContext(GlobalContext)
 
   function onSubmit({ email, password }: LoginInput) {
     loginUser(
       email,
       password,
-      setIsLoading,hasAccess, allowedRoles, Routes, setAuthCredentials, setErrorMessage
+      setIsLoading, hasAccess, allowedRoles, Routes, setAuthCredentials, setErrorMessage
     )
     // login(
     //   {
@@ -62,10 +66,36 @@ const LoginForm = () => {
     //   }
     // );
   }
+  const [otpState, setOtpState] = useState("PhoneNumber")
+  const [otpLoginLoading, setOtpLoginLoading] = useState(false)
+  function onSendCodeSubmission({ phone_number }: { phone_number: string }) {
+    // sendOtpCode({
+    //   phone_number: `+${phone_number}`,
+    // });
+    // setOtpState({
+    //   ...otpState,
+    //   otpId: data?.id!,
+    //   isContactExist: data?.is_contact_exist!,
+    //   phoneNumber: data?.phone_number!,
+    //   step: data?.is_contact_exist! ? 'OtpForm' : 'RegisterForm',
+    //   ...(verifyOnly && { step: 'OtpForm' }),
+    // });
+    // setOtpState({...otpState,step:"OtpForm"})
+    // setOtpState,setLoading,otpState
+    // setOtpState("OtpForm")
+    signupWithPhoneNumber({ phone_number: `+${phone_number}` }, setOtpState, setIsLoading, otpState)
+  }
 
+  function onOtpLoginSubmission(values: any) {
+    // otpLogin({
+    //   ...values,
+    // });
+    console.log("otp", values)
+    verifyCode(values.code, setOtpState, setOtpLoginLoading, hasAccess, allowedRoles, Routes, setAuthCredentials, setErrorMessage)
+  }
   return (
     <>
-      <Form<LoginInput> validationSchema={loginFormSchema} onSubmit={onSubmit}>
+      {/* <Form<LoginInput> validationSchema={loginFormSchema} onSubmit={onSubmit}>
         {({ register, formState: { errors } }) => (
           <>
             <Input
@@ -116,7 +146,31 @@ const LoginForm = () => {
           className="mt-5"
           onClose={() => setErrorMessage(null)}
         />
-      ) : null}
+      ) : null} */}
+      {otpState === 'PhoneNumber' && (
+        <>
+
+          <div className="flex items-center">
+            <PhoneNumberForm
+              onSubmit={onSendCodeSubmission}
+              isLoading={isLoading}
+              view="login"
+            />
+          </div>
+        </>
+      )}
+      {otpState === 'OtpForm' && (
+        <OtpCodeForm
+          isLoading={otpLoginLoading}
+          onSubmit={onOtpLoginSubmission}
+        />
+      )}
+      <div className="flex justify-center align-center mt-5">
+        <div style={{
+          marginTop: 20
+        }} id="recaptcha-container"></div>
+      </div>
+      {/* </div> */}
     </>
   );
 };

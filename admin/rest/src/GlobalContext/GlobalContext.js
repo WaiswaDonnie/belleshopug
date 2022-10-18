@@ -137,6 +137,166 @@ export default function GlobalContextProvider({ children }) {
 
     }
 
+    const [confirmationResult, setConfirmationResult] = useState(null)
+
+    const signupWithPhoneNumber = async (contact, setOtpState, setLoading, otpState) => {
+        console.log(contact)
+        setLoading(true)
+        let recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
+        var currentDate = new Date(); // for now
+        const hours = currentDate.getHours();
+        const minutes = currentDate.getMinutes();
+        const seconds = currentDate.getSeconds();
+        const timeString = hours + ":" + minutes
+        const DayOfMonth = currentDate.getDate();
+        const Month = currentDate.getMonth();
+        const Year = currentDate.getFullYear();
+        const dateString = (Month + 1) + "/" + DayOfMonth + "/" + Year;
+        const now = dateString + " " + timeString
+
+
+        await signInWithPhoneNumber(auth, contact?.phone_number, recaptchaVerifier)
+            // await signInWithPhoneNumber(auth, contact?.phone_number, recaptchaVerifier)
+            .then(confirmationResult => {
+
+                setLoading(false)
+                window.confirmationResult = confirmationResult;
+                setConfirmationResult(confirmationResult)
+                // alert(JSON.stringify(confirmationResult))
+                setOtpState("OtpForm")
+
+            }).catch(error => {
+                console.log("phone", error.message)
+                setLoading(false)
+            });
+
+    }
+
+    const verifyCode = (code, setOtpState, setIsLoading,  hasAccess, allowedRoles, Routes, setAuthCredentials, setErrorMessage) => {
+        setIsLoading(true)
+        confirmationResult.confirm(code).then(async (result) => {
+            // User signed in successfully.
+            const user = result.user;
+            console.log("newly authenticated user is", result.user)
+
+            // ...
+            // setToken(data.token!);
+            const userInfo = await getDoc(doc(db, 'Users', result.user.uid))
+            if (userInfo.exists()) {
+                if (userInfo.data().accountType === 'Vendor' || !userInfo.data().accountType) {
+                    updateDoc(doc(db, 'Users', userInfo.id), {
+                        accountType: 'Vendor'
+                    })
+                    // setAuthorized(true);
+                    setOtpState('PhoneNumber');
+                    // closeModal();
+                    setIsLoading(false)
+                    updateDoc(doc(db, 'Users', result.user.uid), {
+                        token: user.accessToken
+                    })
+                    setAuthCredentials(user.accessToken, 'STORE_OWNER')
+                    Cookies.set('AUTH_CRED', "{%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}")
+                    setToken(user.accessToken);
+                    if (user.accessToken) {
+                        alert()
+                        if (hasAccess(
+                            allowedRoles,
+                            [
+                                "super_admin",
+                                "customer"
+                            ])) {
+                            setAuthCredentials(result.user.accessToken,
+                                [
+                                    "super_admin",
+                                    "customer"
+                                ]);
+                            setUser(userCredentials.user)
+                            navigate.push(Routes.dashboard);
+                            Cookies.set('AUTH_CRED', "{%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}")
+
+                            return;
+                        }
+                        setErrorMessage('form:error-enough-permission');
+
+                        toast.error('Not enough permissions')
+                    } else {
+                        setErrorMessage('form:error-credential-wrong');
+                        toast.error('Wrong credentials')
+
+                    }
+                    
+                }
+                if (userInfo.data().accountType === 'Customer') {
+                    // alert('Account already exists as a Vendor')
+                    toast.error("Account already exists as a Customer")
+                    setIsLoading(false)
+                    signOut(auth)
+                        .then(() => {
+                            setUser(null)
+
+                        })
+                        .catch(error => {
+
+                        })
+                }
+
+            } else {
+                setDoc(doc(db, 'Users', userInfo.id), {
+                    accountType: 'Vendor',
+                    userId: userInfo.id,
+                    phoneNumber: result.user.phoneNumber,
+                    id: userCredentials.user.uid,
+                    created_at: serverTimestamp(),
+                    profile: {
+                        avatar: null,
+                        bio: null,
+                        contact: result.user.phoneNumber,
+                    }
+                })
+                 setOtpState('PhoneNumber');
+                 setIsLoading(false)
+                updateDoc(doc(db, 'Users', result.user.uid), {
+                    token: user.accessToken
+                })
+                setAuthCredentials(user.accessToken, 'STORE_OWNER')
+                toast.success("Logged in successfully")
+                Cookies.set('AUTH_CRED', "{%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}")
+
+                setToken(user.accessToken);
+                if (user.accessToken) {
+                    if (hasAccess(
+                        allowedRoles,
+                        [
+                            "super_admin",
+                            "customer"
+                        ])) {
+                        setAuthCredentials(result.user.accessToken,
+                            [
+                                "super_admin",
+                                "customer"
+                            ]);
+                        setUser(userCredentials.user)
+                        navigate.push(Routes.dashboard);
+                        return;
+                    }
+                    setErrorMessage('form:error-enough-permission');
+                } else {
+                    setErrorMessage('form:error-credential-wrong');
+                }
+
+            }
+
+            // setLoading(false)
+            // closeModal();
+            // setAuthorized(true)
+        }).catch((error) => {
+            setIsLoading(false)
+            alert(error.message)
+            // User couldn't sign in (bad verification code?)
+            // ...
+        });
+    }
+
     function uploadImageAsPromise(file, setFiles) {
         const er = []
         return new Promise(function (resolve, reject) {
@@ -218,7 +378,7 @@ export default function GlobalContextProvider({ children }) {
         const fullDate = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
         setLoading(true)
         console.log("product", newProduct)
-       
+
         addDoc(collection(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders'), newProduct)
             .then(res => {
                 updateDoc(doc(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders', res.id), {
@@ -338,7 +498,7 @@ export default function GlobalContextProvider({ children }) {
                         contact: null,
 
                     },
-                    is_active:true,
+                    is_active: true,
                 })
                     .then(async result => {
                         setLoading(false)
@@ -535,9 +695,9 @@ export default function GlobalContextProvider({ children }) {
             is_active: false,
             orders_count: 0,
             products_count: 0,
-            owner:{
-                name:user?.displayName,
-                avatar:user?.photoURL
+            owner: {
+                name: user?.displayName,
+                avatar: user?.photoURL
             }
         })
             .then(res => {
@@ -546,18 +706,18 @@ export default function GlobalContextProvider({ children }) {
                 getShopDetails()
 
                 updateDoc(doc(db, 'Venders', user.uid), {
-                    shop:{
+                    shop: {
                         name: newShop.values.name,
                         description: newShop.values.description,
                         logo: newShop?.values?.logo,
                         owner_id: user.uid,
                         id: user.uid,
-                        createdOn: serverTimestamp(),                  
+                        createdOn: serverTimestamp(),
                     }
                 })
                     .then(res => { })
                     .catch(error => { })
-                
+
                 navigate.push('/shops')
             })
             .catch(error => {
@@ -768,7 +928,7 @@ export default function GlobalContextProvider({ children }) {
 
 
     const getMyOrders = () => {
-        onSnapshot(collection(db, 'Vendors',user.uid,'Shops',user.uid,'MyOrders'), snapshot => {
+        onSnapshot(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'MyOrders'), snapshot => {
             // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
             let data = []
             snapshot.forEach(doc => {
@@ -868,6 +1028,8 @@ export default function GlobalContextProvider({ children }) {
                 myOrderDetails,
                 myOrders,
                 shopInfo,
+                signupWithPhoneNumber,
+                verifyCode,
                 getShopInfo,
                 getMyOrder,
                 productId,
