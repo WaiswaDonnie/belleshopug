@@ -24,7 +24,7 @@ export default function GlobalContextProvider({ children }) {
     useEffect(() => {
         if (user) {
             getShops()
-            getVendors()
+            getUsers()
             getOrders()
             getProducts()
         }
@@ -53,6 +53,7 @@ export default function GlobalContextProvider({ children }) {
         }
 
     const [orders, setOrders] = useState([])
+
     const getOrders = async () => {
         onSnapshot(collectionGroup(db, 'Orders'), snap => {
             let data = [];
@@ -79,7 +80,7 @@ export default function GlobalContextProvider({ children }) {
     }
     const activateShop = async (id, setIsLoading) => {
         setIsLoading(true)
-        updateDoc(doc(db, 'Vendors', id, 'Shops', id), {
+        updateDoc(doc(db, 'Users', id, 'Shops', id), {
             is_active: true
         })
             .then(() => {
@@ -96,7 +97,7 @@ export default function GlobalContextProvider({ children }) {
         setIsLoading(true)
          
 
-        updateDoc(doc(db, 'Vendors',id, 'Shops', id), {
+        updateDoc(doc(db, 'Users',id, 'Shops', id), {
             is_active: false
         })
             .then(() => {
@@ -116,7 +117,7 @@ export default function GlobalContextProvider({ children }) {
             setUser(null)
 
             setShops([])
-            setVendors([])
+            setUsers([])
             Cookies.remove('admin_token')
             navigate('/login')
         }).catch((error) => {
@@ -128,7 +129,7 @@ export default function GlobalContextProvider({ children }) {
         setIsLoading(true)
         console.log("Shop to edit", newShop)
 
-        deleteDoc(doc(db, 'Vendors', newShop.id, 'Shops', newShop.id))
+        deleteDoc(doc(db, 'Users', newShop.id, 'Shops', newShop.id))
             .then(() => {
                 toast.success("Deleted Sucessfully")
                 setIsLoading(false)
@@ -168,14 +169,48 @@ export default function GlobalContextProvider({ children }) {
             })
     }
 
-    const [vendors, setVendors] = useState([])
-    const getVendors = async () => {
-        onSnapshot(collectionGroup(db, 'Vendors'), snap => {
+    const updateMyOrder = (orderId,setUpdating) => {
+        console.log("order to be updated", orderId)
+        setUpdating(true)
+        updateDoc(doc(db,'Orders',orderId),{
+            status:{
+                color:"#23b848",
+                id:1,
+                language:"en",
+                name:"Delivered",
+                serial:7
+
+            }
+        })
+        .then(()=>{
+            toast.success("Updated sucessfully")
+        })
+        .catch(error=>{
+            toast.error(error.message)
+        })
+        
+        // updateDoc(doc(db, 'Users', user.uid, 'Shops', user.uid, 'MyOrders', order.id), {
+        //     status: order.status
+        // })
+        //     .then(res => {
+        //         toast.success("Sucessfully Updated")
+        //         setUpdating(false)
+        //     })
+        //     .catch(error => {
+        //         toast.error(error.code)
+        //         setUpdating(false)
+        //     })
+ 
+
+    }
+    const [vendors, setUsers] = useState([])
+    const getUsers = async () => {
+        onSnapshot(collectionGroup(db, 'Users'), snap => {
             let data = [];
             snap.forEach(doc => {
                 data.push(doc.data())
             })
-            setVendors(data)
+            setUsers(data)
             console.log("vendors", data)
         })
     }
@@ -227,7 +262,8 @@ export default function GlobalContextProvider({ children }) {
                 shopInfo,
                 getShopInfo,
                 logoutUser,
-                clientProducts
+                clientProducts,
+                updateMyOrder
             }}
         >
             {children}

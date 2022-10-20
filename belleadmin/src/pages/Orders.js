@@ -78,8 +78,9 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function Orders() {
-  const { orders } = useContext(GlobalContext)
+  const { orders,updateMyOrder } = useContext(GlobalContext)
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false)
 
   const [page, setPage] = useState(0);
 
@@ -184,7 +185,7 @@ export default function Orders() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name,products, is_active, status, shop, profile, amount, customer, customer_contact } = row;
+                    const { id, name,products, orderId, is_active, status, shop, profile, amount, customer, customer_contact } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -209,14 +210,23 @@ export default function Orders() {
                         </TableCell>
                         <TableCell align="left">{amount}</TableCell>
                         <TableCell align="left">{customer_contact}</TableCell>
+                        <TableCell align="left">{customer_contact}</TableCell>
+
                         <TableCell align="left">
                           {status?.name}
                           {/* <Label variant="ghost" color={!is_active ? 'error' : 'success'}>
                             {is_active? "Active" : "Inactive"}
                           </Label> */}
                         </TableCell>
-                        <TableCell align="left">{customer_contact}</TableCell>
                         <TableCell align="right">
+                          <IconButton ref={ref} onClick={() => {
+                            // navigate(`/dashboard/shops/${id}`)
+                           
+                            updateMyOrder(orderId, setLoading)
+                            alert(orderId, setLoading)
+                          }}>
+                            <Iconify icon="eva:checkmark-fill" sx={{ color: 'text.disabled', width: 25, height: 25 }} />
+                          </IconButton>
                           <IconButton ref={ref} onClick={() => {
                             // navigate(`/dashboard/shops/${id}`)
                             handleClickOpen()

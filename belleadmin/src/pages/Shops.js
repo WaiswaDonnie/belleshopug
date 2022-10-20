@@ -215,6 +215,7 @@ export default function Shops() {
                           <IconButton ref={ref} onClick={() => {
                             if (!is_active) {
                               activateShop(id, setLoading)
+                              alert(id)
                             } else {
                               deactivateShop(id, setLoading)
                             }
