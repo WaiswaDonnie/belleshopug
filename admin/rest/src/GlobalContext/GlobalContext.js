@@ -139,8 +139,11 @@ export default function GlobalContextProvider({ children }) {
 
     const [confirmationResult, setConfirmationResult] = useState(null)
 
+    const [contact,setContact] = useState("")
+
     const signupWithPhoneNumber = async (contact, setOtpState, setLoading, otpState) => {
         console.log(contact)
+        setContact(contact.phone_number)
         setLoading(true)
         let recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
         var currentDate = new Date(); // for now
@@ -183,6 +186,7 @@ export default function GlobalContextProvider({ children }) {
             // setToken(data.token!);
             const userInfo = await getDoc(doc(db, 'Users', result.user.uid))
             if (userInfo.exists()) {
+                alert("Existings")
                 if (userInfo.data().accountType === 'Vendor' || !userInfo.data().accountType) {
                     updateDoc(doc(db, 'Users', userInfo.id), {
                         accountType: 'Vendor'
@@ -210,7 +214,7 @@ export default function GlobalContextProvider({ children }) {
                                     "super_admin",
                                     "customer"
                                 ]);
-                            setUser(userCredentials.user)
+                            setUser(user)
                             navigate.push(Routes.dashboard);
                             Cookies.set('AUTH_CRED', "{%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}")
 
@@ -244,13 +248,13 @@ export default function GlobalContextProvider({ children }) {
                 setDoc(doc(db, 'Users', userInfo.id), {
                     accountType: 'Vendor',
                     userId: userInfo.id,
-                    phoneNumber: result.user.phoneNumber,
-                    id: userCredentials.user.uid,
+                    phoneNumber: contact,
+                    id: result.user.uid,
                     created_at: serverTimestamp(),
                     profile: {
                         avatar: null,
                         bio: null,
-                        contact: result.user.phoneNumber,
+                        contact: contact,
                     }
                 })
                  setOtpState('PhoneNumber');
@@ -275,7 +279,7 @@ export default function GlobalContextProvider({ children }) {
                                 "super_admin",
                                 "customer"
                             ]);
-                        setUser(userCredentials.user)
+                        setUser(result.user)
                         navigate.push(Routes.dashboard);
                         return;
                     }
@@ -348,7 +352,7 @@ export default function GlobalContextProvider({ children }) {
         const date = new Date()
         const fullDate = date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate()
         setLoading(true)
-        addDoc(collection(db, 'Vendors', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products'), {
+        addDoc(collection(db, 'Users', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products'), {
             productName: newProduct.productName,
             customerName: newProduct.customerName,
             productLocation: newProduct.productLocation,
@@ -359,7 +363,7 @@ export default function GlobalContextProvider({ children }) {
             productQuantity: newProduct.productQuantity
         })
             .then(res => {
-                updateDoc(doc(db, 'Vendors', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products', res.id), {
+                updateDoc(doc(db, 'Users', newProduct.vendorId, 'Shops', newProduct.shopId, 'Products', res.id), {
                     productId: res.id,
                 })
                 setLoading(false)
@@ -379,9 +383,9 @@ export default function GlobalContextProvider({ children }) {
         setLoading(true)
         console.log("product", newProduct)
 
-        addDoc(collection(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders'), newProduct)
+        addDoc(collection(db, 'Users', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders'), newProduct)
             .then(res => {
-                updateDoc(doc(db, 'Vendors', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders', res.id), {
+                updateDoc(doc(db, 'Users', newProduct.vendor_id, 'Shops', newProduct.shop_id, 'Orders', res.id), {
                     orderId: res.id,
                     tracking_number: res.id,
                     customer_id: user.uid,
@@ -487,7 +491,7 @@ export default function GlobalContextProvider({ children }) {
                     displayName: username
                 })
                 setUser(userCredentials.user)
-                setDoc(doc(db, 'Vendors', userCredentials.user.uid), {
+                setDoc(doc(db, 'Users', userCredentials.user.uid), {
                     name: username,
                     id: userCredentials.user.uid,
                     created_at: serverTimestamp(),
@@ -505,7 +509,7 @@ export default function GlobalContextProvider({ children }) {
                         setUser(userCredentials.user)
                         userCredentials.user.getIdToken()
                             .then(token => {
-                                updateDoc(doc(db, 'Vendors', userCredentials.user.uid), {
+                                updateDoc(doc(db, 'Users', userCredentials.user.uid), {
                                     token: token
                                 })
                                 // {%22token%22:%22jwt%20token%22%2C%22permissions%22:[%22super_admin%22%2C%22customer%22]}
@@ -541,11 +545,12 @@ export default function GlobalContextProvider({ children }) {
     const updateUser = (newUser, setLoading) => {
         setLoading(true)
         console.log("newUser", newUser.input)
-        updateDoc(doc(db, 'Vendors', user.uid), newUser.input)
+        updateDoc(doc(db, 'Users', user.uid), newUser.input)
             .then(res => {
 
                 setLoading(false)
                 toast.success("Saved Sucessfully")
+                navigate('/')
                 getUserInfo()
 
             })
@@ -679,7 +684,7 @@ export default function GlobalContextProvider({ children }) {
     const createShop = (newShop, setIsLoading) => {
         console.log(newShop.values)
         setIsLoading(true)
-        setDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
+        setDoc(doc(db, 'Users', user.uid, 'Shops', user.uid), {
             cover_image: {
                 original: newShop.values.cover_image.original,
                 thumbnail: newShop.values.cover_image.thumbnail
@@ -705,7 +710,7 @@ export default function GlobalContextProvider({ children }) {
                 setIsLoading(false)
                 getShopDetails()
 
-                updateDoc(doc(db, 'Venders', user.uid), {
+                updateDoc(doc(db, 'Users', user.uid), {
                     shop: {
                         name: newShop.values.name,
                         description: newShop.values.description,
@@ -731,7 +736,7 @@ export default function GlobalContextProvider({ children }) {
         setIsLoading(true)
         console.log("Shop to edit", newShop)
         delete newShop['balance']
-        updateDoc(doc(db, 'Vendors', user.uid, 'Shops', newShop.id), newShop)
+        updateDoc(doc(db, 'Users', user.uid, 'Shops', newShop.id), newShop)
             .then(() => {
                 toast.success("Updated Sucessfully")
                 setIsLoading(false)
@@ -754,7 +759,7 @@ export default function GlobalContextProvider({ children }) {
 
 
     const getShopDetails = () => {
-        getDoc(query(doc(db, 'Vendors', user.uid, 'Shops', user.uid)))
+        getDoc(query(doc(db, 'Users', user.uid, 'Shops', user.uid)))
             .then(res => {
                 setShopDetails(res.data())
                 console.log("shop details are all here", res.data())
@@ -763,7 +768,7 @@ export default function GlobalContextProvider({ children }) {
 
     const [shops, setShops] = useState([])
     const getShops = async () => {
-        onSnapshot(collection(db, 'Vendors', user.uid, 'Shops'), snap => {
+        onSnapshot(collection(db, 'Users', user.uid, 'Shops'), snap => {
             let data = [];
             snap.forEach(doc => {
                 data.push(doc.data())
@@ -774,7 +779,7 @@ export default function GlobalContextProvider({ children }) {
     const [shopInfo, setShopInfo] = useState(null)
     const getShopInfo = async (id, setLoading) => {
         setLoading(true)
-        onSnapshot(query(collection(db, 'Vendors', id, 'Shops'), where("id", "==", id)), snapshot => {
+        onSnapshot(query(collection(db, 'Users', id, 'Shops'), where("id", "==", id)), snapshot => {
             let data = [];
             snapshot.forEach(doc => {
                 data.push(doc.data())
@@ -788,7 +793,7 @@ export default function GlobalContextProvider({ children }) {
     const getProductInfo = async (id, setLoading) => {
         console.log("got it", id)
         setLoading(true)
-        onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, "Products"), where("id", "==", id)), snapshot => {
+        onSnapshot(query(collection(db, 'Users', user.uid, 'Shops', user.uid, "Products"), where("id", "==", id)), snapshot => {
             let data = [];
             snapshot.forEach(doc => {
                 data.push(doc.data())
@@ -820,16 +825,16 @@ export default function GlobalContextProvider({ children }) {
             };
 
             console.log("new product", newProduct)
-            addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), newProduct)
+            addDoc(collection(db, 'Users', user.uid, 'Shops', user.uid, 'Products'), newProduct)
                 .then(res => {
                     toast.success("Product added successfully")
                     setOpen(false)
                     setLoading(false)
-                    updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products', res.id), {
+                    updateDoc(doc(db, 'Users', user.uid, 'Shops', user.uid, 'Products', res.id), {
                         slug: res.id,
                         id: res.id
                     })
-                    updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
+                    updateDoc(doc(db, 'Users', user.uid, 'Shops', user.uid), {
                         products_count: increment(newProduct?.quantity),
 
                     })
@@ -862,16 +867,16 @@ export default function GlobalContextProvider({ children }) {
         //     };
 
         //     console.log("new product", newProduct)
-        //     addDoc(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), newProduct)
+        //     addDoc(collection(db, 'Users', user.uid, 'Shops', user.uid, 'Products'), newProduct)
         //         .then(res => {
         //             toast.success("Product added successfully")
         //             setOpen(false)
         //             setLoading(false)
-        //             updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products', res.id), {
+        //             updateDoc(doc(db, 'Users', user.uid, 'Shops', user.uid, 'Products', res.id), {
         //                 slug: res.id,
         //                 id: res.id
         //             })
-        //             updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid), {
+        //             updateDoc(doc(db, 'Users', user.uid, 'Shops', user.uid), {
         //                 products_count: increment(newProduct?.quantity),
         //                 orders_count: 0
 
@@ -892,7 +897,7 @@ export default function GlobalContextProvider({ children }) {
 
     const [ownerProducts, setOwnerProducts] = useState([])
     const getOwnerProducts = async () => {
-        onSnapshot(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Products'), snapshot => {
+        onSnapshot(collection(db, 'Users', user.uid, 'Shops', user.uid, 'Products'), snapshot => {
             let data = []
             snapshot.forEach(product => {
                 data.push(product.data())
@@ -928,8 +933,8 @@ export default function GlobalContextProvider({ children }) {
 
 
     const getMyOrders = () => {
-        onSnapshot(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'MyOrders'), snapshot => {
-            // onSnapshot(query(collection(db, 'Vendors', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
+        onSnapshot(collection(db, 'Users', user.uid, 'Shops', user.uid, 'MyOrders'), snapshot => {
+            // onSnapshot(query(collection(db, 'Users', user.uid, 'Shops', user.uid, 'Orders')), snapshot => {
             let data = []
             snapshot.forEach(doc => {
                 data.push(doc.data())
@@ -947,7 +952,7 @@ export default function GlobalContextProvider({ children }) {
     const updateMyOrder = (order, setUpdating) => {
         console.log("order to be updated", order)
         setUpdating(true)
-        updateDoc(doc(db, 'Vendors', user.uid, 'Shops', user.uid, 'MyOrders', order.id), {
+        updateDoc(doc(db, 'Users', user.uid, 'Shops', user.uid, 'MyOrders', order.id), {
             status: order.status
         })
             .then(res => {
@@ -983,7 +988,7 @@ export default function GlobalContextProvider({ children }) {
     }, [user])
     const getUserInfo = async () => {
         if (user) {
-            getDoc(doc(db, 'Vendors', user.uid))
+            getDoc(doc(db, 'Users', user.uid))
                 .then(res => {
                     console.log("user info", res.data())
                     setUserInfo(res.data())

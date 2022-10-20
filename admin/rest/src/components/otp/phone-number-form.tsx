@@ -59,7 +59,7 @@ export default function PhoneNumberForm({
               disabled={isLoading}
             >
               {view === 'login' ? (
-                t('text-send-otp')
+                t('Send OTP')
               ) : (
                 <>
                   {Boolean(phoneNumber) ? t('text-update') : t('text-add')}{' '}

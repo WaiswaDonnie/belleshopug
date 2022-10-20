@@ -39,7 +39,7 @@ export default function OtpCodeForm({
         {({ control, formState: { errors } }) => (
           <>
             <div className="mb-5">
-              <Label>{t('text-otp-code')}</Label>
+              <Label>{t('OTP CODE')}</Label>
               <Controller
                 control={control}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -70,10 +70,10 @@ export default function OtpCodeForm({
                 }}
                 className="hover:border-red-500 hover:bg-red-500"
               >
-                {t('text-cancel')}
+                {t('Cancel')}
               </Button>
               <Button loading={isLoading} disabled={isLoading}>
-                {t('text-verify-code')}
+                {t('Verify Code')}
               </Button>
             </div>
           </>

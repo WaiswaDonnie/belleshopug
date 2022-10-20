@@ -286,7 +286,7 @@ export default function OrderDetailsPage() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+      {/* <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
         <div className="mb-10 w-full sm:mb-0 sm:w-1/2 sm:pe-8">
           <h3 className="mb-3 border-b border-border-200 pb-2 font-semibold text-heading">
             {t('common:billing-address')}
@@ -314,7 +314,7 @@ export default function OrderDetailsPage() {
             {order?.customer_contact && <span>{order?.customer_contact}</span>}
           </div>
         </div>
-      </div>
+      </div> */}
     </Card>
   );
 }

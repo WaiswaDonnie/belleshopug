@@ -195,7 +195,7 @@ export default function GlobalContextProvider({ children }) {
                         response.forEach(async (res) => {
                             console.log("This porduct has been got", res.data())
                             // updateDoc(doc(db,'Orders'))
-                            addDoc(collection(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders'), {
+                            addDoc(collection(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders'), {
                                 amount: product?.subtotal,
                                 billing_address: newProduct?.billing_address,
                                 coupon_id: newProduct?.coupon_id,
@@ -238,7 +238,7 @@ export default function GlobalContextProvider({ children }) {
                                 vendor_id: newProduct?.vendor_id,
                             })
                                 .then(response => {
-                                    updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders', response.id), {
+                                    updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders', response.id), {
 
                                         orderId: response.id,
                                         tracking_number: response.id
@@ -246,11 +246,11 @@ export default function GlobalContextProvider({ children }) {
                                     updateDoc(doc(db, 'Orders', res.id), {
                                         shops: arrayUnion([{ shop_id: res.data()?.shop_id, name: res.data()?.shop?.name, logo: res.data()?.shop?.name }])
                                     })
-                                    updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
+                                    updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
                                         quantity: increment(-product.order_quantity)
 
                                     })
-                                    updateDoc(doc(db, 'Vendors', res.data().shop_id, 'Shops', res.data().shop_id), {
+                                    updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id), {
                                         orders_count: increment(1)
                                     })
 
@@ -272,10 +272,10 @@ export default function GlobalContextProvider({ children }) {
                 //             data.push(doc.data())
                 //         })
                 //         console.log("pshop is comeas got is", data[0].shop_id)
-                //         updateDoc(doc(db, 'Vendors', data[0].shop_id, 'Shops', data[0].shop_id, 'Products', product.product_id), {
+                //         updateDoc(doc(db, 'Users', data[0].shop_id, 'Shops', data[0].shop_id, 'Products', product.product_id), {
                 //             quantity: increment(-product.order_quantity)
                 //         })
-                //         addDoc(collection(db, 'Vendors', data[0].shop_id, 'Shops', data[0].shop_id, 'Orders'), {
+                //         addDoc(collection(db, 'Users', data[0].shop_id, 'Shops', data[0].shop_id, 'Orders'), {
                 //             amount: product?.subtotal,
                 //             billing_address: newProduct?.billing_address,
                 //             coupon_id: newProduct?.coupon_id,
@@ -792,9 +792,10 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [confirmationResult, setConfirmationResult] = useState(null)
-
+    const [contact,setContact] = useState("")
     const signupWithPhoneNumber = async (contact, setOtpState, setLoading, otpState) => {
         console.log(contact)
+        setContact(contact.phone_number)
         setLoading(true)
         let recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
         var currentDate = new Date(); // for now
@@ -839,6 +840,7 @@ export default function GlobalContextProvider({ children }) {
             const userInfo = await getDoc(doc(db, 'Users', result.user.uid))
             if (userInfo.exists()) {
                 if (userInfo.data().accountType === 'Customer' || !userInfo.data().accountType) {
+                    alert('Updating Customer')
                     updateDoc(doc(db, 'Users', userInfo.id), {
                         accountType: 'Customer'
                     })
@@ -857,6 +859,10 @@ export default function GlobalContextProvider({ children }) {
                 if (userInfo.data().accountType === 'Vendor') {
                     // alert('Account already exists as a Vendor')
                     toast.error("Account already exists as a Vendor")
+                    setIsLoading(false)
+                    setOtpState({
+                        ...initialOtpState,
+                    });
                     setLoading(false)
                     signOut(auth)
                         .then(() => {
@@ -869,29 +875,47 @@ export default function GlobalContextProvider({ children }) {
                 }
 
             } else {
-                setDoc(doc(db, 'Users', userInfo.id), {
+                 setDoc(doc(db, 'Users', userInfo.id), {
                     accountType: 'Customer',
                     userId: userInfo.id,
-                    phoneNumber: result.user.phoneNumber,
-                    id: userCredentials.user.uid,
+                    phoneNumber: contact,
+                    id: userInfo.id,
                     created_at: serverTimestamp(),
                     profile: {
                         avatar: null,
                         bio: null,
-                        contact: result.user.phoneNumber,
+                        contact: contact,
                     }
                 })
-                setAuthorized(true);
-                setOtpState({
-                    ...initialOtpState,
-                });
-                closeModal();
-                setIsLoading(false)
-                updateDoc(doc(db, 'Users', result.user.uid), {
-                    token: user.accessToken
+                .then(()=>{
+                     Cookies.set('auth_token', result.user.accessToken)
+                    setToken(result.user.accessToken);
+                    setLoading(false)
+                    closeModal();
+                    setAuthorized(true)
+                    setOtpState({
+                        ...initialOtpState,
+                    });
+
+                    setIsLoading(false)
+                    updateDoc(doc(db, 'Users', result.user.uid), {
+                        token: user.accessToken
+                    })
+                 })
+                .catch((error)=>{
+                    alert(error.message)
                 })
-                Cookies.set('auth_token', result.user.accessToken)
-                setToken(result.user.accessToken);
+                // setAuthorized(true);
+                // setOtpState({
+                //     ...initialOtpState,
+                // });
+                // closeModal();
+                // setIsLoading(false)
+                // updateDoc(doc(db, 'Users', result.user.uid), {
+                //     token: user.accessToken
+                // })
+                // Cookies.set('auth_token', result.user.accessToken)
+                // setToken(result.user.accessToken);
 
             }
 
@@ -900,6 +924,7 @@ export default function GlobalContextProvider({ children }) {
             // setAuthorized(true)
         }).catch((error) => {
             setIsLoading(false)
+            alert(error.message)
             // User couldn't sign in (bad verification code?)
             // ...
         });

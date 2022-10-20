@@ -69,16 +69,16 @@ const OrderList = ({
         return <span>{value?.name}</span>;
       },
     },
-    {
-      title: 'Contact',
-      dataIndex: 'customer_contact',
-      key: 'customer_contact',
-      align: 'center',
-      width: 150,
-      render: function Render(value: any) {
-        return <span>{value}</span>;
-      },
-    },
+    // {
+    //   title: 'Contact',
+    //   dataIndex: 'customer_contact',
+    //   key: 'customer_contact',
+    //   align: 'center',
+    //   width: 150,
+    //   render: function Render(value: any) {
+    //     return <span>{value}</span>;
+    //   },
+    // },
     {
       title: (
         <TitleWithSort
@@ -153,15 +153,15 @@ const OrderList = ({
         </span>
       ),
     },
-    {
-      title: t('table:table-item-shipping-address'),
-      dataIndex: 'billing_address',
-      key: 'billing_address',
-      align: alignLeft,
-      render: (billing_address: UserAddress) => (
-        <div>{formatAddress(billing_address)}</div>
-      ),
-    },
+    // {
+    //   title: t('table:table-item-shipping-address'),
+    //   dataIndex: 'billing_address',
+    //   key: 'billing_address',
+    //   align: alignLeft,
+    //   render: (billing_address: UserAddress) => (
+    //     <div>{formatAddress(billing_address)}</div>
+    //   ),
+    // },
     {
       title: t('table:table-item-actions'),
       dataIndex: 'orderId',

@@ -113,7 +113,8 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
     if (userInfo.userName && userInfo.email) {
       createOrder(input, setIsLoading)
     } else {
-      alert(userInfo.username)
+      
+      
       setOpen(true)
     }
 
