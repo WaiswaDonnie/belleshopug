@@ -37,8 +37,7 @@ const TABLE_HEAD = [
   { id: 'Shop', label: 'Shop', alignRight: false },
   { id: 'contact', label: 'Contact', alignRight: false },
   // { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'is_active', label: 'Status', alignRight: false },
-  
+   
   { id: '' },
 ];
 
@@ -190,11 +189,7 @@ export default function User() {
                         </TableCell>
                         <TableCell align="left">{shop?.name}</TableCell>
                          <TableCell align="left">{profile?.contact}</TableCell>
-                        <TableCell align="left">
-                          <Label variant="ghost" color={!is_active ? 'error' : 'success'}>
-                            {is_active? "Active" : "Inactive"}
-                          </Label>
-                        </TableCell>
+                       
 
                         {/* <TableCell align="right">
                           <UserMoreMenu />

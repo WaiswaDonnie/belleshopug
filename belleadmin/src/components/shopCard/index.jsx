@@ -6,8 +6,8 @@ import { styled } from '@mui/material/styles';
 import Label from '../Label';
 import { fCurrency } from 'src/utils/formatNumber';
 // utils
- // components
- 
+// components
+
 // ----------------------------------------------------------------------
 
 const ProductImgStyle = styled('img')({
@@ -21,11 +21,12 @@ const ProductImgStyle = styled('img')({
 // ----------------------------------------------------------------------
 
 ShopCard.propTypes = {
-  product: PropTypes.object,
+  shop: PropTypes.object,
 };
 
-export default function ShopCard({ product }) {
-  const { name, image, price, colors, status, priceSale,quantity,shop } = product;
+export default function ShopCard({ shop }) {
+  const { name, image, price, colors, status,contact, priceSale, quantity,logo } = shop;
+  
 
   return (
     <Card>
@@ -45,13 +46,13 @@ export default function ShopCard({ product }) {
             {status}
           </Label>
         )}
-        <ProductImgStyle alt={name} src={shop?.logo?.original} />
+        <ProductImgStyle alt={name} src={logo?.original} />
       </Box>
 
       <Stack spacing={2} sx={{ p: 3 }}>
         <Link to="#" color="inherit" underline="hover" component={RouterLink}>
           <Typography variant="subtitle2" noWrap>
-           {shop?.name}
+            {name}
           </Typography>
         </Link>
 
@@ -69,8 +70,8 @@ export default function ShopCard({ product }) {
               {/* {price && fCurrency(price)} */}
             </Typography>
             &nbsp;
-            {'UGX '+fCurrency(price)}
-            {shop?.contact}
+            {/* {'UGX ' + fCurrency(price)} */}
+            {contact}
           </Typography>
         </Stack>
       </Stack>

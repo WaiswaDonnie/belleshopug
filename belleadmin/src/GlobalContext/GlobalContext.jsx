@@ -205,7 +205,8 @@ export default function GlobalContextProvider({ children }) {
     }
     const [vendors, setUsers] = useState([])
     const getUsers = async () => {
-        onSnapshot(collectionGroup(db, 'Users'), snap => {
+        console.log("called vendors")
+        onSnapshot(query(collection(db, 'Users'),where('accountType','==','Vendor')), snap => {
             let data = [];
             snap.forEach(doc => {
                 data.push(doc.data())

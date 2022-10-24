@@ -693,6 +693,7 @@ export default function GlobalContextProvider({ children }) {
             },
             name: newShop.values.name,
             description: newShop.values.description,
+            contact:user?.phoneNumber,
             logo: newShop?.values?.logo,
             owner_id: user?.uid,
             id: user?.uid,
