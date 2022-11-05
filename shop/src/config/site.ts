@@ -11,7 +11,7 @@ export const siteSettings = {
     height: 40,
   },
   defaultLanguage: 'en',
-  currencyCode: 'USD',
+  currencyCode: 'UGX',
   product: {
     placeholderImage: '/product-placeholder.svg',
     cardMaps: {
@@ -94,11 +94,11 @@ export const siteSettings = {
   footer: {
     copyright: {
       name: 'Belle Beauty Shop',
-      href: 'https://wwww.bellebeautyshop.com/',
+      href: 'https://wwww.bellebeautyshopug.com/',
     },
-    address: '2429 River Drive, Suite 35 Cottonhall, CA 2296 United Kingdom',
-    email: 'support@bellebeautyshop.com',
-    phone: '+1 256-698-0694',
+    address: 'Kiwatule Road,Ntinda opp Hotel Eliana',
+    email: 'support@bellebeautyug.com',
+    phone: '+256760086707 / +256756692819',
     menus: [
       {
         title: 'text-explore',
