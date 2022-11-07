@@ -25,12 +25,27 @@ const Banner: React.FC<{ layout: string; variables: any }> = ({
   variables,
 }) => {
   const { type, error } = useType(variables.type);
+  const banners =[
+    {
+      id: Math.random(),
+      type_id: Math.random(),
+      title: 'Tas',
+      description: 'sdf',
+      image: {
+          id:  Math.random(),
+          original: 'https://images.pexels.com/photos/1038041/pexels-photo-1038041.jpeg?auto=compress&cs=tinysrgb&w=800',
+          thumbnail: 'https://images.pexels.com/photos/1038041/pexels-photo-1038041.jpeg?auto=compress&cs=tinysrgb&w=800',
+      },
+      created_at: 'string',
+      
+    }
+  ]
   if (error) return <ErrorMessage message={error.message} />;
   const Component = MAP_BANNER_TO_GROUP[layout];
-  console.log("baners ", type?.banners)
+  console.log("baners ", banners)
    
   return (
-    <Component banners={type?.banners} layout={layout} slug={type?.slug} />
+    <Component banners={banners} layout={layout} slug={type?.slug} />
   );
 };
 

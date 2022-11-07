@@ -27,21 +27,48 @@ const BannerShort: React.FC<BannerProps> = ({ banners,layout }) => {
   const customBanners = [
    {
     id:1,
-    title:'Belle  Shop',
+    title:'',
     image:{
-      original:"https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/906/makeup.png",
-      thumbanail:"https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/906/makeup.png"
+      original:"https://unsplash.com/photos/mVdzV_HTyH4/download?ixid=MnwxMjA3fDB8MXxzZWFyY2h8MTh8fG1ha2V1cHxlbnwwfHx8fDE2Njc4MDE5NjA&force=true&w=2400",
+      thumbanail:"https://unsplash.com/photos/mVdzV_HTyH4/download?ixid=MnwxMjA3fDB8MXxzZWFyY2h8MTh8fG1ha2V1cHxlbnwwfHx8fDE2Njc4MDE5NjA&force=true&w=2400"
     },
-    description:'Beauty comes from inside, inside the Belle Beauty Salon.'
+    description:''
    },
    {
     id:2,
-    title:'Make up',
+    title:'',
     image:{
-      original:"https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/906/makeup.png",
-      thumbanail:"https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/906/makeup.png"
+      original:"https://images.unsplash.com/photo-1494919138911-02d403edd88d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80",
+      thumbanail:"https://images.unsplash.com/photo-1494919138911-02d403edd88d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
     },
-    description:'If it makes you feel beautiful, then do it.'
+    description:''
+   },
+   {
+    id:4,
+    title:'',
+    image:{
+      original:"https://images.unsplash.com/photo-1598104358204-87cefc7c5986?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80",
+      thumbanail:"https://images.unsplash.com/photo-1598104358204-87cefc7c5986?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80"
+    },
+    description:''
+   },
+   {
+    id:5,
+    title:'',
+    image:{
+      original:"https://images.unsplash.com/photo-1655720348723-c16f0519249d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8YWZyaWNhbiUyMG5haWxzfGVufDB8MHwwfHw%3D&auto=format&fit=crop&w=900&q=60",
+      thumbanail:"https://images.unsplash.com/photo-1655720348723-c16f0519249d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8YWZyaWNhbiUyMG5haWxzfGVufDB8MHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
+    },
+    description:''
+   },
+   {
+    id:6,
+    title:'',
+    image:{
+      original:"https://images.unsplash.com/photo-1533146692536-e70f31e14b36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80",
+      thumbanail:"https://images.unsplash.com/photo-1533146692536-e70f31e14b36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
+    },
+    description:''
    },
   //  {
   //   id:3,
@@ -54,6 +81,8 @@ const BannerShort: React.FC<BannerProps> = ({ banners,layout }) => {
   //  },
 
   ]
+
+   
 
   return (
     <div className="relative">

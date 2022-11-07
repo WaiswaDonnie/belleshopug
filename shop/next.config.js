@@ -27,7 +27,9 @@ const nextConfig = {
       '127.0.0.1',
       'i.pravatar.cc',
       'images.unsplash.com',
-      'firebasestorage.googleapis.com'
+      'firebasestorage.googleapis.com',
+      'images.pexels.com',
+      'unsplash.com'
     ],
   },
   ...(process.env.FRAMEWORK_PROVIDER === 'graphql' && {
