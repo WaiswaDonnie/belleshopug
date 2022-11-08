@@ -186,7 +186,7 @@ export default function GlobalContextProvider({ children }) {
             // setToken(data.token!);
             const userInfo = await getDoc(doc(db, 'Users', result.user.uid))
             if (userInfo.exists()) {
-                alert("Existings")
+                
                 if (userInfo.data().accountType === 'Vendor' || !userInfo.data().accountType) {
                     updateDoc(doc(db, 'Users', userInfo.id), {
                         accountType: 'Vendor'
