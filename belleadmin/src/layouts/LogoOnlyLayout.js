@@ -6,7 +6,7 @@ import Logo from '../components/Logo';
 
 // ----------------------------------------------------------------------
 
-const HeaderStyle = styled('header')(({ theme }) => ({
+const HeaderStyle =  styled('header')(({ theme }) => ({
   top: 0,
   left: 0,
   lineHeight: 0,
