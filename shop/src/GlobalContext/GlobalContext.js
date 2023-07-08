@@ -1,7 +1,7 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion } from 'firebase/firestore';
 import { db, auth, storage } from '../../firebase'
-import { getAuth, sendPasswordResetEmail,updateEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, sendPasswordResetEmail, updateEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
@@ -29,6 +29,7 @@ import {
 } from '@/components/auth/forgot-password';
 import { clearCheckoutAtom } from '@/store/checkout';
 import { getDownloadURL, ref, uploadBytes, uploadBytesResumable } from 'firebase/storage';
+import { httpsCallable } from 'firebase/functions';
 export const GlobalContext = createContext()
 
 
@@ -58,7 +59,7 @@ export default function GlobalContextProvider({ children }) {
     const [orderDetails, setOrderDetails] = useState(null)
 
     const getOrder = (orderId) => {
-        onSnapshot(query(collection(db, 'Orders'), where("orderId", "==", orderId)), snapshot => {
+        onSnapshot(query(collection(db, 'Product Orders'), where("orderId", "==", orderId)), snapshot => {
             let data = []
             snapshot.forEach(doc => {
 
@@ -154,9 +155,9 @@ export default function GlobalContextProvider({ children }) {
 
         setLoading(true)
         console.log("product", newProduct)
-        addDoc(collection(db, 'Orders'), newProduct)
+        addDoc(collection(db, 'Product Orders'), newProduct)
             .then(async res => {
-                updateDoc(doc(db, 'Orders', res.id), {
+                updateDoc(doc(db, 'Product Orders', res.id), {
                     orderId: res.id,
                     tracking_number: res.id,
                     customer_id: user.uid,
@@ -186,148 +187,107 @@ export default function GlobalContextProvider({ children }) {
                             }
                         }
 
-                    }
+                    },
+                    "amount": newProduct?.amount,
+                    "billing_address": newProduct?.billing_address,
+                    "customer_contact": newProduct?.customer_contact,
+                    "delivery_fee": newProduct?.delivery_fee,
+                    "delivery_time": newProduct?.delivery_time,
+                    "discount": newProduct?.discount,
+                    "paid_total": newProduct?.paid_total,
+                    "payment_gateway": newProduct?.payment_gateway,
+                    "products": newProduct?.products,
+                    "sales_tax": newProduct?.sales_tax,
+                    "shipping_address": newProduct?.shipping_address,
+                    "total": newProduct?.total,
+                    "use_wallet_points": newProduct?.use_wallet_points,
+
+
+                }).then((order) => {
+                    navigate.push(`/orders/${res.id}`)
+                    setLoading(false)
+                    setVisible(false) 
                 })
-                newProduct.products.forEach(async (product) => {
-                    console.log("eachedhbjhjnkml,d", product.product_id)
-                    const response = await getDocs(query(collectionGroup(db, 'Products'), where('id', '==', product.product_id)))
-                    if (response) {
-                        response.forEach(async (res) => {
-                            console.log("This porduct has been got", res.data())
-                            // updateDoc(doc(db,'Orders'))
-                            addDoc(collection(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders'), {
-                                amount: product?.subtotal,
-                                billing_address: newProduct?.billing_address,
-                                coupon_id: newProduct?.coupon_id,
-                                ordered_on: serverTimestamp(),
-                                created_at: full_date,
-                                customer: {
-                                    "id": user.uid,
-                                    "name": user.displayName,
-                                    "email": user.email,
-                                    "profile": {
-                                        "avatar": {
-                                            "thumbnail": user?.photoURL,
-                                            "original": user?.photoURL,
+                    .catch((err) => {
+                        alert(err)
+                        setLoading(false)
+                        setVisible(false) 
+                    })
+                // newProduct.products.forEach(async (product) => {
+                //     const response = await getDocs(query(collectionGroup(db, 'Products'), where('id', '==', product.product_id)))
+                //     if (response) {
+                //         response.forEach(async (res) => {
+                //             console.log("This porduct has been got", res.data())
+                //             // updateDoc(doc(db,'Orders'))
+                //             addDoc(collection(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders'), {
+                //                 amount: product?.subtotal,
+                //                 billing_address: newProduct?.billing_address,
+                //                 coupon_id: newProduct?.coupon_id,
+                //                 ordered_on: serverTimestamp(),
+                //                 created_at: full_date,
+                //                 customer: {
+                //                     "id": user.uid,
+                //                     "name": user.displayName,
+                //                     "email": user.email,
+                //                     "profile": {
+                //                         "avatar": {
+                //                             "thumbnail": user?.photoURL,
+                //                             "original": user?.photoURL,
 
-                                        }
-                                    }
-
-                                },
-                                customer_contact: newProduct?.customer_contact,
-                                customer_id: user.uid,
-                                delivery_fee: 0,
-                                delivery_time: newProduct?.delivery_time,
-                                reference_orderId: res.id,
-                                paid_total: product?.subtotal,
-                                payment_gateway: newProduct?.payment_gateway,
-                                products: [{
-                                    order_quantity: product.order_quantity,
-                                    product_id: product.product_id,
-                                    subtotal: product.subtotal,
-                                    unit_price: product.unit_price,
-                                    name: res.data()?.name,
-                                    image: res.data()?.image
-                                }],
-                                sales_tax: 0,
-                                shipping_address: newProduct?.shipping_address,
-                                shop_id: res.data().shop_id,
-                                status: newProduct?.status,
-                                // tracking_number: res.id,
-                                use_wallet_points: newProduct?.use_wallet_points,
-                                vendor_id: newProduct?.vendor_id,
-                            })
-                                .then(response => {
-                                    updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders', response.id), {
-
-                                        orderId: response.id,
-                                        tracking_number: response.id
-                                    })
-                                    updateDoc(doc(db, 'Orders', res.id), {
-                                        shops: arrayUnion([{ shop_id: res.data()?.shop_id, name: res.data()?.shop?.name, logo: res.data()?.shop?.name }])
-                                    })
-                                    updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
-                                        quantity: increment(-product.order_quantity)
-
-                                    })
-                                    updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id), {
-                                        orders_count: increment(1)
-                                    })
-
-                                })
-                                .catch(error => {
-
-                                })
-
-
-                        })
-                    }
-                })
-
-
-                // newProduct.products.forEach(async product => {
-                //     onSnapshot(query(collectionGroup(db, 'Products'), where("id", "==", product.product_id)), snapshot => {
-                //         let data = []
-                //         snapshot.forEach(doc => {
-                //             data.push(doc.data())
-                //         })
-                //         console.log("pshop is comeas got is", data[0].shop_id)
-                //         updateDoc(doc(db, 'Users', data[0].shop_id, 'Shops', data[0].shop_id, 'Products', product.product_id), {
-                //             quantity: increment(-product.order_quantity)
-                //         })
-                //         addDoc(collection(db, 'Users', data[0].shop_id, 'Shops', data[0].shop_id, 'Orders'), {
-                //             amount: product?.subtotal,
-                //             billing_address: newProduct?.billing_address,
-                //             coupon_id: newProduct?.coupon_id,
-                //             customer: {
-                //                 "id": user.uid,
-                //                 "name": user.displayName,
-                //                 "email": user.email,
-                //                 "profile": {
-                //                     "avatar": {
-                //                         "thumbnail": user?.photoURL,
-                //                         "original": user?.photoURL,
-
+                //                         }
                 //                     }
-                //                 }
 
-                //             },
-                //             customer_contact: newProduct?.customer_contact,
-                //             customer_id: user.uid,
-                //             delivery_fee: 0,
-                //             delivery_time: newProduct?.delivery_time,
-                //             orderId: res.id,
-                //             paid_total: "",
-                //             payment_gateway: newProduct?.payment_gateway,
-                //             products: [product],
-                //             sales_tax: 0,
-                //             shipping_address: newProduct?.shipping_address,
-                //             shop_id: newProduct?.shop_id,
-                //             status: newProduct?.status,
-                //             tracking_number: res.id,
-                //             use_wallet_points: newProduct?.use_wallet_points,
-                //             vendor_id: newProduct?.vendor_id,
+                //                 },
+                //                 customer_contact: newProduct?.customer_contact,
+                //                 customer_id: user.uid,
+                //                 delivery_fee: 0,
+                //                 delivery_time: newProduct?.delivery_time,
+                //                 reference_orderId: res.id,
+                //                 paid_total: product?.subtotal,
+                //                 payment_gateway: newProduct?.payment_gateway,
+                //                 products: [{
+                //                     order_quantity: product.order_quantity,
+                //                     product_id: product.product_id,
+                //                     subtotal: product.subtotal,
+                //                     unit_price: product.unit_price,
+                //                     name: res.data()?.name,
+                //                     image: res.data()?.image
+                //                 }],
+                //                 sales_tax: 0,
+                //                 shipping_address: newProduct?.shipping_address,
+                //                 shop_id: res.data().shop_id,
+                //                 status: newProduct?.status,
+                //                 // tracking_number: res.id,
+                //                 use_wallet_points: newProduct?.use_wallet_points,
+                //                 vendor_id: newProduct?.vendor_id,
+                //             })
+                //                 .then(response => {
+                //                     updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders', response.id), {
+
+                //                         orderId: response.id,
+                //                         tracking_number: response.id
+                //                     })
+                //                     updateDoc(doc(db, 'Orders', res.id), {
+                //                         shops: arrayUnion([{ shop_id: res.data()?.shop_id, name: res.data()?.shop?.name, logo: res.data()?.shop?.name }])
+                //                     })
+                //                     updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
+                //                         quantity: increment(-product.order_quantity)
+
+                //                     })
+                //                     updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id), {
+                //                         orders_count: increment(1)
+                //                     })
+
+                //                 })
+                //                 .catch(error => {
+
+                //                 })
+
+
                 //         })
-                //             .then((res) => {
-                //                 console.log("finished")
-
-
-
-                //             })
-                //             .catch(error => {
-                //                 console.log(error.code)
-
-                //             })
-
-
-
-                //     })
+                //     }
                 // })
-
-                navigate.push(`/orders/${res.id}`)
-                setLoading(false)
-
-                setVisible(false)                // handleClose()
+                           // handleClose()
             })
             .catch(error => {
                 setLoading(false)
@@ -335,6 +295,93 @@ export default function GlobalContextProvider({ children }) {
                 console.log(error)
             })
     }
+
+    const [transactionMessage, setTransactionMessage] = useState("")
+    const [loadingTransaction, setLoadingTransaction] = useState("")
+    // const makePayment = async (payeeDetails) => {
+    //     if (user !== null) {
+    //         setLoadingTransaction(!loadingTransaction)
+    //         setTransactionMessage(`Instatiating payment to ${payeeDetails.phoneNumber}` )
+    //         const mobileMoney = httpsCallable(firebaseFunctions, 'mobileMoney')
+    //         let data = {
+    //             userId: user.uid,
+    //             // phoneNumber: '256759723980',
+    //             phoneNumber: payeeDetails.phoneNumber,
+    //             // phoneNumber: user.phoneNumber.substr(1),
+    //             amount: payeeDetails.amount,
+    //             appointmentId: payeeDetails.appointmentId,
+    //             narration: `Payment to ${payeeDetails.name}`,
+    //         }
+    //         mobileMoney(data)
+    //             .then(result => {
+    //                 // console.log(result)
+    //                 setTransactionMessage('Initiated Payment')
+
+    //                 const collectionRef = collection(db, 'Product Orders')
+
+    //                 addDoc(collectionRef, result.data)
+    //                     .then(docRef => {
+    //                         updateDoc(doc(db, 'Product Orders', docRef.id), {
+    //                             orderId: ,
+    //                             totalFee: payeeDetails.amount
+    //                         })
+
+    //                         // checkTransactionStatus({ paymentId: docRef.id, appointmentId: payeeDetails.appointmentId, providerId: payeeDetails.providerId, providerName: payeeDetails.name })
+    //                     }).catch(error => toast.error(error.message))
+
+    //             }).catch(error => {
+    //                 toast.error('Something went wrong,Please try again later.')
+    //                 setLoadingTransaction(false)
+    //                 setTransactionMessage(null)
+    //             })
+
+
+    //     } else {
+    //         toast("You need to login")
+    //         router.push('/login')
+    //     }
+
+    // }
+
+    //     mobileMoney = (async (data, context) => {
+    //         const AUTHORIZATION_TOKEN =
+    //   "Bearer ZPYPUBK-5289895850bc540cb1916bd1972d7f42ddad61cf4f0e3778fd881e1ab55216cd";
+
+    //         let userId = user?.uid;
+    //         let phoneNumber = data.phoneNumber;
+    //         let amount = data.amount;
+    //         let productId = data.productId;
+    //         let narration = data.narration;
+    //         console.log(
+    //           `UserId: ${userId}, Amount: ${amount}, Phone number: ${phoneNumber} with Cart ID: ${narration}`
+    //         );
+
+    //         const endpoint = "https://api.zengapay.com/v1/collections";
+    //         const config = {
+    //           Authorization: AUTHORIZATION_TOKEN,
+    //           "Content-Type": "application/json",
+    //         };
+    //         const obj = JSON.stringify({
+    //           msisdn: phoneNumber,
+    //           amount: amount,
+    //           external_reference: productId,
+    //           narration: `${narration}`,
+    //         });
+    //         try {
+    //           const result = await axios({
+    //             method: "post",
+    //             url: endpoint,
+    //             headers: config,
+    //             data: obj,
+    //           });
+    //           // Check OneNote for sample response object. By default axios callback returns res.data
+    //           return result.data;
+    //         } catch (error) {
+    //           console.log("Error initiating payment: " + JSON.stringify(error));
+    //           return error;
+    //         }
+    //       });
+
 
 
     const trackProduct = async (trackingId) => {
@@ -492,38 +539,38 @@ export default function GlobalContextProvider({ children }) {
     }
 
 
-    const updateUserEmailAndName = (data,setLoading,onClose) => {
+    const updateUserEmailAndName = (data, setLoading, onClose) => {
         setLoading(true)
         updateDoc(doc(db, 'Users', user.uid), {
             email: data?.email,
             userName: data?.name,
             name: data?.name
         })
-        .then(()=>{
-            updateProfile(auth.currentUser, {
-                displayName: data?.name, 
-              }).then(() => {
-                // Profile updated!
-                // ...
-              }).catch((error) => {
-                // An error occurred
-                // ...
-              });
-            updateEmail(auth.currentUser, data?.email).then(() => {
-                // Email updated!
-                // ...
-              }).catch((error) => {
-                // An error occurred
-                // ...
-              });
-            setLoading(false)
-            onClose()
-            getUserInfo()
-        })
-        .catch(err=>{
-            console.log(err)
-            setLoading(false)
-        })
+            .then(() => {
+                updateProfile(auth.currentUser, {
+                    displayName: data?.name,
+                }).then(() => {
+                    // Profile updated!
+                    // ...
+                }).catch((error) => {
+                    // An error occurred
+                    // ...
+                });
+                updateEmail(auth.currentUser, data?.email).then(() => {
+                    // Email updated!
+                    // ...
+                }).catch((error) => {
+                    // An error occurred
+                    // ...
+                });
+                setLoading(false)
+                onClose()
+                getUserInfo()
+            })
+            .catch(err => {
+                console.log(err)
+                setLoading(false)
+            })
     }
 
     const updateUserProfile = (newUser, setLoading) => {
@@ -792,7 +839,7 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [confirmationResult, setConfirmationResult] = useState(null)
-    const [contact,setContact] = useState("")
+    const [contact, setContact] = useState("")
     const signupWithPhoneNumber = async (contact, setOtpState, setLoading, otpState) => {
         console.log(contact)
         setContact(contact.phone_number)
@@ -875,7 +922,7 @@ export default function GlobalContextProvider({ children }) {
                 }
 
             } else {
-                 setDoc(doc(db, 'Users', userInfo.id), {
+                setDoc(doc(db, 'Users', userInfo.id), {
                     accountType: 'Customer',
                     userId: userInfo.id,
                     phoneNumber: contact,
@@ -887,24 +934,24 @@ export default function GlobalContextProvider({ children }) {
                         contact: contact,
                     }
                 })
-                .then(()=>{
-                     Cookies.set('auth_token', result.user.accessToken)
-                    setToken(result.user.accessToken);
-                    setLoading(false)
-                    closeModal();
-                    setAuthorized(true)
-                    setOtpState({
-                        ...initialOtpState,
-                    });
+                    .then(() => {
+                        Cookies.set('auth_token', result.user.accessToken)
+                        setToken(result.user.accessToken);
+                        setLoading(false)
+                        closeModal();
+                        setAuthorized(true)
+                        setOtpState({
+                            ...initialOtpState,
+                        });
 
-                    setIsLoading(false)
-                    updateDoc(doc(db, 'Users', result.user.uid), {
-                        token: user.accessToken
+                        setIsLoading(false)
+                        updateDoc(doc(db, 'Users', result.user.uid), {
+                            token: user.accessToken
+                        })
                     })
-                 })
-                .catch((error)=>{
-                    alert(error.message)
-                })
+                    .catch((error) => {
+                        alert(error.message)
+                    })
                 // setAuthorized(true);
                 // setOtpState({
                 //     ...initialOtpState,

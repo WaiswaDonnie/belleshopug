@@ -70,7 +70,7 @@ const Xenon: React.FC<XenonProps> = ({ product, className }) => {
 
         {/* End of price */}
         <div className="flex items-center justify-between mt-2">
-          {product_type.toLowerCase() === 'variable' ? (
+          {product_type?.toLowerCase() === 'variable' ? (
             <>
               <div>
                 <span className="text-sm md:text-base text-heading font-semibold">

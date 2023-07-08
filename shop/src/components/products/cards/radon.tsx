@@ -71,7 +71,7 @@ const Radon: React.FC<RadonProps> = ({ product, className }) => {
         )}
 
         <div className="flex shrink-0 items-center">
-          {product_type.toLowerCase() === 'variable' ? (
+          {product_type?.toLowerCase() === 'variable' ? (
             <p className="text-sm font-semibold text-orange-500 md:text-base">
               {minPrice}
 

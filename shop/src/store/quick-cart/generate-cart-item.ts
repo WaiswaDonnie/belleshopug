@@ -12,6 +12,8 @@ interface Item {
   quantity?: number;
   [key: string]: unknown;
   language: string;
+  title: string;
+  album: string[]
 }
 interface Variation {
   // id: string | number;
@@ -32,25 +34,30 @@ interface Variation {
   quantity?: number;
   [key: string]: unknown;
   language: string;
+  title: string;
+  album: string[]
 }
 export function generateCartItem(item: Item, variation: Variation) {
   const {
     id,
     name,
+    title,
     slug,
     image,
     price,
     sale_price,
+    album,
     quantity,
     unit,
     is_digital,
     language
   } = item;
+ 
   if (!isEmpty(variation)) {
     return {
       id: `${id}.${variation.id}`,
       productId: id,
-      name: `${name} - ${variation.title}`,
+      name: `${title} - ${variation.title}`,
       slug,
       unit,
       is_digital: variation?.is_digital,
@@ -58,18 +65,18 @@ export function generateCartItem(item: Item, variation: Variation) {
       price: Number(
         variation.sale_price ? variation.sale_price : variation.price
       ),
-      image: image?.thumbnail,
+      image: album?.[0],
       variationId: variation.id,
       language
     };
   }
   return {
     id,
-    name,
+    name:title,
     slug,
     unit,
     is_digital,
-    image: image?.thumbnail,
+    image: album?.[0],
     stock: quantity,
     price: Number(sale_price ? sale_price : price),
     language

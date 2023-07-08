@@ -75,7 +75,7 @@ function WishlistItem({ product }: { product: Product }) {
         </div>
 
         <div className="mt-4 flex w-full flex-col justify-between space-y-3 xs:flex-row xs:space-y-0 sm:w-auto sm:flex-col sm:justify-end sm:space-y-3 md:mt-0">
-          {product?.product_type.toLowerCase() === 'variable' ? (
+          {product?.product_type?.toLowerCase() === 'variable' ? (
             <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
               <span className="text-xl font-semibold text-heading">
                 {minPrice}
@@ -101,7 +101,7 @@ function WishlistItem({ product }: { product: Product }) {
           <div className="flex items-center space-x-6 rtl:space-x-reverse sm:justify-end">
             {Number(product?.quantity) > 0 && (
               <>
-                {product?.product_type.toLowerCase() === 'variable' ? (
+                {product?.product_type?.toLowerCase() === 'variable' ? (
                   <AddToCartBtn
                     variant="text"
                     onClick={handleVariableProduct}

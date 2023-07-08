@@ -55,7 +55,7 @@ function QuestionItem({ question }: { question: Question }) {
             {product?.name}
           </Link>
 
-          {product?.product_type.toLowerCase() === 'variable' ? (
+          {product?.product_type?.toLowerCase() === 'variable' ? (
             <div className="flex items-center justify-start space-x-1.5 rtl:space-x-reverse">
               <span className="text-sm font-semibold text-body">
                 {minPrice}

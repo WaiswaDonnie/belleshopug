@@ -59,14 +59,14 @@ export const ThumbsCarousel: React.FC<Props> = ({
           }}
           {...swiperParams}
         >
-          {gallery?.map((item: any) => (
+          {gallery?.map((item: any,index) => (
             <SwiperSlide
-              key={`product-gallery-${item.id}`}
+              key={`product-gallery-${index}`}
               className="flex items-center justify-center selection:bg-transparent"
             >
               <Image
-                src={item?.original ?? productPlaceholder}
-                alt={`Product gallery ${item.id}`}
+                src={item ?? productPlaceholder}
+                alt={`Product gallery ${index}`}
                 width={aspectRatio === 'square' ? 450 : 420}
                 height={aspectRatio === 'square' ? 450 : 560}
                 // layout="responsive"
@@ -116,14 +116,14 @@ export const ThumbsCarousel: React.FC<Props> = ({
           observeParents={true}
           breakpoints={galleryCarouselBreakpoints}
         >
-          {gallery?.map((item: any) => (
+          {gallery?.map((item: any,index) => (
             <SwiperSlide
-              key={`product-thumb-gallery-${item.id}`}
+              key={`product-thumb-gallery-${index}`}
               className="flex cursor-pointer items-center justify-center overflow-hidden rounded border border-border-200 border-opacity-75 hover:opacity-75"
             >
               <Image
-                src={item?.thumbnail ?? productPlaceholder}
-                alt={`Product thumb gallery ${item.id}`}
+                src={item ?? productPlaceholder}
+                alt={`Product thumb gallery ${index}`}
                 width={80}
                 height={80}
               />

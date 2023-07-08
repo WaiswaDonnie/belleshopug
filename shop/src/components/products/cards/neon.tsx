@@ -60,7 +60,7 @@ const Neon: React.FC<NeonProps> = ({ product, className }) => {
       {/* End of product image */}
 
       <header className="p-3 md:p-6">
-        {product_type.toLowerCase() === 'variable' ? (
+        {product_type?.toLowerCase() === 'variable' ? (
           <div className="mb-2">
             <span className="text-sm font-semibold text-heading md:text-base">
               {minPrice}
@@ -92,7 +92,7 @@ const Neon: React.FC<NeonProps> = ({ product, className }) => {
         </h3>
         {/* End of product title */}
 
-        {product_type.toLowerCase() === 'variable' ? (
+        {product_type?.toLowerCase() === 'variable' ? (
           <>
             {Number(quantity) > 0 && (
               <button

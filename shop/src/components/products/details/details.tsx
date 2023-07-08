@@ -98,18 +98,19 @@ const Details: React.FC<Props> = ({
 }) => {
   const {
     id,
+    album,
     name,
-    image, //could only had image we need to think it also
     description,
     unit,
     categories,
-    gallery,
     type,
     quantity,
     shop,
     slug,
     ratings,
   } = product ?? {};
+  const image = album[0]
+  const gallery = album
 
   const { t } = useTranslation('common');
   const [_, setShowStickyShortDetails] = useAtom(stickyShortDetailsAtom);
@@ -135,8 +136,8 @@ const Details: React.FC<Props> = ({
   const { attributes } = useAttributes();
 
   const { price, basePrice, discount } = usePrice({
-    amount: product?.sale_price ? product?.sale_price : product?.price,
-    baseAmount: product?.price,
+    amount: Number(product?.price),
+    baseAmount: Number(product?.price)
   });
 
   const navigate = (path: string) => {
@@ -168,7 +169,7 @@ const Details: React.FC<Props> = ({
   };
 
   const hasVariations = !isEmpty(variations);
-  const previewImages = displayImage(selectedVariation?.image, gallery, image);
+  const previewImages = displayImage(selectedVariation, gallery, image);
 
   return (
     <article className="rounded-lg bg-light">
@@ -244,8 +245,16 @@ const Details: React.FC<Props> = ({
                 </Truncate>
               </div>
             )}
+            
+              <span className="my-5 flex items-center md:my-10">
+                <ins className="text-2xl font-semibold text-accent no-underline md:text-3xl">
+                  {price}
+                </ins>
+                 
+              </span>
+       
 
-            {hasVariations ? (
+            {/* {hasVariations ? (
               <>
                 <div className="my-5 flex items-center md:my-10">
                   <VariationPrice
@@ -269,7 +278,7 @@ const Details: React.FC<Props> = ({
                   </del>
                 )}
               </span>
-            )}
+            )} */}
 
             <div className="mt-6 flex flex-col items-center md:mt-6 lg:flex-row">
               <div className="mb-3 w-full lg:mb-0 lg:max-w-[400px]">
@@ -281,7 +290,7 @@ const Details: React.FC<Props> = ({
                 />
               </div>
 
-              {!hasVariations && (
+              {/* {!hasVariations && (
                 <>
                   {Number(quantity) > 0 ? (
                     <span className="whitespace-nowrap text-base text-body ltr:lg:ml-7 rtl:lg:mr-7">
@@ -293,8 +302,8 @@ const Details: React.FC<Props> = ({
                     </div>
                   )}
                 </>
-              )}
-              {!isEmpty(selectedVariation) && (
+              )} */}
+              {/* {!isEmpty(selectedVariation) && (
                 <span className="whitespace-nowrap text-base text-body ltr:lg:ml-7 rtl:lg:mr-7">
                   {selectedVariation?.is_disable ||
                   selectedVariation.quantity === 0
@@ -303,7 +312,7 @@ const Details: React.FC<Props> = ({
                         'text-pieces-available'
                       )}`}
                 </span>
-              )}
+              )} */}
             </div>
           </div>
 

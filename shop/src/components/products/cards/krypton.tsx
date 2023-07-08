@@ -57,7 +57,7 @@ const Krypton: React.FC<KryptonProps> = ({ product, className }) => {
           </h3>
           {/* End of product title */}
 
-          {product_type.toLowerCase() === 'variable' ? (
+          {product_type?.toLowerCase() === 'variable' ? (
             <div>
               <span className="text-sm text-sub-heading">{minPrice}</span>
               <span> - </span>

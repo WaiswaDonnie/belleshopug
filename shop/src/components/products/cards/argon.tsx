@@ -59,7 +59,7 @@ const Argon: React.FC<ArgonProps> = ({ product, className }) => {
         )}
 
         <div className="absolute top-3 ltr:right-3 rtl:left-3 md:top-4 ltr:md:right-4 rtl:md:left-4">
-          {product_type.toLowerCase() === 'variable' ? (
+          {product_type?.toLowerCase() === 'variable' ? (
             <>
               {Number(quantity) > 0 && (
                 <button
@@ -88,7 +88,7 @@ const Argon: React.FC<ArgonProps> = ({ product, className }) => {
       {/* End of product image */}
 
       <header className="p-3 md:p-6">
-        {product_type.toLowerCase() === 'variable' ? (
+        {product_type?.toLowerCase() === 'variable' ? (
           <div className="mb-2">
             <span className="text-sm font-semibold text-heading md:text-base">
               {minPrice}

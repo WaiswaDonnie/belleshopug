@@ -57,7 +57,7 @@ const CartItem = ({ item }: CartItemProps) => {
 
       <div className="relative mx-4 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden bg-gray-100 sm:h-16 sm:w-16">
         <Image
-          src={item?.image ?? siteSettings?.product?.placeholderImage}
+          src={item?.album?.[0] ?? siteSettings?.product?.placeholderImage}
           alt={item.name}
           layout="fill"
           objectFit="contain"
@@ -65,7 +65,7 @@ const CartItem = ({ item }: CartItemProps) => {
       </div>
       <div>
         {/* <h3 className="font-bold text-heading">{item.name}</h3> */}
-        <h3 className="font-bold text-heading">{item.name} </h3>
+        <h3 className="font-bold text-heading">{item.title} </h3>
         <p className="my-2.5 font-semibold text-accent">{price}</p>
         <span className="text-xs text-body">
           {item.quantity} X {item.unit}
