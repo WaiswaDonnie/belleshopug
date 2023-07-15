@@ -22,7 +22,7 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // const { createOrder, isLoading } = useCreateOrder();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { createOrder, userInfo } = useContext(GlobalContext)
+  const { createOrder, userInfo,transactionMessage } = useContext(GlobalContext)
   const [open, setOpen] = useState(false);
   const { locale }: any = useRouter();
   const { items } = useCart();
@@ -139,6 +139,7 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
   );
   return (
     <>
+    <h3>{transactionMessage}</h3>
       <Button
         loading={isLoading}
         className={classNames('mt-5 w-full', props.className)}

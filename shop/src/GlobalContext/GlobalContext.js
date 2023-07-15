@@ -1,6 +1,6 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion } from 'firebase/firestore';
-import { db, auth, storage } from '../../firebase'
+import { db, auth, storage,firebaseFunctions } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, updateEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
 import { useModalAction } from '@/components/ui/modal/modal.context';
@@ -153,6 +153,7 @@ export default function GlobalContextProvider({ children }) {
     }
     const createOrder = async (newProduct, setLoading) => {
 
+       if(userInfo){
         setLoading(true)
         console.log("product", newProduct)
         addDoc(collection(db, 'Product Orders'), newProduct)
@@ -163,6 +164,7 @@ export default function GlobalContextProvider({ children }) {
                     customer_id: user.uid,
                     ordered_on: serverTimestamp(),
                     created_at: full_date,
+                    trasnsactionStatus:"pending",
                     "status": {
                         "id": 1,
                         "name": "Order Received",
@@ -177,13 +179,12 @@ export default function GlobalContextProvider({ children }) {
                     },
                     customer: {
                         "id": user.uid,
-                        "name": user.displayName,
-                        "email": user.email,
+                        "name": userInfo.userName,
+                        "email": userInfo.email,
                         "profile": {
                             "avatar": {
                                 "thumbnail": user?.photoURL,
                                 "original": user?.photoURL,
-
                             }
                         }
 
@@ -204,185 +205,160 @@ export default function GlobalContextProvider({ children }) {
 
 
                 }).then((order) => {
-                    navigate.push(`/orders/${res.id}`)
-                    setLoading(false)
-                    setVisible(false) 
+                    console.log(userInfo)
+                    let data = {
+                        userId: user.uid,
+                        // phoneNumber: '256759723980',
+                        phoneNumber: newProduct?.customer_contact,
+                        // phoneNumber: user.phoneNumber.substr(1),
+                        amount: newProduct?.amount,
+                        appointmentId:  res.id,
+                        name:userInfo?.userName,
+                        narration: `Payment to ${userInfo.userName}`,
+                    }
+                    makePayment(data,setLoading,setVisible)     
                 })
                     .catch((err) => {
                         alert(err)
                         setLoading(false)
                         setVisible(false) 
                     })
-                // newProduct.products.forEach(async (product) => {
-                //     const response = await getDocs(query(collectionGroup(db, 'Products'), where('id', '==', product.product_id)))
-                //     if (response) {
-                //         response.forEach(async (res) => {
-                //             console.log("This porduct has been got", res.data())
-                //             // updateDoc(doc(db,'Orders'))
-                //             addDoc(collection(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders'), {
-                //                 amount: product?.subtotal,
-                //                 billing_address: newProduct?.billing_address,
-                //                 coupon_id: newProduct?.coupon_id,
-                //                 ordered_on: serverTimestamp(),
-                //                 created_at: full_date,
-                //                 customer: {
-                //                     "id": user.uid,
-                //                     "name": user.displayName,
-                //                     "email": user.email,
-                //                     "profile": {
-                //                         "avatar": {
-                //                             "thumbnail": user?.photoURL,
-                //                             "original": user?.photoURL,
-
-                //                         }
-                //                     }
-
-                //                 },
-                //                 customer_contact: newProduct?.customer_contact,
-                //                 customer_id: user.uid,
-                //                 delivery_fee: 0,
-                //                 delivery_time: newProduct?.delivery_time,
-                //                 reference_orderId: res.id,
-                //                 paid_total: product?.subtotal,
-                //                 payment_gateway: newProduct?.payment_gateway,
-                //                 products: [{
-                //                     order_quantity: product.order_quantity,
-                //                     product_id: product.product_id,
-                //                     subtotal: product.subtotal,
-                //                     unit_price: product.unit_price,
-                //                     name: res.data()?.name,
-                //                     image: res.data()?.image
-                //                 }],
-                //                 sales_tax: 0,
-                //                 shipping_address: newProduct?.shipping_address,
-                //                 shop_id: res.data().shop_id,
-                //                 status: newProduct?.status,
-                //                 // tracking_number: res.id,
-                //                 use_wallet_points: newProduct?.use_wallet_points,
-                //                 vendor_id: newProduct?.vendor_id,
-                //             })
-                //                 .then(response => {
-                //                     updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'MyOrders', response.id), {
-
-                //                         orderId: response.id,
-                //                         tracking_number: response.id
-                //                     })
-                //                     updateDoc(doc(db, 'Orders', res.id), {
-                //                         shops: arrayUnion([{ shop_id: res.data()?.shop_id, name: res.data()?.shop?.name, logo: res.data()?.shop?.name }])
-                //                     })
-                //                     updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id, 'Products', product.product_id), {
-                //                         quantity: increment(-product.order_quantity)
-
-                //                     })
-                //                     updateDoc(doc(db, 'Users', res.data().shop_id, 'Shops', res.data().shop_id), {
-                //                         orders_count: increment(1)
-                //                     })
-
-                //                 })
-                //                 .catch(error => {
-
-                //                 })
-
-
-                //         })
-                //     }
-                // })
-                           // handleClose()
+      
             })
             .catch(error => {
                 setLoading(false)
 
                 console.log(error)
             })
+       }
     }
 
     const [transactionMessage, setTransactionMessage] = useState("")
     const [loadingTransaction, setLoadingTransaction] = useState("")
-    // const makePayment = async (payeeDetails) => {
-    //     if (user !== null) {
-    //         setLoadingTransaction(!loadingTransaction)
-    //         setTransactionMessage(`Instatiating payment to ${payeeDetails.phoneNumber}` )
-    //         const mobileMoney = httpsCallable(firebaseFunctions, 'mobileMoney')
-    //         let data = {
-    //             userId: user.uid,
-    //             // phoneNumber: '256759723980',
-    //             phoneNumber: payeeDetails.phoneNumber,
-    //             // phoneNumber: user.phoneNumber.substr(1),
-    //             amount: payeeDetails.amount,
-    //             appointmentId: payeeDetails.appointmentId,
-    //             narration: `Payment to ${payeeDetails.name}`,
-    //         }
-    //         mobileMoney(data)
-    //             .then(result => {
-    //                 // console.log(result)
-    //                 setTransactionMessage('Initiated Payment')
+    const makePayment = async (payeeDetails,setLoading,setVisible) => {
+        if (user !== null) {
+            console.log(payeeDetails)
+            // setLoadingTransaction(!loadingTransaction)
+            setTransactionMessage(`Instatiating payment to ${payeeDetails.phoneNumber}` )
+            const mobileMoney = httpsCallable(firebaseFunctions, 'mobileMoney')
+             
+            mobileMoney(payeeDetails)
+                .then(result => {
+                    // console.log(result)
+                    setTransactionMessage('Initiated Payment')
+                    const collectionRef = collection(db, 'Product Orders', payeeDetails.appointmentId, 'Payment')
+                    addDoc(collectionRef, result.data)
+                    .then(git adddocRef => {
+                
+                        checkTransactionStatus({ paymentId: docRef.id, orderId: payeeDetails.appointmentId },setLoading,setVisible)
+                    }).catch(error => toast.error(error.message))
+                    // const collectionRef = collection(db, 'Product Orders')
 
-    //                 const collectionRef = collection(db, 'Product Orders')
+                    // addDoc(collectionRef, result.data)
+                    //     .then(docRef => {
+                    //         updateDoc(doc(db, 'Product Orders', docRef.id), {
+                    //             orderId: ,
+                    //             totalFee: payeeDetails.amount
+                    //         })
 
-    //                 addDoc(collectionRef, result.data)
-    //                     .then(docRef => {
-    //                         updateDoc(doc(db, 'Product Orders', docRef.id), {
-    //                             orderId: ,
-    //                             totalFee: payeeDetails.amount
-    //                         })
+                    //         // checkTransactionStatus({ paymentId: docRef.id, appointmentId: payeeDetails.appointmentId, providerId: payeeDetails.providerId, providerName: payeeDetails.name })
+                    //     }).catch(error => toast.error(error.message))
 
-    //                         // checkTransactionStatus({ paymentId: docRef.id, appointmentId: payeeDetails.appointmentId, providerId: payeeDetails.providerId, providerName: payeeDetails.name })
-    //                     }).catch(error => toast.error(error.message))
-
-    //             }).catch(error => {
-    //                 toast.error('Something went wrong,Please try again later.')
-    //                 setLoadingTransaction(false)
-    //                 setTransactionMessage(null)
-    //             })
-
-
-    //     } else {
-    //         toast("You need to login")
-    //         router.push('/login')
-    //     }
-
-    // }
-
-    //     mobileMoney = (async (data, context) => {
-    //         const AUTHORIZATION_TOKEN =
-    //   "Bearer ZPYPUBK-5289895850bc540cb1916bd1972d7f42ddad61cf4f0e3778fd881e1ab55216cd";
-
-    //         let userId = user?.uid;
-    //         let phoneNumber = data.phoneNumber;
-    //         let amount = data.amount;
-    //         let productId = data.productId;
-    //         let narration = data.narration;
-    //         console.log(
-    //           `UserId: ${userId}, Amount: ${amount}, Phone number: ${phoneNumber} with Cart ID: ${narration}`
-    //         );
-
-    //         const endpoint = "https://api.zengapay.com/v1/collections";
-    //         const config = {
-    //           Authorization: AUTHORIZATION_TOKEN,
-    //           "Content-Type": "application/json",
-    //         };
-    //         const obj = JSON.stringify({
-    //           msisdn: phoneNumber,
-    //           amount: amount,
-    //           external_reference: productId,
-    //           narration: `${narration}`,
-    //         });
-    //         try {
-    //           const result = await axios({
-    //             method: "post",
-    //             url: endpoint,
-    //             headers: config,
-    //             data: obj,
-    //           });
-    //           // Check OneNote for sample response object. By default axios callback returns res.data
-    //           return result.data;
-    //         } catch (error) {
-    //           console.log("Error initiating payment: " + JSON.stringify(error));
-    //           return error;
-    //         }
-    //       });
+                }).catch(error => {
+                    toast.error('Something went wrong,Please try again later.')
+                    setLoadingTransaction(false)
+                    setTransactionMessage(null)
+                    console.log(error)
+                })
 
 
+        } else {
+            toast("You need to login")
+            router.push('/login')
+        }
+
+    }
+
+    const [transactionDetails,setTransactionDetails] = useState(null)
+    const checkTransactionStatus = async (data,setLoading,setVisible) => {
+        // console.log(data)
+        alert("reached here")
+        const docRef = doc(db, 'Product Orders', data.orderId, 'Payment', data.paymentId)
+        const snapshot = await getDoc(docRef)
+        const transactionRef = String(snapshot.data().transactionReference)
+        // console.log(transactionRef)
+
+        var statusHolder
+        const interval = setInterval(() => {
+            axios.post(`https://us-central1-belle-beauty-ug.cloudfunctions.net/transactionInfo?transactionReference=${transactionRef}`, {
+            })
+                .then(res => {
+                    // console.log(res.data.data)
+
+                    if(res.data.data.transactionStatus === 'SUCCEEDD'){
+                        toast.success('Payment has been picked successfully')
+                        // clearInterval(interval)
+                        setTransactionMessage(res.data.data.transactionStatus)
+                    }else if(res.data.data.transactionStatus === 'FAILED'){
+                        toast.error('Payment was unsuccessfull')
+                        setTransactionMessage(res.data.data.transactionStatus)
+                    }else if(res.data.data.transactionStatus === 'PENDING'){
+                        statusHolder = res.data.data
+                        // toast.warn('Please enter your PIN')
+                        setTransactionDetails(res.data.data)
+                        setTransactionMessage(res.data.data.transactionStatus)
+                    }
+
+                    statusHolder = res.data.data
+                    setTransactionDetails(res.data.data)
+                   
+                }).catch(error => alert(error.message))
+        }, 3000)
+
+
+        setTimeout(() => {
+
+            const collectionRef = collection(db, 'Product Orders', data.orderId, 'Transaction')
+            
+            addDoc(collectionRef, statusHolder)
+            .then(()=>{
+                
+                if(statusHolder.transactionStatus == "SUCCEEDED"){
+                    toast.success(`Payment has been picked successfully`)
+                    clearInterval(interval)
+                }else{
+                    toast.success("We confirming your order")
+                    clearInterval(interval)
+                }
+              updateDoc(doc(db, 'Product Orders', data.orderId), {
+                                transactionStatus: statusHolder.transactionStatus,
+                                transactionReference:transactionRef
+                })
+                
+              setTransactionMessage(statusHolder.transactionStatus)
+               setLoading(false)
+               setVisible(false)
+            //   setLoadingTransaction(false)
+            //   router.push('/')
+            //   setOpenPaymentOption(false)
+            //   setOpenCustomModal(false)
+            //   setLoadingTransaction(false)
+            //   setShowOrderSummary(!showOrderSummary)
+            //   setSavingAppointment(false)
+            //   setComments(null)
+            //   setAirtelContact(null)
+            //   setMtnContact(null)
+            //   clearCart()
+        
+            })
+ 
+        }, 30000)
+    }
+
+    const clearCart = ()=>{
+        setCartItems([])
+        setTotalAmounts(0)
+    }
 
     const trackProduct = async (trackingId) => {
         console.log("id", trackingId)
@@ -983,6 +959,7 @@ export default function GlobalContextProvider({ children }) {
                 user,
                 signupWithPhoneNumber,
                 verifyCode,
+                transactionMessage,
                 userInfo,
                 getUserInfo,
                 uploadFiles,
