@@ -36,7 +36,7 @@ module.exports = {
         heading: ['Open Sans', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        '10px': '1.2rem',
+        '10px': '9.2rem',
         // '10px': '2.625rem',
       },
       colors: {

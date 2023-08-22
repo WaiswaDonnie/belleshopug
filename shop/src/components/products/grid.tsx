@@ -9,6 +9,7 @@ import ErrorMessage from '@/components/ui/error-message';
 import { useProducts } from '@/framework/product';
 import { PRODUCTS_PER_PAGE } from '@/framework/client/variables';
 import type { Product } from '@/types';
+import InfluencerCard from './cards/influencerCard';
 
 interface Props {
   limit?: number;
@@ -24,6 +25,8 @@ interface Props {
   isLoadingMore?: boolean;
   hasMore?: boolean;
   className?: string;
+  combos?: [];
+  influencerCombos?:[];
 }
 
 export function Grid({
@@ -35,6 +38,8 @@ export function Grid({
   loadMore,
   isLoadingMore,
   hasMore,
+  combos,
+  influencerCombos,
   limit = PRODUCTS_PER_PAGE,
   column = 'auto',
 }: Props) {
@@ -52,6 +57,59 @@ export function Grid({
 
   return (
     <div className={cn('w-full', className)}>
+      <h3 className=" text-lg text-accent my-4 font-bold">Influencers' combos</h3>
+      <div className="border-b-2 border-accent my-4 "></div>
+      <div
+        className={cn(
+          {
+            'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3':
+              column === 'auto',
+            'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
+              column === 'five',
+          },
+          gridClassName
+        )}
+    >
+        {!influencerCombos?.length
+          ? rangeMap(limit, (i) => (
+            <ProductLoader key={i} uniqueKey={`product-${i}`} />
+          ))
+          : <>
+ 
+
+            {influencerCombos?.map((combo, index) => (
+              <InfluencerCard influencer={combo} key={index} />
+            ))}
+          </>
+        }
+      </div>
+      <h3 className=" text-lg text-accent my-4 font-bold">Combos</h3>
+      <div className="border-b-2 border-accent my-4 "></div>
+      <div
+        className={cn(
+          {
+            'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3':
+              column === 'auto',
+            'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
+              column === 'five',
+          },
+          gridClassName
+        )}
+      >
+        {!combos?.length
+          ? rangeMap(limit, (i) => (
+            <ProductLoader key={i} uniqueKey={`product-${i}`} />
+          ))
+          : <>
+
+            {combos?.map((combo, index) => (
+              <ProductCard product={combo} key={index} />
+            ))}
+          </>
+        }
+      </div>
+      <h3 className=" text-lg text-accent my-4 font-bold">Products</h3>
+      <div className="border-b-2 border-accent my-4 "></div>
       <div
         className={cn(
           {
@@ -65,23 +123,16 @@ export function Grid({
       >
         {isLoading && !products?.length
           ? rangeMap(limit, (i) => (
-              <ProductLoader key={i} uniqueKey={`product-${i}`} />
-            ))
-          : products?.map((product) => (
+            <ProductLoader key={i} uniqueKey={`product-${i}`} />
+          ))
+          : <>
+            {products?.map((product) => (
               <ProductCard product={product} key={product.slug} />
             ))}
+          </>
+        }
       </div>
-      {/* {hasMore && (
-        <div className="mt-8 flex justify-center lg:mt-12">
-          <Button
-            loading={isLoadingMore}
-            onClick={loadMore}
-            className="h-11 text-sm font-semibold md:text-base"
-          >
-            {t('text-load-more')}
-          </Button>
-        </div>
-      )} */}
+
     </div>
   );
 }
@@ -100,9 +151,10 @@ export default function ProductsGrid({
   const { products, loadMore, isLoadingMore, isLoading, hasMore, error } =
     useProducts(variables);
 
-  const productsItem:any = products;
+  const productsItem: any = products;
   return (
     <Grid
+
       products={productsItem}
       loadMore={loadMore}
       isLoading={isLoading}

@@ -155,12 +155,12 @@ export default function GlobalContextProvider({ children }) {
 
        if(userInfo){
         setLoading(true)
-        console.log("product", newProduct)
         addDoc(collection(db, 'Product Orders'), newProduct)
             .then(async res => {
                 updateDoc(doc(db, 'Product Orders', res.id), {
                     orderId: res.id,
                     tracking_number: res.id,
+                    platform:"web",
                     customer_id: user.uid,
                     ordered_on: serverTimestamp(),
                     created_at: full_date,
@@ -202,21 +202,18 @@ export default function GlobalContextProvider({ children }) {
                     "shipping_address": newProduct?.shipping_address,
                     "total": newProduct?.total,
                     "use_wallet_points": newProduct?.use_wallet_points,
-
-
                 }).then((order) => {
                     console.log(userInfo)
-                    let data = {
-                        userId: user.uid,
-                        // phoneNumber: '256759723980',
-                        phoneNumber: newProduct?.customer_contact,
-                        // phoneNumber: user.phoneNumber.substr(1),
-                        amount: newProduct?.amount,
-                        appointmentId:  res.id,
-                        name:userInfo?.userName,
-                        narration: `Payment to ${userInfo.userName}`,
-                    }
-                    makePayment(data,setLoading,setVisible)     
+                    // let data = {
+                    //     userId: user.uid,
+                    //     phoneNumber: newProduct?.customer_contact,
+                    //     amount: newProduct?.amount,
+                    //     appointmentId:  res.id,
+                    //     name:userInfo?.userName,
+                    //     narration: `Payment to ${userInfo.userName}`,
+                    // }
+                    // makePayment(data,setLoading,setVisible)     
+                    navigate.push(`orders/${res.id}`)
                 })
                     .catch((err) => {
                         alert(err)
@@ -248,7 +245,7 @@ export default function GlobalContextProvider({ children }) {
                     setTransactionMessage('Initiated Payment')
                     const collectionRef = collection(db, 'Product Orders', payeeDetails.appointmentId, 'Payment')
                     addDoc(collectionRef, result.data)
-                    .then(git adddocRef => {
+                    .then(docRef => {
                 
                         checkTransactionStatus({ paymentId: docRef.id, orderId: payeeDetails.appointmentId },setLoading,setVisible)
                     }).catch(error => toast.error(error.message))
@@ -269,6 +266,7 @@ export default function GlobalContextProvider({ children }) {
                     setLoadingTransaction(false)
                     setTransactionMessage(null)
                     console.log(error)
+                    setLoading(false)
                 })
 
 
@@ -281,8 +279,7 @@ export default function GlobalContextProvider({ children }) {
 
     const [transactionDetails,setTransactionDetails] = useState(null)
     const checkTransactionStatus = async (data,setLoading,setVisible) => {
-        // console.log(data)
-        alert("reached here")
+   
         const docRef = doc(db, 'Product Orders', data.orderId, 'Payment', data.paymentId)
         const snapshot = await getDoc(docRef)
         const transactionRef = String(snapshot.data().transactionReference)
@@ -638,12 +635,6 @@ export default function GlobalContextProvider({ children }) {
                     .catch(error => {
                         toast.error((error.code));
                     })
-
-
-
-
-
-
             }).catch(error => {
                 setLoading(false)
                 console.log(error.code)
@@ -690,9 +681,14 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [clientProducts, setClientProducts] = useState([])
+    const [combos,setCombos] = useState([])
+    const [influencerCombos,setInfluencerCombos] = useState([])
 
     useEffect(() => {
         getProducts()
+        getCombos()
+        getInfluencerProducts()
+        getInfluencersLists()
     }, [])
 
     const getProducts = () => {
@@ -706,6 +702,41 @@ export default function GlobalContextProvider({ children }) {
         })
     }
 
+    const getInfluencersLists = () => {
+        onSnapshot(collectionGroup(db, 'Influencers'), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("products", data)
+            setInfluencerCombos(data)
+        })
+    }
+
+    const [influencerProducts,setInfluencerProducts] = useState([])
+    const getInfluencerProducts = () => {
+        
+        onSnapshot(collectionGroup(db, 'Combos'), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("products", data)
+            setInfluencerProducts(data)
+        })
+    }
+
+
+    const getCombos = () => {
+        onSnapshot(collectionGroup(db, 'Combos'), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("combos", data)
+            setCombos(data)
+        })
+    }
     const [clientProduct, setClientProduct] = useState(null)
 
     const getProduct = (slug) => {
@@ -986,7 +1017,9 @@ export default function GlobalContextProvider({ children }) {
                 getShopProducts,
                 myOrders,
                 getMyOrders,
+                combos,
                 productId,
+                influencerCombos,
                 updateUserProfile,
                 updateUserContact,
                 updateUserAddress,
@@ -994,6 +1027,7 @@ export default function GlobalContextProvider({ children }) {
                 setProductId,
                 productDetails,
                 setProductDetails,
+                influencerProducts,
                 updateUserEmailAndName,
                 getProductDetails,
                 trackProduct, loginUser,
