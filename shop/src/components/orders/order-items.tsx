@@ -13,23 +13,23 @@ import { GlobalContext } from '@/GlobalContext/GlobalContext';
 
 //FIXME: need to fix this usePrice hooks issue within the table render we may check with nested property
 const OrderItemList = (_: any, record: any) => {
-  const {getProductDetails,productDetails} = useContext(GlobalContext)
-  const [name,setName] = useState("")
-  const [thumnail,setThumbnail] = useState("")
-  useEffect(()=>{
+  const { getProductDetails, productDetails } = useContext(GlobalContext)
+  const [name, setName] = useState("")
+  const [thumnail, setThumbnail] = useState("")
+  useEffect(() => {
     getProductDetails(record.product_id)
-  },[record.product_id])
-  useEffect(()=>{
-    if(productDetails){
+  }, [record.product_id])
+  useEffect(() => {
+    if (productDetails) {
       setName(productDetails?.name)
       setThumbnail(productDetails?.image?.thumbnail)
-      record['image']={
-        thumbnail:productDetails?.image?.thumbnail
+      record['image'] = {
+        thumbnail: productDetails?.image?.thumbnail
       }
     }
-   },[productDetails])
+  }, [productDetails])
 
-  console.log("record",record)
+  console.log("record", record)
   const { price } = usePrice({
     amount: record?.unit_price,
   });
@@ -38,7 +38,7 @@ const OrderItemList = (_: any, record: any) => {
     const variationTitle = record?.variation_options?.find(
       (vo: any) => vo?.id === record?.variation_option_id
     )['title'];
-     setName(`${name} - ${variationTitle}`);
+    setName(`${name} - ${variationTitle}`);
   }
   return (
     <div className="flex items-center">

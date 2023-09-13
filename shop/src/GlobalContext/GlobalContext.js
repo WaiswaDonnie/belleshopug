@@ -7,7 +7,7 @@ import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import Cookies from 'js-cookie'
 import { toast } from 'react-toastify';
-
+import axios from 'axios';
 import {
     QueryClient,
     useMutation,
@@ -204,16 +204,16 @@ export default function GlobalContextProvider({ children }) {
                     "use_wallet_points": newProduct?.use_wallet_points,
                 }).then((order) => {
                     console.log(userInfo)
-                    // let data = {
-                    //     userId: user.uid,
-                    //     phoneNumber: newProduct?.customer_contact,
-                    //     amount: newProduct?.amount,
-                    //     appointmentId:  res.id,
-                    //     name:userInfo?.userName,
-                    //     narration: `Payment to ${userInfo.userName}`,
-                    // }
-                    // makePayment(data,setLoading,setVisible)     
-                    navigate.push(`orders/${res.id}`)
+                    let data = {
+                        userId: user.uid,
+                        // phoneNumber: newProduct?.customer_contact,
+                        phoneNumber: '256759723980',
+                        amount: newProduct?.amount,
+                        orderId:  res.id,
+                        narration: `Payment for order ${res.id}`,
+                    }
+                    makePayment(data,setLoading,setVisible)     
+                    // navigate.push(`orders/${res.id}`)
                 })
                     .catch((err) => {
                         alert(err)
@@ -237,17 +237,18 @@ export default function GlobalContextProvider({ children }) {
             console.log(payeeDetails)
             // setLoadingTransaction(!loadingTransaction)
             setTransactionMessage(`Instatiating payment to ${payeeDetails.phoneNumber}` )
-            const mobileMoney = httpsCallable(firebaseFunctions, 'mobileMoney')
+            const mobileMoney = httpsCallable(firebaseFunctions, 'payProductsWithMM')
+            
              
             mobileMoney(payeeDetails)
                 .then(result => {
-                    // console.log(result)
+                    console.log(result)
                     setTransactionMessage('Initiated Payment')
-                    const collectionRef = collection(db, 'Product Orders', payeeDetails.appointmentId, 'Payment')
+                    const collectionRef = collection(db, 'Product Orders', payeeDetails.orderId, 'Payment')
                     addDoc(collectionRef, result.data)
                     .then(docRef => {
                 
-                        checkTransactionStatus({ paymentId: docRef.id, orderId: payeeDetails.appointmentId },setLoading,setVisible)
+                        checkTransactionStatus({ paymentId: docRef.id, orderId: payeeDetails.orderId },setLoading,setVisible)
                     }).catch(error => toast.error(error.message))
                     // const collectionRef = collection(db, 'Product Orders')
 
@@ -262,10 +263,10 @@ export default function GlobalContextProvider({ children }) {
                     //     }).catch(error => toast.error(error.message))
 
                 }).catch(error => {
+                    console.log(error)
                     toast.error('Something went wrong,Please try again later.')
                     setLoadingTransaction(false)
                     setTransactionMessage(null)
-                    console.log(error)
                     setLoading(false)
                 })
 
@@ -331,21 +332,13 @@ export default function GlobalContextProvider({ children }) {
                                 transactionStatus: statusHolder.transactionStatus,
                                 transactionReference:transactionRef
                 })
+                navigate.push(`orders/${data.orderId}`)
                 
               setTransactionMessage(statusHolder.transactionStatus)
                setLoading(false)
                setVisible(false)
-            //   setLoadingTransaction(false)
-            //   router.push('/')
-            //   setOpenPaymentOption(false)
-            //   setOpenCustomModal(false)
-            //   setLoadingTransaction(false)
-            //   setShowOrderSummary(!showOrderSummary)
-            //   setSavingAppointment(false)
-            //   setComments(null)
-            //   setAirtelContact(null)
-            //   setMtnContact(null)
-            //   clearCart()
+               setTransactionMessage("")
+
         
             })
  

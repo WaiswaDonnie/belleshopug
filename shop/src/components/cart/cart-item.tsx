@@ -36,6 +36,7 @@ const CartItem = ({ item }: CartItemProps) => {
     removeItemFromCart(item.id);
   };
   const outOfStock = !isInStock(item.id);
+  console.log("cart items",item)
   return (
     <motion.div
       layout
@@ -57,7 +58,7 @@ const CartItem = ({ item }: CartItemProps) => {
 
       <div className="relative mx-4 flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden bg-gray-100 sm:h-16 sm:w-16">
         <Image
-          src={item?.album?.[0] ?? siteSettings?.product?.placeholderImage}
+          src={item?.image ?? siteSettings?.product?.placeholderImage}
           alt={item.name}
           layout="fill"
           objectFit="contain"
