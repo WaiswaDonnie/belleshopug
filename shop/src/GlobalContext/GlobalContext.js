@@ -1,6 +1,6 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
 import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion } from 'firebase/firestore';
-import { db, auth, storage,firebaseFunctions } from '../../firebase'
+import { db, auth, storage, firebaseFunctions } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, updateEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
 import { useModalAction } from '@/components/ui/modal/modal.context';
@@ -152,104 +152,106 @@ export default function GlobalContextProvider({ children }) {
         // setIsLoading(false)
     }
     const createOrder = async (newProduct, setLoading) => {
-
-       if(userInfo){
-        setLoading(true)
-        addDoc(collection(db, 'Product Orders'), newProduct)
-            .then(async res => {
-                updateDoc(doc(db, 'Product Orders', res.id), {
-                    orderId: res.id,
-                    tracking_number: res.id,
-                    platform:"web",
-                    customer_id: user.uid,
-                    ordered_on: serverTimestamp(),
-                    created_at: full_date,
-                    trasnsactionStatus:"pending",
-                    "status": {
-                        "id": 1,
-                        "name": "Order Received",
-                        "language": "en",
-                        "translated_languages": [
-                            "en"
-                        ],
-                        "serial": 1,
-                        "color": "#23b848",
-                        "created_at": full_date,
-                        "updated_at": full_date
-                    },
-                    customer: {
-                        "id": user.uid,
-                        "name": userInfo.userName,
-                        "email": userInfo.email,
-                        "profile": {
-                            "avatar": {
-                                "thumbnail": user?.photoURL,
-                                "original": user?.photoURL,
+        if (userInfo) {
+            setLoading(true)
+            addDoc(collection(db, 'Product Orders'), newProduct)
+                .then(async res => {
+                    updateDoc(doc(db, 'Product Orders', res.id), {
+                        orderId: res.id,
+                        tracking_number: res.id,
+                        platform: "web",
+                        customer_id: user.uid,
+                        ordered_on: serverTimestamp(),
+                        created_at: full_date,
+                        transactionStatus: "pending",
+                        "status": {
+                            "id": 1,
+                            "name": "Order Received",
+                            "language": "en",
+                            "translated_languages": [
+                                "en"
+                            ],
+                            "serial": 1,
+                            "color": "#23b848",
+                            "created_at": full_date,
+                            "updated_at": full_date
+                        },
+                        customer: {
+                            "id": user.uid,
+                            "name": userInfo.userName,
+                            "email": userInfo.email,
+                            "profile": {
+                                "avatar": {
+                                    "thumbnail": user?.photoURL,
+                                    "original": user?.photoURL,
+                                }
                             }
+
+                        },
+                        userName: userInfo.userName,
+                        userId: userInfo.uid,
+                        paymentMethod: "online",
+                        "amount": newProduct?.amount,
+                        "billing_address": newProduct?.billing_address,
+                        "customer_contact": newProduct?.customer_contact,
+                        "delivery_fee": newProduct?.delivery_fee,
+                        "delivery_time": newProduct?.delivery_time,
+                        "discount": newProduct?.discount,
+                        "paid_total": newProduct?.paid_total,
+                        "payment_gateway": newProduct?.payment_gateway,
+                        "products": newProduct?.products,
+                        "sales_tax": newProduct?.sales_tax,
+                        "shipping_address": newProduct?.shipping_address,
+                        "total": newProduct?.total,
+                        "use_wallet_points": newProduct?.use_wallet_points,
+                    }).then((order) => {
+                        console.log(userInfo)
+                        let data = {
+                            userId: user.uid,
+                            // phoneNumber: newProduct?.customer_contact,
+                            phoneNumber: '256759723980',
+                            amount: newProduct?.amount,
+                            orderId: res.id,
+                            narration: `Payment for order ${res.id}`,
                         }
-
-                    },
-                    "amount": newProduct?.amount,
-                    "billing_address": newProduct?.billing_address,
-                    "customer_contact": newProduct?.customer_contact,
-                    "delivery_fee": newProduct?.delivery_fee,
-                    "delivery_time": newProduct?.delivery_time,
-                    "discount": newProduct?.discount,
-                    "paid_total": newProduct?.paid_total,
-                    "payment_gateway": newProduct?.payment_gateway,
-                    "products": newProduct?.products,
-                    "sales_tax": newProduct?.sales_tax,
-                    "shipping_address": newProduct?.shipping_address,
-                    "total": newProduct?.total,
-                    "use_wallet_points": newProduct?.use_wallet_points,
-                }).then((order) => {
-                    console.log(userInfo)
-                    let data = {
-                        userId: user.uid,
-                        // phoneNumber: newProduct?.customer_contact,
-                        phoneNumber: '256759723980',
-                        amount: newProduct?.amount,
-                        orderId:  res.id,
-                        narration: `Payment for order ${res.id}`,
-                    }
-                    makePayment(data,setLoading,setVisible)     
-                    // navigate.push(`orders/${res.id}`)
-                })
-                    .catch((err) => {
-                        alert(err)
-                        setLoading(false)
-                        setVisible(false) 
+                        makePayment(data, setLoading, setVisible)
+                        // navigate.push(`orders/${res.id}`)
                     })
-      
-            })
-            .catch(error => {
-                setLoading(false)
+                        .catch((err) => {
+                            alert(err)
+                            setLoading(false)
+                            setVisible(false)
+                        })
 
-                console.log(error)
-            })
-       }
+                })
+                .catch(error => {
+                    setLoading(false)
+
+                    console.log(error)
+                })
+        }
     }
 
     const [transactionMessage, setTransactionMessage] = useState("")
     const [loadingTransaction, setLoadingTransaction] = useState("")
-    const makePayment = async (payeeDetails,setLoading,setVisible) => {
+    const makePayment = async (payeeDetails, setLoading, setVisible) => {
         if (user !== null) {
             console.log(payeeDetails)
             // setLoadingTransaction(!loadingTransaction)
-            setTransactionMessage(`Instatiating payment to ${payeeDetails.phoneNumber}` )
+            setTransactionMessage(`Instatiating payment to ${payeeDetails.phoneNumber}`)
             const mobileMoney = httpsCallable(firebaseFunctions, 'payProductsWithMM')
-            
-             
+
+
             mobileMoney(payeeDetails)
                 .then(result => {
                     console.log(result)
                     setTransactionMessage('Initiated Payment')
                     const collectionRef = collection(db, 'Product Orders', payeeDetails.orderId, 'Payment')
                     addDoc(collectionRef, result.data)
-                    .then(docRef => {
-                
-                        checkTransactionStatus({ paymentId: docRef.id, orderId: payeeDetails.orderId },setLoading,setVisible)
-                    }).catch(error => toast.error(error.message))
+                        .then(docRef => {
+
+                            checkTransactionStatus({ paymentId: docRef.id, orderId: payeeDetails.orderId }, setLoading, setVisible)
+                        }).catch(error => toast.error(error.message))
                     // const collectionRef = collection(db, 'Product Orders')
 
                     // addDoc(collectionRef, result.data)
@@ -278,9 +280,9 @@ export default function GlobalContextProvider({ children }) {
 
     }
 
-    const [transactionDetails,setTransactionDetails] = useState(null)
-    const checkTransactionStatus = async (data,setLoading,setVisible) => {
-   
+    const [transactionDetails, setTransactionDetails] = useState(null)
+    const checkTransactionStatus = async (data, setLoading, setVisible) => {
+
         const docRef = doc(db, 'Product Orders', data.orderId, 'Payment', data.paymentId)
         const snapshot = await getDoc(docRef)
         const transactionRef = String(snapshot.data().transactionReference)
@@ -293,14 +295,14 @@ export default function GlobalContextProvider({ children }) {
                 .then(res => {
                     // console.log(res.data.data)
 
-                    if(res.data.data.transactionStatus === 'SUCCEEDD'){
+                    if (res.data.data.transactionStatus === 'SUCCEEDD') {
                         toast.success('Payment has been picked successfully')
                         // clearInterval(interval)
                         setTransactionMessage(res.data.data.transactionStatus)
-                    }else if(res.data.data.transactionStatus === 'FAILED'){
+                    } else if (res.data.data.transactionStatus === 'FAILED') {
                         toast.error('Payment was unsuccessfull')
                         setTransactionMessage(res.data.data.transactionStatus)
-                    }else if(res.data.data.transactionStatus === 'PENDING'){
+                    } else if (res.data.data.transactionStatus === 'PENDING') {
                         statusHolder = res.data.data
                         // toast.warn('Please enter your PIN')
                         setTransactionDetails(res.data.data)
@@ -309,7 +311,7 @@ export default function GlobalContextProvider({ children }) {
 
                     statusHolder = res.data.data
                     setTransactionDetails(res.data.data)
-                   
+
                 }).catch(error => alert(error.message))
         }, 3000)
 
@@ -317,35 +319,35 @@ export default function GlobalContextProvider({ children }) {
         setTimeout(() => {
 
             const collectionRef = collection(db, 'Product Orders', data.orderId, 'Transaction')
-            
-            addDoc(collectionRef, statusHolder)
-            .then(()=>{
-                
-                if(statusHolder.transactionStatus == "SUCCEEDED"){
-                    toast.success(`Payment has been picked successfully`)
-                    clearInterval(interval)
-                }else{
-                    toast.success("We confirming your order")
-                    clearInterval(interval)
-                }
-              updateDoc(doc(db, 'Product Orders', data.orderId), {
-                                transactionStatus: statusHolder.transactionStatus,
-                                transactionReference:transactionRef
-                })
-                navigate.push(`orders/${data.orderId}`)
-                
-              setTransactionMessage(statusHolder.transactionStatus)
-               setLoading(false)
-               setVisible(false)
-               setTransactionMessage("")
 
-        
-            })
- 
+            addDoc(collectionRef, statusHolder)
+                .then(() => {
+
+                    if (statusHolder.transactionStatus == "SUCCEEDED") {
+                        toast.success(`Payment has been picked successfully`)
+                        clearInterval(interval)
+                    } else {
+                        toast.success("We confirming your order")
+                        clearInterval(interval)
+                    }
+                    updateDoc(doc(db, 'Product Orders', data.orderId), {
+                        transactionStatus: statusHolder.transactionStatus,
+                        transactionReference: transactionRef
+                    })
+                    navigate.push(`orders/${data.orderId}`)
+
+                    setTransactionMessage(statusHolder.transactionStatus)
+                    setLoading(false)
+                    setVisible(false)
+                    setTransactionMessage("")
+
+
+                })
+
         }, 30000)
     }
 
-    const clearCart = ()=>{
+    const clearCart = () => {
         setCartItems([])
         setTotalAmounts(0)
     }
@@ -674,8 +676,8 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const [clientProducts, setClientProducts] = useState([])
-    const [combos,setCombos] = useState([])
-    const [influencerCombos,setInfluencerCombos] = useState([])
+    const [combos, setCombos] = useState([])
+    const [influencerCombos, setInfluencerCombos] = useState([])
 
     useEffect(() => {
         getProducts()
@@ -706,9 +708,9 @@ export default function GlobalContextProvider({ children }) {
         })
     }
 
-    const [influencerProducts,setInfluencerProducts] = useState([])
+    const [influencerProducts, setInfluencerProducts] = useState([])
     const getInfluencerProducts = () => {
-        
+
         onSnapshot(collectionGroup(db, 'Combos'), snapshot => {
             let data = []
             snapshot.forEach(doc => {
