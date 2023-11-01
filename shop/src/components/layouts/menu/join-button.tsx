@@ -15,7 +15,7 @@ export default function JoinButton() {
   return (
     <>
       <Button className="font-semibold" size="small" onClick={handleJoin}>
-        {t('join-button')}
+        {t('Join')}
       </Button>
       {/* {open && <CustomOtpFormModal open={open} setOpen={setOpen}/>} */}
     

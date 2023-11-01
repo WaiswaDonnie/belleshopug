@@ -81,7 +81,7 @@ export default function GlobalContextProvider({ children }) {
 
         if (user) {
             // setIsLoading(true)
-            onSnapshot(query(collection(db, 'Orders'), where('customer.id', "==", user.uid), orderBy("ordered_on", 'desc')), snapshot => {
+            onSnapshot(query(collection(db, 'Product Orders'), where('userId', "==", user.uid), orderBy("ordered_on", 'desc')), snapshot => {
                 let data = []
                 snapshot.forEach(doc => {
                     data.push(doc.data())
@@ -151,6 +151,20 @@ export default function GlobalContextProvider({ children }) {
 
         // setIsLoading(false)
     }
+    function formatString(inputString) {
+        // Split the input string into two parts, separated by the number.
+        const parts = inputString.split(/\d+/);
+
+        // If there are exactly two parts, reformat them.
+        if (parts.length === 2) {
+            const firstPart = parts[0].toUpperCase();
+            const secondPart = parts[1].toUpperCase();
+            return `${firstPart}-${secondPart}`;
+        }
+
+        // If there aren't exactly two parts, return the original string.
+        return inputString;
+    }
     const createOrder = async (newProduct, setLoading) => {
         if (userInfo) {
             setLoading(true)
@@ -163,6 +177,7 @@ export default function GlobalContextProvider({ children }) {
                         customer_id: user.uid,
                         ordered_on: serverTimestamp(),
                         created_at: full_date,
+                        orderCode: formatString(res.id),
                         transactionStatus: "pending",
                         "status": {
                             "id": 1,
@@ -189,7 +204,7 @@ export default function GlobalContextProvider({ children }) {
 
                         },
                         userName: userInfo.userName,
-                        userId: userInfo.uid,
+                        userId: userInfo.userId,
                         paymentMethod: "online",
                         "amount": newProduct?.amount,
                         "billing_address": newProduct?.billing_address,
@@ -198,7 +213,8 @@ export default function GlobalContextProvider({ children }) {
                         "delivery_time": newProduct?.delivery_time,
                         "discount": newProduct?.discount,
                         "paid_total": newProduct?.paid_total,
-                        "payment_gateway": newProduct?.payment_gateway,
+                        "delivery_fee": 5000,
+                        "payment_gateway": "online",
                         "products": newProduct?.products,
                         "sales_tax": newProduct?.sales_tax,
                         "shipping_address": newProduct?.shipping_address,
@@ -678,14 +694,38 @@ export default function GlobalContextProvider({ children }) {
     const [clientProducts, setClientProducts] = useState([])
     const [combos, setCombos] = useState([])
     const [influencerCombos, setInfluencerCombos] = useState([])
+    const [productCategories, setProductCategories] = useState([])
+    const [todayDeals, setTodayDeals] = useState([])
 
     useEffect(() => {
         getProducts()
         getCombos()
         getInfluencerProducts()
         getInfluencersLists()
+        getProductCategories()
+        getTodayDeals()
     }, [])
 
+    const getTodayDeals = () => {
+        onSnapshot(collectionGroup(db, 'Daily Deals'), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("products deals", data)
+            setTodayDeals(data)
+        })
+    }
+    const getProductCategories = () => {
+        onSnapshot(collectionGroup(db, 'Product Categories'), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("products categories", data)
+            setProductCategories(data)
+        })
+    }
     const getProducts = () => {
         onSnapshot(collectionGroup(db, 'Products'), snapshot => {
             let data = []
@@ -694,6 +734,17 @@ export default function GlobalContextProvider({ children }) {
             })
             console.log("products", data)
             setClientProducts(data)
+        })
+    }
+
+    const getProductsByname = (productName, setResponse) => {
+         onSnapshot(query(collectionGroup(db, 'Products'), where("categoryList", 'array-contains', productName)), snapshot => {
+            let data = []
+            snapshot.forEach(doc => {
+                data.push(doc.data())
+            })
+            console.log("products carefo", data)
+            setResponse(data)
         })
     }
 
@@ -1025,6 +1076,9 @@ export default function GlobalContextProvider({ children }) {
                 influencerProducts,
                 updateUserEmailAndName,
                 getProductDetails,
+                productCategories,
+                getProductsByname,
+                todayDeals,
                 trackProduct, loginUser,
                 productDetails,
             }} >

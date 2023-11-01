@@ -17,7 +17,8 @@ export default function ProductGridHome({
   gridClassName,
 }: Props) {
   const { query } = useRouter();
-  const {clientProducts,combos,influencerCombos} = useContext(GlobalContext)
+  const {clientProducts,combos,influencerCombos,productCategories,
+    todayDeals} = useContext(GlobalContext)
   const { products, loadMore, isLoadingMore, isLoading, hasMore, error } =
     useProducts({
       ...variables,
@@ -29,6 +30,8 @@ export default function ProductGridHome({
 
   return (
     <Grid
+    todayDeals={todayDeals}
+    productCategories={productCategories}
       influencerCombos={influencerCombos}
       combos={combos}
       products={productsItem}

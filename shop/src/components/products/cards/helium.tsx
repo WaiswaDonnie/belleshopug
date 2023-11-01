@@ -95,7 +95,7 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
                   className="order-5 flex items-center justify-center rounded-full border-2 border-border-100 bg-light py-2 px-3 text-sm font-semibold text-accent transition-colors duration-300 hover:border-accent hover:bg-accent hover:text-light focus:border-accent focus:bg-accent focus:text-light focus:outline-none sm:order-4 sm:justify-start sm:px-4"
                 >
                   <CartIcon className="h-4 w-4 ltr:mr-2 rtl:ml-2" />
-                  <span>{t('text-cart')}</span>
+                  <span>{t('Cart')}</span>
                 </button>
               {/* {Number(quantity) > 0 && (
                 <button
@@ -135,7 +135,7 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
 
           {Number(quantity) <= 0 && (
             <div className="rounded bg-red-500 px-2 py-1 text-xs text-light">
-              {t('text-out-stock')}
+              {t('Out of Stock')}
             </div>
           )}
           {/* End of product price */}

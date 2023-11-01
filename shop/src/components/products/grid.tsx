@@ -10,6 +10,7 @@ import { useProducts } from '@/framework/product';
 import { PRODUCTS_PER_PAGE } from '@/framework/client/variables';
 import type { Product } from '@/types';
 import InfluencerCard from './cards/influencerCard';
+import ProductCategoryCard from './cards/ProductCategoryCard';
 
 interface Props {
   limit?: number;
@@ -26,7 +27,9 @@ interface Props {
   hasMore?: boolean;
   className?: string;
   combos?: [];
-  influencerCombos?:[];
+  influencerCombos?: [];
+  productCategories?:[];
+  todayDeals?:[]
 }
 
 export function Grid({
@@ -41,7 +44,9 @@ export function Grid({
   combos,
   influencerCombos,
   limit = PRODUCTS_PER_PAGE,
+  productCategories,
   column = 'auto',
+  todayDeals
 }: Props) {
   const { t } = useTranslation('common');
 
@@ -56,81 +61,170 @@ export function Grid({
   }
 
   return (
-    <div className={cn('w-full', className)}>
-      <h3 className=" text-lg text-accent my-4 font-bold">Influencers' combos</h3>
-      <div className="border-b-2 border-accent my-4 "></div>
-      <div
-        className={cn(
-          {
-            'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3':
-              column === 'auto',
-            'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
-              column === 'five',
-          },
-          gridClassName
-        )}
-    >
-        {!influencerCombos?.length
-          ? rangeMap(limit, (i) => (
-            <ProductLoader key={i} uniqueKey={`product-${i}`} />
-          ))
-          : <>
- 
-
-            {influencerCombos?.map((combo, index) => (
-              <InfluencerCard influencer={combo} key={index} />
-            ))}
-          </>
-        }
+    <div className={cn('w-full bg-white', className)}>
+      <h3 className=" text-lg text-black my-4 font-bold">Product Categories</h3>
+      <div className="border-b border-[gray] my-4 "></div>
+      <div className='overflow-x-auto'>
+        <div
+          className={cn(
+            {
+              'flex w-full  gap-2':
+                column === 'auto',
+              // 'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
+              // column === 'five',
+            },
+            gridClassName
+          )}
+        >
+          {!influencerCombos?.length
+            ? rangeMap(limit, (i) => (
+              <ProductLoader key={i} uniqueKey={`product-${i}`} />
+            ))
+            : <>
+              {productCategories?.map((combo, index) => {
+                if (index <= 5) {
+                  return (
+                    <div className='w-[300px]'>
+                      <ProductCategoryCard category={combo} key={index} />
+                    </div>
+                  )
+                }
+              })}
+            </>
+          }
+        </div>
       </div>
-      <h3 className=" text-lg text-accent my-4 font-bold">Combos</h3>
-      <div className="border-b-2 border-accent my-4 "></div>
-      <div
-        className={cn(
-          {
-            'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3':
-              column === 'auto',
-            'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
-              column === 'five',
-          },
-          gridClassName
-        )}
-      >
-        {!combos?.length
-          ? rangeMap(limit, (i) => (
-            <ProductLoader key={i} uniqueKey={`product-${i}`} />
-          ))
-          : <>
-
-            {combos?.map((combo, index) => (
-              <ProductCard product={combo} key={index} />
-            ))}
-          </>
-        }
+      <h3 className=" text-lg text-black my-4 font-bold">Influencer's Picks</h3>
+      <div className="border-b border-[gray] my-4 "></div>
+      <div className='overflow-x-auto'>
+        <div
+          className={cn(
+            {
+              'flex w-full  gap-2':
+                column === 'auto',
+              // 'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
+              // column === 'five',
+            },
+            gridClassName
+          )}
+        >
+          {!influencerCombos?.length
+            ? rangeMap(limit, (i) => (
+              <ProductLoader key={i} uniqueKey={`product-${i}`} />
+            ))
+            : <>
+              {influencerCombos?.map((combo, index) => {
+                if (index <= 5) {
+                  return (
+                    <div className='w-[300px]'>
+                      <InfluencerCard influencer={combo} key={index} />
+                    </div>
+                  )
+                }
+              })}
+            </>
+          }
+        </div>
       </div>
-      <h3 className=" text-lg text-accent my-4 font-bold">Products</h3>
+      <h3 className=" text-lg text-black my-4 font-bold">Combos</h3>
+      <div className="border-b border-black my-4 "></div>
+      <div className='overflow-x-auto'>
+        <div
+          className={cn(
+            {
+              'flex w-full  gap-2':
+                column === 'auto',
+              // 'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
+              // column === 'five',
+            },
+            gridClassName
+          )}
+        >
+          {!combos?.length
+            ? rangeMap(limit, (i) => (
+              <ProductLoader key={i} uniqueKey={`product-${i}`} />
+            ))
+            : <>
+
+              {combos?.map((combo, index) => {
+                if (index <= 5) {
+                  return (
+
+                    <div className='w-[300px]'>
+                      <ProductCard product={combo} key={index} />
+                    </div>
+                  )
+                }
+              })}
+            </>
+          }
+        </div>
+      </div>
+      {/* <h3 className=" text-lg text-accent my-4 font-bold">Products</h3>
       <div className="border-b-2 border-accent my-4 "></div>
-      <div
-        className={cn(
-          {
-            'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-3':
-              column === 'auto',
-            'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
-              column === 'five',
-          },
-          gridClassName
-        )}
-      >
-        {isLoading && !products?.length
-          ? rangeMap(limit, (i) => (
-            <ProductLoader key={i} uniqueKey={`product-${i}`} />
-          ))
-          : <>
-            {products?.map((product) => (
-              <ProductCard product={product} key={product.slug} />
-            ))}
-          </>
-        }
+      <div className='overflow-x-auto'>
+        <div
+          className={cn(
+            {
+              'flex w-full  gap-2':
+                column === 'auto',
+              // 'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
+              // column === 'five',
+            },
+            gridClassName
+          )}
+        >
+          {isLoading && !products?.length
+            ? rangeMap(limit, (i) => (
+              <ProductLoader key={i} uniqueKey={`product-${i}`} />
+            ))
+            : <>
+              {products?.map((product, index) => {
+                if (index <= 5) {
+                  return (
+                    <div className='w-[300px]'>
+                      <ProductCard product={product} key={product.slug} />
+
+                    </div>
+                  )
+                }
+              })}
+            </>
+          }
+        </div>
+      </div> */}
+      <h3 className=" text-l text-black my-4 font-bold">Today's Deals</h3>
+      <div className="border-b border-black my-4 "></div>
+      <div className='overflow-x-auto'>
+        <div
+          className={cn(
+            {
+              'flex w-full  gap-2':
+                column === 'auto',
+              // 'grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-6 gap-y-10 lg:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] xl:gap-8 xl:gap-y-11 2xl:grid-cols-5 3xl:grid-cols-[repeat(auto-fill,minmax(360px,1fr))]':
+              // column === 'five',
+            },
+            gridClassName
+          )}
+        >
+          {isLoading && !products?.length
+            ? rangeMap(limit, (i) => (
+              <ProductLoader key={i} uniqueKey={`product-${i}`} />
+            ))
+            : <>
+              {todayDeals?.map((product, index) => {
+                if (index <= 5) {
+                  return (
+                    <div className='w-[300px]'>
+                      <ProductCard product={product} key={index} />
+
+                    </div>
+                  )
+                }
+              })}
+            </>
+          }
+        </div>
       </div>
 
     </div>
@@ -154,7 +248,6 @@ export default function ProductsGrid({
   const productsItem: any = products;
   return (
     <Grid
-
       products={productsItem}
       loadMore={loadMore}
       isLoading={isLoading}

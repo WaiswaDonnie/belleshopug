@@ -15,9 +15,6 @@ export const Routes = {
   orderReceived: '/order-received',
   products: '/products',
   product: (slug: string) => {
-    // if (asPath) {
-    //   return `/products/${encodeURIComponent(slug)}?type=${asPath}`;  
-    // }
     return `/products/${encodeURIComponent(slug)}`;
   },
   privacy: '/privacy',

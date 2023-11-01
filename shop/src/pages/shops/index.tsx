@@ -35,14 +35,7 @@ const ShopsPage: NextPageWithLayout = () => {
       is_active: 1,
     });
   if (error) return <ErrorMessage message={error.message} />;
-  // if (!isLoading && shops.length<1) {
-  //   return (
-  //     <div className="min-h-full px-4 pt-6 pb-8 bg-gray-100 lg:p-8">
-  //       <NotFound text="text-no-shops" />
-  //     </div>
-  //   );
-  // }
-
+   
 
   return (
     <div className="min-h-screen bg-light ">

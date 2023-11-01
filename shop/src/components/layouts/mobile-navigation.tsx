@@ -63,7 +63,7 @@ export default function MobileNavigation({
           <span className="sr-only">{t('text-cart')}</span>
           <ShoppingBagIcon />
           {totalUniqueItems > 0 && (
-            <span className="absolute top-0 mt-0.5 rounded-full bg-accent py-1 px-1.5 text-10px font-semibold leading-none text-light ltr:right-0 ltr:-mr-0.5 rtl:left-0 rtl:-ml-0.5">
+            <span className="absolute text-sm -top-2 mt-0.5 rounded-full bg-accent py-1 px-1.5 text-10px font-semibold leading-none text-light ltr:right-0 ltr:-mr-0.5 rtl:left-0 rtl:-ml-0.5">
               {totalUniqueItems}
             </span>
           )}

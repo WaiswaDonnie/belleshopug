@@ -7,17 +7,16 @@ import ProductGridHome from '@/components/products/grids/home';
 import type { HomePageProps } from '@/types';
 
 export default function ClassicLayout({ variables }: HomePageProps) {
-  console.log("variables", variables)
-  return (
+   return (
     <>
       <Banner layout="modern" variables={variables.types} />
       {/* <PromotionSliders variables={variables.types} /> */}
-      <FilterBar variables={variables.categories} />
+      {/* <FilterBar variables={variables.categories} /> */}
       <Element
         name="grid"
         className="flex border-t border-solid border-border-200 border-opacity-70"
       >
-        <Categories layout="classic" variables={variables.categories} />
+        {/* <Categories layout="classic" variables={variables.categories} /> */}
         <ProductGridHome
           className="px-4 pb-8 lg:p-8"
           variables={variables.products}
