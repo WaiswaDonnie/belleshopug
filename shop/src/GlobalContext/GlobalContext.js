@@ -201,11 +201,10 @@ export default function GlobalContextProvider({ children }) {
                                     "original": user?.photoURL,
                                 }
                             }
-
                         },
                         userName: userInfo.userName,
                         userId: userInfo.userId,
-                        paymentMethod: "online",
+                        paymentMethod: "CASH ON DELIVERY",
                         "amount": newProduct?.amount,
                         "billing_address": newProduct?.billing_address,
                         "customer_contact": newProduct?.customer_contact,
@@ -214,7 +213,7 @@ export default function GlobalContextProvider({ children }) {
                         "discount": newProduct?.discount,
                         "paid_total": newProduct?.paid_total,
                         "delivery_fee": 5000,
-                        "payment_gateway": "online",
+                        "payment_gateway": "CASH ON DELIVERY",
                         "products": newProduct?.products,
                         "sales_tax": newProduct?.sales_tax,
                         "shipping_address": newProduct?.shipping_address,
@@ -230,8 +229,8 @@ export default function GlobalContextProvider({ children }) {
                             orderId: res.id,
                             narration: `Payment for order ${res.id}`,
                         }
-                        makePayment(data, setLoading, setVisible)
-                        // navigate.push(`orders/${res.id}`)
+                        // makePayment(data, setLoading, setVisible)
+                        navigate.push(`orders/${res.id}`)
                     })
                         .catch((err) => {
                             alert(err)
