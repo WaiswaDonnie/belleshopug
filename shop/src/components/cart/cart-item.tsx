@@ -13,6 +13,8 @@ interface CartItemProps {
 }
 
 const CartItem = ({ item }: CartItemProps) => {
+  console.log("donnie",item);
+
   const { t } = useTranslation('common');
   const { isInStock, clearItemFromCart, addItemToCart, removeItemFromCart, updateCartLanguage, language } =
     useCart();
@@ -29,6 +31,7 @@ const CartItem = ({ item }: CartItemProps) => {
     if (item?.language !== language){
       updateCartLanguage(item?.language);
     }
+  
     addItemToCart(item, 1);
   }
   const handleRemoveClick = (e: any) => {

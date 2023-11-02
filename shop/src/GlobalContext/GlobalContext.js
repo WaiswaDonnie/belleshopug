@@ -167,6 +167,126 @@ export default function GlobalContextProvider({ children }) {
     }
     const createOrder = async (newProduct, setLoading) => {
         if (userInfo) {
+            console.log(newProduct)
+            delete newProduct.billing_address.zip;
+
+            setLoading(true)
+            addDoc(collection(db, 'Product Orders'), newProduct)
+                .then(async res => {
+                    updateDoc(doc(db, 'Product Orders', res.id), {
+                        created_at: serverTimestamp(),
+                        deliveryFee: newProduct?.delivery_fee,
+                        platform: "web",
+                        discount: 0,
+                        discountPrice: newProduct?.discount,
+                        imageUrl: "default",
+                        orderCode: formatString(res.id),
+                        orderId: res.id,
+                        paymentMethod: "offline",
+                        status: "pending",
+                        totalFee: newProduct?.total,
+                        subTotal: newProduct?.total,
+                        type: "pending",
+                        userName: userInfo.userName,
+                        "products": newProduct?.products,
+                        "billing_address": newProduct?.billing_address,
+                        "shipping_address": newProduct?.billing_address,
+                        address: newProduct?.billing_address,
+                        phoneNumber: userInfo.phoneNumber,
+
+                        // tracking_number: res.id,
+                        // customer_id: user.uid,
+                        // ordered_on: serverTimestamp(),
+                        // transactionStatus: "pending",
+                        // "status": {
+                        //     "id": 1,
+                        //     "name": "Order Received",
+                        //     "language": "en",
+                        //     "translated_languages": [
+                        //         "en"
+                        //     ],
+                        //     "serial": 1,
+                        //     "color": "#23b848",
+                        //     "created_at": full_date,
+                        //     "updated_at": full_date
+                        // },
+                        // customer: {
+                        //     "id": user.uid,
+                        //     "name": userInfo.userName,
+                        //     "email": userInfo.email,
+                        //     "profile": {
+                        //         "avatar": {
+                        //             "thumbnail": user?.photoURL,
+                        //             "original": user?.photoURL,
+                        //         }
+                        //     }
+                        // },
+                        // userName: userInfo.userName,
+                        // userId: userInfo.userId,
+                        // "amount": newProduct?.amount,
+                        // "billing_address": newProduct?.billing_address,
+                        // "customer_contact": newProduct?.customer_contact,
+                        // "delivery_time": newProduct?.delivery_time,
+
+                        // "paid_total": newProduct?.paid_total,
+                        // "delivery_fee": 5000,
+                        // "payment_gateway": "CASH ON DELIVERY",
+                        // "products": newProduct?.products,
+                        // "sales_tax": newProduct?.sales_tax,
+                        // "shipping_address": newProduct?.shipping_address,
+
+                        // "use_wallet_points": newProduct?.use_wallet_points,
+                    }).then((order) => {
+                        // console.log(userInfo)
+                      
+                 
+                
+               
+                        // is_digital,
+               
+                        // stock: quantity,
+                         // description,
+                        // discount,
+               
+                         newProduct?.products.map((product) => {
+                            addDoc(collection(db, 'Product Orders', res.id,'Purchace Cart'),
+                            {
+                                count: product.quantity,
+                                id: product.id,
+                                imageUrl:product.image,
+                                influencerDiscount:product?.influencerDiscount,
+                                influencerId:product?.influencerId,
+                                influencerImageUrl:product?.influencerImageUrl,
+                                influencerName:product?.influencerName,
+                                owner:"",
+                                price: product.price,
+                                timestamp: serverTimestamp(),
+                                total:product.itemTotal,
+                                type:product.type,
+                                title:product.name,
+                                status:product.status,
+                                discountedPrice:product?.discountedPrice
+                            })
+                        }),
+
+                            navigate.push(`orders/${res.id}`)
+                    })
+                        .catch((err) => {
+                            alert(err)
+                            setLoading(false)
+                            setVisible(false)
+                        })
+
+                })
+                .catch(error => {
+                    setLoading(false)
+
+                    console.log(error)
+                })
+        }
+    }
+    const createOrderMoney = async (newProduct, setLoading) => {
+        if (userInfo) {
             setLoading(true)
             addDoc(collection(db, 'Product Orders'), newProduct)
                 .then(async res => {
@@ -737,7 +857,7 @@ export default function GlobalContextProvider({ children }) {
     }
 
     const getProductsByname = (productName, setResponse) => {
-         onSnapshot(query(collectionGroup(db, 'Products'), where("categoryList", 'array-contains', productName)), snapshot => {
+        onSnapshot(query(collectionGroup(db, 'Products'), where("categoryList", 'array-contains', productName)), snapshot => {
             let data = []
             snapshot.forEach(doc => {
                 data.push(doc.data())

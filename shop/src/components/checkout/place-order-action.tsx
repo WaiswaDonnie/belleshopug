@@ -20,8 +20,7 @@ import CustomProfileUpdate from '../ui/modal/customProfileUpdate';
 export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
   const { t } = useTranslation('common');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  // const { createOrder, isLoading } = useCreateOrder();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { createOrder, userInfo,transactionMessage } = useContext(GlobalContext)
   const [open, setOpen] = useState(false);
   const { locale }: any = useRouter();
@@ -77,9 +76,11 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
     //   setErrorMessage('Please Pay First');
     //   return;
     // }
+   
      let input = {
       //@ts-ignore
-      products: available_items?.map((item) => formatOrderedProduct(item)),
+      products: available_items,
+      // products: available_items?.map((item) => formatOrderedProduct(item)),
       status: orderStatuses[0]?.id ?? '1',
       vendor_id: `sadasd${Math.random()}`,
       shop_id: `sadasasdd${Math.random()}`,

@@ -11,7 +11,7 @@ import { PRODUCTS_PER_PAGE } from '@/framework/client/variables';
 import type { Product } from '@/types';
 import InfluencerCard from './cards/influencerCard';
 import ProductCategoryCard from './cards/ProductCategoryCard';
-
+ 
 interface Props {
   limit?: number;
   sortedBy?: string;
@@ -19,7 +19,7 @@ interface Props {
   column?: 'five' | 'auto';
   shopId?: string;
   gridClassName?: string;
-  products: Product[] | undefined;
+  products: Product[] | undefined ;
   isLoading?: boolean;
   error?: any;
   loadMore?: any;
@@ -27,7 +27,7 @@ interface Props {
   hasMore?: boolean;
   className?: string;
   combos?: [];
-  influencerCombos?: [];
+  influencerCombos?:  Product[] | undefined;
   productCategories?:[];
   todayDeals?:[]
 }

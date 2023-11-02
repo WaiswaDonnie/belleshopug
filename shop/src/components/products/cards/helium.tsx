@@ -8,25 +8,26 @@ import { productPlaceholder } from '@/lib/placeholders';
 import CartIcon from '@/components/icons/cart';
 import CustomProductDetailsModal from '@/components/ui/modal/customProductDetailsModal';
 import {useState} from 'react';
+import { Product } from '@/types';
 type HeliumProps = {
-  product: any;
+  product: Product;
   className?: string;
 };
 
 const Helium: React.FC<HeliumProps> = ({ product, className }) => {
   console.log(product,"haaaa")
   const { t } = useTranslation('common');
-  const { name, image,title, album,description, unit, quantity, min_price, max_price, product_type } =
-    product ?? {};
+  // const { name, image,title, album,description, unit, quantity, min_price, max_price, product_type } =
+  //   product ?? {};
   const { price, basePrice, discount } = usePrice({
     amount: Number(product?.price),
     baseAmount: product?.price,
   });
   const { price: minPrice } = usePrice({
-    amount: min_price,
+    amount: product?.min_price,
   });
   const { price: maxPrice } = usePrice({
-    amount: max_price,
+    amount: product?.max_price,
   });
 
   const { openModal } = useModalAction();
@@ -53,8 +54,8 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
       >
         <span className="sr-only">{t('text-product-image')}</span>
         <Image
-          src={album?.[0] ?? productPlaceholder}
-          alt={title}
+          src={product?.album?.[0] ?? productPlaceholder}
+          alt={product?.title}
           layout="fill"
           objectFit="contain"
           className="product-image"
@@ -73,13 +74,13 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
           role="button"
           className="mb-2 truncate text-sm font-semibold text-heading"
         >
-          {title}
+          {product?.title}
         </h3>
-        <p className="text-xs text-muted">{quantity}</p>
+        <p className="text-xs text-muted">{product?.quantity}</p>
         {/* End of product info */}
 
         <div className="relative mt-7 flex min-h-6 items-center justify-between md:mt-8">
-          {product_type?.toLowerCase() === 'variable' ? (
+          {product?.product_type?.toLowerCase() === 'variable' ? (
             <>
               <div>
                 <span className="text-sm font-semibold text-accent md:text-[15px]">
@@ -133,7 +134,7 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
             </>
           )}
 
-          {Number(quantity) <= 0 && (
+          {Number(product?.quantity) <= 0 && (
             <div className="rounded bg-red-500 px-2 py-1 text-xs text-light">
               {t('Out of Stock')}
             </div>

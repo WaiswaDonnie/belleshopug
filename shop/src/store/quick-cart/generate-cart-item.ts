@@ -13,7 +13,22 @@ interface Item {
   [key: string]: unknown;
   language: string;
   title: string;
-  album: string[]
+  album: string[];
+  unit_price?: number;
+  subtotal?: number;
+  categoryList?:string[];
+  description?:string;
+  discount?: number;
+  discountedPrice?: number;
+  savedPrice?: number;
+  status?:string;
+  type?: any;
+  imageUrl?:string;
+  influencerDiscount?:number;
+  influencerId?:string;
+  influencerImageUrl?:string;
+  influencerName?:string;
+  
 }
 interface Variation {
   // id: string | number;
@@ -50,8 +65,21 @@ export function generateCartItem(item: Item, variation: Variation) {
     quantity,
     unit,
     is_digital,
-    language
+    language,
+    description,
+    discount,
+    discountedPrice,
+    savedPrice,
+    status,
+    type,
+    influencerDiscount,
+    influencerId,
+    influencerImageUrl,
+    influencerName,
+    
+  
   } = item;
+  console.log("waiswa",item)
  
   if (!isEmpty(variation)) {
     return {
@@ -79,6 +107,16 @@ export function generateCartItem(item: Item, variation: Variation) {
     image: album?.[0],
     stock: quantity,
     price: Number(sale_price ? sale_price : price),
-    language
+    language,
+    description,
+    discount,
+    discountedPrice,
+    savedPrice,
+    status,
+    type,
+    influencerDiscount,
+    influencerId,
+    influencerImageUrl,
+    influencerName,  
   };
 }

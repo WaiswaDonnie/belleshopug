@@ -1,3 +1,4 @@
+import { Item } from '@/store/quick-cart/cart.utils';
 import type { NextPage } from 'next';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -164,7 +165,7 @@ export interface SettingsQueryOptions extends QueryOptions {}
 
 export interface WishlistQueryOptions extends QueryOptions {}
 
-export interface Product {
+export interface Product   {
   id: string;
   name: string;
   slug: string;
@@ -196,6 +197,23 @@ export interface Product {
   created_at: string;
   updated_at: string;
   language: string;
+  product_id?: number;
+  variation_option_id?: number;
+  order_quantity?: number;
+  unit_price?: number;
+  subtotal?: number;
+  categoryList?:string[];
+  discount?: number;
+  discountedPrice?: number;
+  savedPrice?: number;
+  status?:string;
+  title?:string;
+  imageUrl?:string;
+  influencerDiscount?:number;
+  influencerId?:string;
+  influencerImageUrl?:string;
+  influencerName?:string;
+  
 }
 
 export interface RatingCount {
@@ -623,6 +641,17 @@ export interface ConnectProductOrderPivot {
   order_quantity: number;
   unit_price: number;
   subtotal: number;
+  categoryList:string[];
+  description:string;
+  discount: number;
+  discountedPrice: number;
+  price: number;
+  id: string;
+  savedPrice: number;
+  status:string;
+  title:string;
+  type: string;
+  imageUrl:string;
 }
 
 export interface CheckoutVerificationInput {
