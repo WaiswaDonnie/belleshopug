@@ -40,6 +40,22 @@ function OrderView({ order, language }: any) {
   });
   const { price: tax } = usePrice({ amount: order?.sales_tax ?? 0 });
   const { price: discount } = usePrice({ amount: order?.discount ?? 0 });
+  function formatDate(timestamp) {
+    if (!timestamp) return ''; // Handle the case where timestamp is not available
+  
+    const date = new Date(timestamp.seconds * 1000); // Convert seconds to milliseconds
+  
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+  
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+  
+    return `${month} ${day}, ${year}`;
+  }
   return (
     <div className="p-4 sm:p-8">
       <div className="mx-auto w-full max-w-screen-lg rounded border bg-light p-6 shadow-sm sm:p-8 lg:p-12">
@@ -47,8 +63,8 @@ function OrderView({ order, language }: any) {
           <span className="order-2 mt-5 ltr:mr-auto rtl:ml-auto sm:order-1 sm:mt-0">
             <span className="ltr:mr-4 rtl:ml-4">{t('text-status')} :</span>
             <Badge
-              text={order?.status?.name!}
-              className="whitespace-nowrap text-sm font-normal"
+              text={order?.status}
+              className="whitespace-nowrap capitalize text-sm font-normal"
             />
           </span>
           <Link
@@ -64,14 +80,14 @@ function OrderView({ order, language }: any) {
             <h3 className="mb-2 text-sm font-semibold text-heading">
               {t('text-order-number')}
             </h3>
-            <p className="text-sm text-body-dark">{order?.tracking_number}</p>
+            <p className="text-sm text-body-dark">{order?.orderId}</p>
           </div>
           <div className="rounded border border-border-200 py-4 px-5 shadow-sm">
             <h3 className="mb-2 text-sm font-semibold text-heading">
               {t('text-date')}
             </h3>
             <p className="text-sm text-body-dark">
-              {dayjs(order?.created_at).format('MMMM D, YYYY')}
+            {formatDate(order?.created_at)}
             </p>
           </div>
           <div className="rounded border border-border-200 py-4 px-5 shadow-sm">
@@ -93,7 +109,7 @@ function OrderView({ order, language }: any) {
 
         {/* start of order Status */}
         <div className="mb-8 flex w-full items-center justify-center md:mb-12">
-          <OrderStatuses status={order?.status?.serial} language={language} />
+          <OrderStatuses status={order?.status} language={language} />
         </div>
         {/* end of order Status */}
 

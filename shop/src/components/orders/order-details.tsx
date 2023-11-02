@@ -35,7 +35,7 @@ const RenderStatusBadge: React.FC<{ status: string }> = ({ status }) => {
           className="ltr:mr-4 rtl:ml-4"
         />
       );
-    case 'processing':
+    case 'pending':
       return (
         <Badge
           text={`${t('text-refund')} ${t('text-processing')}`}
@@ -94,6 +94,7 @@ const OrderDetails = ({ order }: Props) => {
     tracking_number,
     refund,
   } : any = order ?? {};
+  console.log(order,"order");
 
   const { price: amount } = usePrice({
     amount: order?.amount,
@@ -116,13 +117,13 @@ const OrderDetails = ({ order }: Props) => {
       <div className="flex flex-col items-center border-b border-border-200 p-5 md:flex-row md:justify-between">
         <h2 className="mb-2 flex text-sm font-semibold text-heading md:text-lg">
           {t('text-order-details')} <span className="px-2">-</span>{' '}
-          {tracking_number}
+          {order.orderId}
         </h2>
         <div className="flex items-center">
           {/* <RefundView status={refund?.status} orderId={id} /> */}
 
           <Link
-            href={Routes.order(tracking_number)}
+            href={Routes.order(orderId)}
             className="flex items-center text-sm font-semibold text-accent no-underline transition duration-200 hover:text-accent-hover focus:text-accent-hover"
           >
             <Eye width={20} className="ltr:mr-2 rtl:ml-2" />

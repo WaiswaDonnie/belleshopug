@@ -40,12 +40,13 @@ const OrderItemList = (_: any, record: any) => {
     )['title'];
     setName(`${name} - ${variationTitle}`);
   }
+  console.log("record", record)
   return (
     <div className="flex items-center">
       <div className="relative flex h-16 w-16 shrink-0 overflow-hidden rounded">
         <Image
-          src={record.image?.thumbnail ?? productPlaceholder}
-          alt={name}
+          src={record.image ?? productPlaceholder}
+          alt={record.name}
           className="h-full w-full object-cover"
           layout="fill"
         />
@@ -58,17 +59,17 @@ const OrderItemList = (_: any, record: any) => {
             className="inline-block overflow-hidden truncate text-sm text-body transition-colors hover:text-accent hover:underline"
             locale={record?.language}
           >
-            {name}
+            {record.name}
           </Link>
           <span className="inline-block overflow-hidden truncate text-sm text-body">
             x
           </span>
           <span className="inline-block overflow-hidden truncate text-sm font-semibold text-heading">
-            {record.unit}
+            {record.quantity}
           </span>
         </div>
         <span className="mb-1 inline-block overflow-hidden truncate text-sm font-semibold text-accent">
-          {price}
+          {record.price}
         </span>
       </div>
     </div>
@@ -102,7 +103,7 @@ export const OrderItems = ({
       align: 'center',
       width: 100,
       render: function renderQuantity(pivot: any) {
-        return <p className="text-base">{pivot?.order_quantity}</p>;
+        return <p className="text-base">{pivot?.quantity}</p>;
       },
     },
     {
@@ -113,7 +114,7 @@ export const OrderItems = ({
       width: 100,
       render: function RenderPrice(pivot: any) {
         const { price } = usePrice({
-          amount: pivot?.subtotal,
+          amount: pivot?.price,
         });
         return <p>{price}</p>;
       },
