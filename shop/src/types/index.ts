@@ -176,7 +176,7 @@ export interface Product   {
   is_digital: boolean;
   product_type: string;
   description: string;
-  type: Type;
+  type: string;
   price: number;
   sale_price: number;
   min_price: number;
@@ -213,6 +213,9 @@ export interface Product   {
   influencerId?:string;
   influencerImageUrl?:string;
   influencerName?:string;
+  brand?: string;
+  itemTotal?: any;
+  shopId?: string;
   
 }
 

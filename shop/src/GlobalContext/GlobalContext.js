@@ -238,41 +238,77 @@ export default function GlobalContextProvider({ children }) {
                         // "use_wallet_points": newProduct?.use_wallet_points,
                     }).then((order) => {
                         // console.log(userInfo)
-                      
-                 
-                
-               
+
+
+
+
                         // is_digital,
-               
+
                         // stock: quantity,
-                         // description,
+                        // description,
                         // discount,
-               
-                         newProduct?.products.map((product) => {
-                            addDoc(collection(db, 'Product Orders', res.id,'Purchace Cart'),
-                            {
-                                count: product.quantity,
-                                id: product.id,
-                                imageUrl:product.image,
-                                influencerDiscount:product?.influencerDiscount,
-                                influencerId:product?.influencerId,
-                                influencerImageUrl:product?.influencerImageUrl,
-                                influencerName:product?.influencerName,
-                                owner:"",
-                                price: product.price,
-                                timestamp: serverTimestamp(),
-                                total:product.itemTotal,
-                                type:product.type,
-                                title:product.name,
-                                status:product.status,
-                                discountedPrice:product?.discountedPrice
-                            })
+
+                        newProduct?.products.map((product) => {
+                            if (product?.type?.toLowerCase() === "influenced") {
+                                addDoc(collection(db, 'Product Orders', res.id, 'Purchace Cart'),
+                                    {
+                                        count: product.quantity,
+                                        id: product.id,
+                                        imageUrl: product.image,
+                                        influencerDiscount: product?.influencerDiscount ? product?.influencerDiscount : 0,
+                                        influencerId: product?.influencerId ? product?.influencerId : "",
+                                        influencerImageUrl: product?.influencerImageUrl ? product?.influencerImageUrl : "",
+                                        influencerName: product?.influencerName ? product?.influencerName : "",
+                                        owner: "",
+                                        price: product.price,
+                                        timestamp: serverTimestamp(),
+                                        total: product.itemTotal,
+                                        type: product?.type,
+                                        title: product?.name,
+                                        status: product?.status,
+                                        discountedPrice: product?.discountedPrice
+                                    })
+                            } else if(product?.type?.toLowerCase() === "combo"){
+                                addDoc(collection(db, 'Product Orders', res.id, 'Purchace Cart'),
+                                    {
+                                        count: product.quantity,
+                                        id: product.id,
+                                        imageUrl: product.image,
+                                        owner: "",
+                                        price: product.price,
+                                        timestamp: serverTimestamp(),
+                                        total: product.itemTotal,
+                                        type: product?.type,
+                                        title: product?.name,
+                                        status: product?.status,
+                                        discountedPrice: product?.discountedPrice
+                                    })
+                            }else{
+                                addDoc(collection(db, 'Product Orders', res.id, 'Purchace Cart'),
+                                {
+                                    count: product.quantity,
+                                    id: product.id,
+                                    imageUrl: product.image,
+                                    owner: "",
+                                    price: product.price,
+                                    timestamp: serverTimestamp(),
+                                    total: product.itemTotal,
+                                
+                                    title: product?.name,
+                                    status: product.status?product.status:"",
+                                    discountedPrice: product.discountedPrice? product.discountedPrice:0,
+                                    brand: product.brand?product.brand:"",
+                                    categoryList: product?.categoryList,
+                                    shopId: product.shopId?product.shopId:""
+
+                                })
+                            }
                         }),
 
                             navigate.push(`orders/${res.id}`)
                     })
                         .catch((err) => {
-                            alert(err)
+                            console.log(err)
                             setLoading(false)
                             setVisible(false)
                         })
@@ -726,9 +762,10 @@ export default function GlobalContextProvider({ children }) {
 
     }
     const updateUserAddress = (address, setLoading, closeModal) => {
+      if(userInfo){
         setLoading(true)
-        console.log("address", address)
-        updateDoc(doc(db, 'Users', user.uid), {
+        console.log("address", userInfo)
+        updateDoc(doc(db, 'Users', userInfo?.userId), {
             "address": [address]
         })
             .then(res => {
@@ -740,8 +777,9 @@ export default function GlobalContextProvider({ children }) {
 
             })
             .catch(error => {
-
+                setLoading()
             })
+      }
 
     }
     const loginUser = async (email, password, setLoading, setFormError, closeModal, setAuthorized) => {
@@ -1059,7 +1097,7 @@ export default function GlobalContextProvider({ children }) {
             const userInfo = await getDoc(doc(db, 'Users', result.user.uid))
             if (userInfo.exists()) {
                 if (userInfo.data().accountType === 'Customer' || !userInfo.data().accountType) {
-                    alert('Updating Customer')
+                    
                     updateDoc(doc(db, 'Users', userInfo.id), {
                         accountType: 'Customer'
                     })

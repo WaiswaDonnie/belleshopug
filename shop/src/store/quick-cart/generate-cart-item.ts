@@ -28,6 +28,8 @@ interface Item {
   influencerId?:string;
   influencerImageUrl?:string;
   influencerName?:string;
+  brand?: string;
+  shopId?: string;
   
 }
 interface Variation {
@@ -55,11 +57,9 @@ interface Variation {
 export function generateCartItem(item: Item, variation: Variation) {
   const {
     id,
-    name,
-    title,
+     title,
     slug,
-    image,
-    price,
+     price,
     sale_price,
     album,
     quantity,
@@ -76,6 +76,9 @@ export function generateCartItem(item: Item, variation: Variation) {
     influencerId,
     influencerImageUrl,
     influencerName,
+    brand,
+    categoryList,
+    shopId,
     
   
   } = item;
@@ -118,5 +121,9 @@ export function generateCartItem(item: Item, variation: Variation) {
     influencerId,
     influencerImageUrl,
     influencerName,  
+    brand,
+    shopId,
+    categoryList
+
   };
 }

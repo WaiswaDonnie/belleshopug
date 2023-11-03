@@ -18,7 +18,7 @@ import { ArrowPrevIcon } from '@/components/icons/arrow-prev';
 
 
 interface Props {
-  products: any[] | undefined;
+  products:   Product[] | undefined;
   category: string | undefined;
 }
 

@@ -18,7 +18,9 @@ export interface Item {
   title?:string;
   type?: any;
   imageUrl?:string;
-  
+  brand?:string;
+  shopId?:string;
+ 
 }
 
 export interface UpdateItemInput extends Partial<Omit<Item, "id">> {}

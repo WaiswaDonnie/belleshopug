@@ -50,9 +50,7 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
     setErrorMessage(null);
   }, [payment_gateway]);
 
-  const available_items = items?.filter(
-    (item) => !verified_response?.unavailable_products?.includes(item.id)
-  );
+  const available_items = items;
 
   const subtotal = calculateTotal(available_items);
   const total = calculatePaidTotal(
@@ -112,6 +110,7 @@ export const PlaceOrderAction: React.FC<{ className?: string }> = (props) => {
     //@ts-ignore
 
     if (userInfo.userName && userInfo.email) {
+      console.log("inputs",input)
       createOrder(input, setIsLoading)
     } else {
       

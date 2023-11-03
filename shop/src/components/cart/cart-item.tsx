@@ -7,9 +7,11 @@ import { fadeInOut } from '@/lib/motion/fade-in-out';
 import usePrice from '@/lib/use-price';
 import { useTranslation } from 'next-i18next';
 import { useCart } from '@/store/quick-cart/cart.context';
+import { Product } from '@/types';
+import { Item } from 'firebase/analytics';
 
 interface CartItemProps {
-  item: any;
+  item: Product;
 }
 
 const CartItem = ({ item }: CartItemProps) => {
@@ -23,7 +25,7 @@ const CartItem = ({ item }: CartItemProps) => {
     amount: item.price,
   });
   const { price: itemPrice } = usePrice({
-    amount: item.itemTotal,
+    amount: item?.itemTotal,
   });
   function handleIncrement(e: any) {
     e.stopPropagation();
