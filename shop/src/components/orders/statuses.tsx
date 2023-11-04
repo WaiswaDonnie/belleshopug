@@ -4,7 +4,7 @@ import ProgressBox from '@/components/ui/progress-box/progress-box';
 import { useOrderStatuses } from '@/framework/order';
 
 interface Props {
-  status: number;
+  status: string;
   language?: any;
 }
 

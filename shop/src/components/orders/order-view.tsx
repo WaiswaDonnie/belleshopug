@@ -53,6 +53,7 @@ function OrderView({ order, language }: any) {
     const month = months[date.getMonth()];
     const day = date.getDate();
     const year = date.getFullYear();
+    console.log("order boss",order)
   
     return `${month} ${day}, ${year}`;
   }

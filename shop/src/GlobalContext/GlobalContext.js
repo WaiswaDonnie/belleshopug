@@ -167,8 +167,7 @@ export default function GlobalContextProvider({ children }) {
     }
     const createOrder = async (newProduct, setLoading) => {
         if (userInfo) {
-            console.log(newProduct)
-            delete newProduct.billing_address.zip;
+             delete newProduct.billing_address.zip;
 
             setLoading(true)
             addDoc(collection(db, 'Product Orders'), newProduct)
@@ -183,71 +182,19 @@ export default function GlobalContextProvider({ children }) {
                         orderCode: formatString(res.id),
                         orderId: res.id,
                         paymentMethod: "offline",
-                        status: "pending",
+                        status: "Pending",
                         totalFee: newProduct?.total,
                         subTotal: newProduct?.total,
-                        type: "pending",
+                        type: "Pending",
                         userName: userInfo.userName,
-                        "products": newProduct?.products,
-                        "billing_address": newProduct?.billing_address,
-                        "shipping_address": newProduct?.billing_address,
+                        products: newProduct?.products,
+                        billing_address: newProduct?.billing_address,
+                        shipping_address: newProduct?.billing_address,
                         address: newProduct?.billing_address,
                         phoneNumber: userInfo.phoneNumber,
-
-                        // tracking_number: res.id,
-                        // customer_id: user.uid,
-                        // ordered_on: serverTimestamp(),
-                        // transactionStatus: "pending",
-                        // "status": {
-                        //     "id": 1,
-                        //     "name": "Order Received",
-                        //     "language": "en",
-                        //     "translated_languages": [
-                        //         "en"
-                        //     ],
-                        //     "serial": 1,
-                        //     "color": "#23b848",
-                        //     "created_at": full_date,
-                        //     "updated_at": full_date
-                        // },
-                        // customer: {
-                        //     "id": user.uid,
-                        //     "name": userInfo.userName,
-                        //     "email": userInfo.email,
-                        //     "profile": {
-                        //         "avatar": {
-                        //             "thumbnail": user?.photoURL,
-                        //             "original": user?.photoURL,
-                        //         }
-                        //     }
-                        // },
-                        // userName: userInfo.userName,
-                        // userId: userInfo.userId,
-                        // "amount": newProduct?.amount,
-                        // "billing_address": newProduct?.billing_address,
-                        // "customer_contact": newProduct?.customer_contact,
-                        // "delivery_time": newProduct?.delivery_time,
-
-                        // "paid_total": newProduct?.paid_total,
-                        // "delivery_fee": 5000,
-                        // "payment_gateway": "CASH ON DELIVERY",
-                        // "products": newProduct?.products,
-                        // "sales_tax": newProduct?.sales_tax,
-                        // "shipping_address": newProduct?.shipping_address,
-
-                        // "use_wallet_points": newProduct?.use_wallet_points,
+                       
                     }).then((order) => {
-                        // console.log(userInfo)
-
-
-
-
-                        // is_digital,
-
-                        // stock: quantity,
-                        // description,
-                        // discount,
-
+                     
                         newProduct?.products.map((product) => {
                             if (product?.type?.toLowerCase() === "influenced") {
                                 addDoc(collection(db, 'Product Orders', res.id, 'Purchace Cart'),
@@ -255,10 +202,10 @@ export default function GlobalContextProvider({ children }) {
                                         count: product.quantity,
                                         id: product.id,
                                         imageUrl: product.image,
-                                        influencerDiscount: product?.influencerDiscount ? product?.influencerDiscount : 0,
-                                        influencerId: product?.influencerId ? product?.influencerId : "",
-                                        influencerImageUrl: product?.influencerImageUrl ? product?.influencerImageUrl : "",
-                                        influencerName: product?.influencerName ? product?.influencerName : "",
+                                        influencerDiscount: product.influencerDiscount ? product?.influencerDiscount : 0,
+                                        influencerId: product.influencerId ? product?.influencerId : "",
+                                        influencerImageUrl: product.influencerImageUrl ? product?.influencerImageUrl : "",
+                                        influencerName: product.influencerName ? product?.influencerName : "",
                                         owner: "",
                                         price: product.price,
                                         timestamp: serverTimestamp(),

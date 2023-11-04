@@ -5,7 +5,7 @@ import styles from './progress-box.module.css';
 
 type ProgressProps = {
   data: any[] | undefined;
-  status: number;
+  status: string;
 };
 
 const ProgressBox: React.FC<ProgressProps> = ({ status, data }) => {
@@ -24,11 +24,11 @@ const ProgressBox: React.FC<ProgressProps> = ({ status, data }) => {
             <div
               className={cn(
                 styles.progress_wrapper,
-                status >= item.serial ? styles.checked : ''
+                status === 'Complete' ? styles.checked : ''
               )}
             >
               <div className={styles.status_wrapper}>
-                {status >= item.serial ? (
+                {status === "Complete" ? (
                   <div className="h-4 w-3">
                     <CheckMark className="w-full" />
                   </div>

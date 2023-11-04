@@ -127,7 +127,7 @@ const [statuses,setStatuses] = useState([
       id:1,language:"en",
       name:"Order Received",
       serial:1,
-      slug:"order-received",
+      slug:"Pending",
       translated_languages:['en'],
       updated_at:"2021-03-08T21:34:04.000Z"
     },
@@ -142,24 +142,13 @@ const [statuses,setStatuses] = useState([
       translated_languages:['en'],
       updated_at:"2021-03-08T21:34:04.000Z"
     },
-    // {
-    //   color: "#d87b64",
-    //   created_at: "2021-03-08T21:33:52.000Z",
-    //   id:3,
-    //   language:"en",
-    //   name:"Ready To Dispatch",
-    //   serial:3,
-    //   slug:"ready-to-dispatch",
-    //   translated_languages:['en'],
-    //   updated_at:"2021-03-08T21:34:04.000Z"
-    // },
     {
       color: "#23b848",
       created_at: "2021-03-08T21:33:52.000Z",
-      id:4,
+      id:3,
       language:"en",
       name:"Order Dispatched",
-      serial:4,
+      serial:3,
       slug:"order-dispatched",
       translated_languages:['en'],
       updated_at:"2021-03-08T21:34:04.000Z"
@@ -167,11 +156,11 @@ const [statuses,setStatuses] = useState([
     {
       color: "#23b848",
       created_at: "2021-03-08T21:33:52.000Z",
-      id:7,
+      id:4,
       language:"en",
       name:"Delivered",
-      serial:7,
-      slug:"delivered",
+      serial:4,
+      slug:"Complete",
       translated_languages:['en'],
       updated_at:"2021-03-08T21:34:04.000Z"
     },
