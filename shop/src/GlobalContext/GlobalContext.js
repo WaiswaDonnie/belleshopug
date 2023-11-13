@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
-import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion } from 'firebase/firestore';
+import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion, Timestamp } from 'firebase/firestore';
 import { db, auth, storage, firebaseFunctions } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, updateEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
@@ -231,7 +231,7 @@ export default function GlobalContextProvider({ children }) {
                                         discountedPrice: product?.discountedPrice
                                     })
                             }else{
-                                addDoc(collection(db, 'Product Orders', res.id, 'Purchace Cart'),
+                                addDoc(collection(db, 'Product Orders', res.id, 'Purchase Cart'),
                                 {
                                     count: product.quantity,
                                     id: product.id,
