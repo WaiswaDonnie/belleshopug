@@ -168,36 +168,37 @@ export default function GlobalContextProvider({ children }) {
     const createOrder = async (newProduct, setLoading) => {
         if (userInfo) {
              delete newProduct.billing_address.zip;
-
+            console.log("posting",newProduct)
             setLoading(true)
-            addDoc(collection(db, 'Product Orders'), newProduct)
+            addDoc(collection(db, 'Product Orders'), {
+                created_at: serverTimestamp(),
+                deliveryFee: newProduct?.delivery_fee,
+                platform: "web",
+                discount: 0,
+                discountPrice: newProduct?.discount,
+                imageUrl: "default",
+              
+                paymentMethod: "offline",
+                status: "Pending",
+                totalFee: newProduct?.total,
+                subTotal: newProduct?.total,
+                type: "Pending",
+                userName: userInfo.userName,
+                products: newProduct?.products,
+                billing_address: newProduct?.billing_address,
+                shipping_address: newProduct?.billing_address,
+                address: newProduct?.billing_address,
+                phoneNumber: userInfo.phoneNumber,
+            })
                 .then(async res => {
-                    updateDoc(doc(db, 'Product Orders', res.id), {
-                        created_at: serverTimestamp(),
-                        deliveryFee: newProduct?.delivery_fee,
-                        platform: "web",
-                        discount: 0,
-                        discountPrice: newProduct?.discount,
-                        imageUrl: "default",
-                        orderCode: formatString(res.id),
-                        orderId: res.id,
-                        paymentMethod: "offline",
-                        status: "Pending",
-                        totalFee: newProduct?.total,
-                        subTotal: newProduct?.total,
-                        type: "Pending",
-                        userName: userInfo.userName,
-                        products: newProduct?.products,
-                        billing_address: newProduct?.billing_address,
-                        shipping_address: newProduct?.billing_address,
-                        address: newProduct?.billing_address,
-                        phoneNumber: userInfo.phoneNumber,
-                       
+                    updateDoc(doc(db, 'Product Orders', res.id), {  
+                        orderCode: formatString(res.id),         
+                        orderId: res.id,       
                     }).then((order) => {
                      
                         newProduct?.products.map((product) => {
                             if (product?.type?.toLowerCase() === "influenced") {
-                                addDoc(collection(db, 'Product Orders', res.id, 'Purchace Cart'),
+                                addDoc(collection(db, 'Product Orders', res.id, 'Purchase Cart'),
                                     {
                                         count: product.quantity,
                                         id: product.id,
@@ -216,7 +217,7 @@ export default function GlobalContextProvider({ children }) {
                                         discountedPrice: product?.discountedPrice
                                     })
                             } else if(product?.type?.toLowerCase() === "combo"){
-                                addDoc(collection(db, 'Product Orders', res.id, 'Purchace Cart'),
+                                addDoc(collection(db, 'Product Orders', res.id, 'Purchase Cart'),
                                     {
                                         count: product.quantity,
                                         id: product.id,

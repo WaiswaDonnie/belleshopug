@@ -82,13 +82,13 @@ export function Grid({
             ))
             : <>
               {productCategories?.map((combo, index) => {
-                if (index <= 5) {
+                
                   return (
                     <div className='w-[300px]'>
                       <ProductCategoryCard category={combo} key={index} />
                     </div>
                   )
-                }
+             
               })}
             </>
           }
