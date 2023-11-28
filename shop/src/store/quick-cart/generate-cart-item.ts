@@ -82,7 +82,7 @@ export function generateCartItem(item: Item, variation: Variation) {
     
   
   } = item;
-  console.log("waiswa",item)
+ 
  
   if (!isEmpty(variation)) {
     return {

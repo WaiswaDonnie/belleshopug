@@ -27,58 +27,42 @@ const BannerShort: React.FC<BannerProps> = ({ banners,layout }) => {
   const customBanners = [
    {
     id:1,
-    title:'',
+    title:'Always ready to serve you at your convenience',
     image:{
-      original:"https://unsplash.com/photos/mVdzV_HTyH4/download?ixid=MnwxMjA3fDB8MXxzZWFyY2h8MTh8fG1ha2V1cHxlbnwwfHx8fDE2Njc4MDE5NjA&force=true&w=2400",
-      thumbanail:"https://unsplash.com/photos/mVdzV_HTyH4/download?ixid=MnwxMjA3fDB8MXxzZWFyY2h8MTh8fG1ha2V1cHxlbnwwfHx8fDE2Njc4MDE5NjA&force=true&w=2400"
+      original:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F0.jpg?alt=media&token=4615a0bb-f899-4389-9ca0-eaaef86a740b",
+      thumbanail:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F0.jpg?alt=media&token=4615a0bb-f899-4389-9ca0-eaaef86a740b"
     },
     description:''
    },
    {
     id:2,
-    title:'',
+    title:'All beauty professionals at your fingertips.',
     image:{
-      original:"https://images.unsplash.com/photo-1494919138911-02d403edd88d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80",
-      thumbanail:"https://images.unsplash.com/photo-1494919138911-02d403edd88d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
+      original:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F1.jpg?alt=media&token=a7ccec84-aee6-4754-b2f6-4b172cb9d44e",
+      thumbanail:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F1.jpg?alt=media&token=a7ccec84-aee6-4754-b2f6-4b172cb9d44e"
+    },
+    description:''
+   },
+   {
+    id:3,
+    title:'A beauty service that comes to you.',
+    image:{
+      original:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F2.jpg?alt=media&token=919657d6-9fdd-49fa-b896-3bef92b59938",
+      thumbanail:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F2.jpg?alt=media&token=919657d6-9fdd-49fa-b896-3bef92b59938"
     },
     description:''
    },
    {
     id:4,
-    title:'',
+    title:'Service with a smile',
     image:{
-      original:"https://images.unsplash.com/photo-1598104358204-87cefc7c5986?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80",
-      thumbanail:"https://images.unsplash.com/photo-1598104358204-87cefc7c5986?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80"
+      original:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F3.jpg?alt=media&token=05f3d714-ee0a-496d-8d4c-ca31f1ebbaad",
+      thumbanail:"https://firebasestorage.googleapis.com/v0/b/belle-beauty-ug.appspot.com/o/Sliders%2F3.jpg?alt=media&token=05f3d714-ee0a-496d-8d4c-ca31f1ebbaad"
     },
     description:''
    },
-   {
-    id:5,
-    title:'',
-    image:{
-      original:"https://images.unsplash.com/photo-1655720348723-c16f0519249d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8YWZyaWNhbiUyMG5haWxzfGVufDB8MHwwfHw%3D&auto=format&fit=crop&w=900&q=60",
-      thumbanail:"https://images.unsplash.com/photo-1655720348723-c16f0519249d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8YWZyaWNhbiUyMG5haWxzfGVufDB8MHwwfHw%3D&auto=format&fit=crop&w=900&q=60"
-    },
-    description:''
-   },
-   {
-    id:6,
-    title:'',
-    image:{
-      original:"https://images.unsplash.com/photo-1533146692536-e70f31e14b36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80",
-      thumbanail:"https://images.unsplash.com/photo-1533146692536-e70f31e14b36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
-    },
-    description:''
-   },
-  //  {
-  //   id:3,
-  //   title:'Nails',
-  //   image:{
-  //     original:"https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/906/makeup.png",
-  //     thumbanail:"https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/906/makeup.png"
-  //   },
-  //   description:'asdas'
-  //  },
+   
+  
 
   ]
 
@@ -104,7 +88,7 @@ const BannerShort: React.FC<BannerProps> = ({ banners,layout }) => {
             {customBanners?.map((banner, idx) => (
               <SwiperSlide key={idx}>
                  <div
-                  className={cn('relative h-screen w-full', {
+                  className={cn('relative h-[800px] w-full', {
                     'max-h-140': layout === 'standard',
                     'max-h-[320px] md:max-h-[680px]': layout === 'minimal',
                   })}
@@ -114,6 +98,7 @@ const BannerShort: React.FC<BannerProps> = ({ banners,layout }) => {
                     src={banner.image?.original ?? productPlaceholder}
                     alt={banner.title ?? ''}
                     layout="fill"
+           
                     objectFit="cover"
                   />
                   <div
@@ -126,10 +111,10 @@ const BannerShort: React.FC<BannerProps> = ({ banners,layout }) => {
                   >
                     <h1
                       className={cn(
-                        'text-5xl font-bold tracking-tight text-heading lg:text-4xl xl:text-5xl',
-                        {
-                          '!text-accent': layout === 'minimal',
-                        }
+                        'text-5xl font-bold text-white tracking-tight text-heading lg:text-4xl xl:text-5xl',
+                        // {
+                        //   '!text-accent': layout === 'minimal',
+                        // }
                       )}
                     >
                       {banner?.title}

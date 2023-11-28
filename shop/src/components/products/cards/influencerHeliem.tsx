@@ -78,7 +78,6 @@ const InfluencerHelium: React.FC<HeliumProps> = ({ influencer, className }) => {
           {name}
         </h3>
         <p className="text-xs text-muted">{quantity}</p>
-        {/* End of product info */}
 
         <div className="relative mt-7 flex min-h-6 items-center justify-between md:mt-8">
           {product_type?.toLowerCase() === 'variable' ? (

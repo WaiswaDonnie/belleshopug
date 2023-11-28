@@ -1,12 +1,12 @@
 import React, { useContext, createContext, useState, useLayoutEffect, useEffect } from 'react'
-import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion, Timestamp } from 'firebase/firestore';
+import { collection, deleteDoc, limit, increment, collectionGroup, getDocs, getDoc, doc, setDoc, updateDoc, onSnapshot, serverTimestamp, query, where, addDoc, orderBy, arrayUnion, Timestamp, Firestore } from 'firebase/firestore';
 import { db, auth, storage, firebaseFunctions } from '../../firebase'
 import { getAuth, sendPasswordResetEmail, updateEmail, sendEmailVerification, signInWithPopup, signInWithEmailAndPassword, GoogleAuthProvider, signOut, RecaptchaVerifier, updateProfile, signInWithPhoneNumber, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/router"
 import { useModalAction } from '@/components/ui/modal/modal.context';
 import { useTranslation } from 'next-i18next';
 import Cookies from 'js-cookie'
-import { toast } from 'react-toastify';
+ import { toast } from 'react-toastify';
 import axios from 'axios';
 import {
     QueryClient,
@@ -147,43 +147,56 @@ export default function GlobalContextProvider({ children }) {
             })
             setShops(data)
         })
-
-
-        // setIsLoading(false)
     }
     function formatString(inputString) {
-        // Split the input string into two parts, separated by the number.
         const parts = inputString.split(/\d+/);
-
-        // If there are exactly two parts, reformat them.
         if (parts.length === 2) {
             const firstPart = parts[0].toUpperCase();
             const secondPart = parts[1].toUpperCase();
             return `${firstPart}-${secondPart}`;
         }
-
-        // If there aren't exactly two parts, return the original string.
         return inputString;
     }
+    
+    
+    is_digital
+    :
+    undefined
+   
+     
+   
+   
+    
+    unit
+    :
+    undefined
     const createOrder = async (newProduct, setLoading) => {
+    
         if (userInfo) {
-             delete newProduct.billing_address.zip;
-            console.log("posting",newProduct)
+            delete newProduct.billing_address.zip;
+            newProduct?.products.map((res) => {
+                delete res?.slug;
+                delete res?.stock;
+                delete res?.unit;
+                delete res?.language;
+            })
+            console.log("new product", newProduct)
             setLoading(true)
             addDoc(collection(db, 'Product Orders'), {
-                created_at: serverTimestamp(),
+                createdAt: serverTimestamp(),
+                cartItems: newProduct?.products?.length,
                 deliveryFee: newProduct?.delivery_fee,
                 platform: "web",
                 discount: 0,
                 discountPrice: newProduct?.discount,
                 imageUrl: "default",
-              
-                paymentMethod: "offline",
+                paymentMethod: "cash",
                 status: "Pending",
                 totalFee: newProduct?.total,
                 subTotal: newProduct?.total,
-                type: "Pending",
+                type: "active",
                 userName: userInfo.userName,
+                userId: userInfo.userId,
                 products: newProduct?.products,
                 billing_address: newProduct?.billing_address,
                 shipping_address: newProduct?.billing_address,
@@ -191,13 +204,14 @@ export default function GlobalContextProvider({ children }) {
                 phoneNumber: userInfo.phoneNumber,
             })
                 .then(async res => {
-                    updateDoc(doc(db, 'Product Orders', res.id), {  
-                        orderCode: formatString(res.id),         
-                        orderId: res.id,       
+                    updateDoc(doc(db, 'Product Orders', res.id), {
+                        orderCode: formatString(res.id),
+                        orderId: res.id,
                     }).then((order) => {
-                     
+
                         newProduct?.products.map((product) => {
                             if (product?.type?.toLowerCase() === "influenced") {
+                                console.log("influencer", product)
                                 addDoc(collection(db, 'Product Orders', res.id, 'Purchase Cart'),
                                     {
                                         count: product.quantity,
@@ -216,7 +230,9 @@ export default function GlobalContextProvider({ children }) {
                                         status: product?.status,
                                         discountedPrice: product?.discountedPrice
                                     })
-                            } else if(product?.type?.toLowerCase() === "combo"){
+                            } else if (product?.type?.toLowerCase() === "combo") {
+                                console.log("combo", product)
+
                                 addDoc(collection(db, 'Product Orders', res.id, 'Purchase Cart'),
                                     {
                                         count: product.quantity,
@@ -231,25 +247,27 @@ export default function GlobalContextProvider({ children }) {
                                         status: product?.status,
                                         discountedPrice: product?.discountedPrice
                                     })
-                            }else{
-                                addDoc(collection(db, 'Product Orders', res.id, 'Purchase Cart'),
-                                {
-                                    count: product.quantity,
-                                    id: product.id,
-                                    imageUrl: product.image,
-                                    owner: "",
-                                    price: product.price,
-                                    timestamp: serverTimestamp(),
-                                    total: product.itemTotal,
-                                
-                                    title: product?.name,
-                                    status: product.status?product.status:"",
-                                    discountedPrice: product.discountedPrice? product.discountedPrice:0,
-                                    brand: product.brand?product.brand:"",
-                                    categoryList: product?.categoryList,
-                                    shopId: product.shopId?product.shopId:""
+                            } else {
+                                console.log("others", product)
 
-                                })
+                                addDoc(collection(db, 'Product Orders', res.id, 'Purchase Cart'),
+                                    {
+                                        count: product.quantity,
+                                        id: product.id,
+                                        imageUrl: product.image,
+                                        owner: "",
+                                        price: product.price,
+                                        timestamp: serverTimestamp(),
+                                        total: product.itemTotal,
+
+                                        title: product?.name,
+                                        status: product.status ? product.status : "",
+                                        discountedPrice: product.discountedPrice ? product.discountedPrice : 0,
+                                        brand: product.brand ? product.brand : "",
+                                        categoryList: product?.categoryList,
+                                        shopId: product.shopId ? product.shopId : ""
+
+                                    })
                             }
                         }),
 
@@ -710,24 +728,24 @@ export default function GlobalContextProvider({ children }) {
 
     }
     const updateUserAddress = (address, setLoading, closeModal) => {
-      if(userInfo){
-        setLoading(true)
-        console.log("address", userInfo)
-        updateDoc(doc(db, 'Users', userInfo?.userId), {
-            "address": [address]
-        })
-            .then(res => {
-
-                setLoading(false)
-                toast.success("Saved Sucessfully")
-                getUserInfo()
-                closeModal()
-
+        if (userInfo) {
+            setLoading(true)
+            console.log("address", userInfo)
+            updateDoc(doc(db, 'Users', userInfo?.userId), {
+                "address": [address]
             })
-            .catch(error => {
-                setLoading()
-            })
-      }
+                .then(res => {
+
+                    setLoading(false)
+                    toast.success("Saved Sucessfully")
+                    getUserInfo()
+                    closeModal()
+
+                })
+                .catch(error => {
+                    setLoading()
+                })
+        }
 
     }
     const loginUser = async (email, password, setLoading, setFormError, closeModal, setAuthorized) => {
@@ -1026,7 +1044,7 @@ export default function GlobalContextProvider({ children }) {
                 setOtpState({ ...otpState, step: "OtpForm" })
 
             }).catch(error => {
-                alert("phone", error.message)
+                console.log("phone", error)
                 setLoading(false)
             });
 
@@ -1045,7 +1063,7 @@ export default function GlobalContextProvider({ children }) {
             const userInfo = await getDoc(doc(db, 'Users', result.user.uid))
             if (userInfo.exists()) {
                 if (userInfo.data().accountType === 'Customer' || !userInfo.data().accountType) {
-                    
+
                     updateDoc(doc(db, 'Users', userInfo.id), {
                         accountType: 'Customer'
                     })

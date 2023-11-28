@@ -6,16 +6,17 @@ import { useSettings } from '@/framework/settings';
 
 const Logo: React.FC<React.AnchorHTMLAttributes<{}>> = ({
   className,
+  style,
   ...props
 }) => {
   const {
     settings: { logo, siteTitle },
   } : any = useSettings();
   return (
-    <Link href="/makeup" className={cn('inline-flex', className)} {...props}>
+    <Link href="/" className={cn('inline-flex', className)} {...props}>
       <span className="relative h-12  w-32 overflow-hidden md:w-40">
         <Image
-        
+         
         width={170}
         height={60}
          src={require('../../assets/bellelogo.png')}

@@ -111,9 +111,9 @@ const Helium: React.FC<HeliumProps> = ({ product, className }) => {
           ) : (
             <>
               <div className="relative">
-                {basePrice && (
+                {product?.discountedPrice && (
                   <del className="absolute -top-4 text-xs italic text-muted text-opacity-75 md:-top-5">
-                    {basePrice}
+                    {product?.discountedPrice}
                   </del>
                 )}
                 <span className="text-sm font-semibold text-accent md:text-base">

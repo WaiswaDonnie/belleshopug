@@ -57,7 +57,7 @@ const Header = ({ layout }: { layout?: string }) => {
             className={`${
               !isMultilangEnable ? 'mx-auto lg:mx-0' : 'ltr:ml-0 rtl:mr-0'
             }`}
-          />
+          />  
 
           {isMultilangEnable ? (
             <div className="ltr:ml-auto rtl:mr-auto lg:hidden">
